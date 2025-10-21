@@ -1,0 +1,324 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Georgia&display=swap');
+
+:root {
+  --brand-red: #dc2626;
+  --brand-red-dark: #b91c1c;
+  --brand-indigo: #4f46e5;
+  --brand-indigo-dark: #4338ca;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+/* Hero Section with Parallax */
+.hero-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=2070&auto=format&fit=crop') no-repeat center center/cover;
+  background-attachment: fixed;
+}
+
+/* Disable parallax on mobile for better performance */
+@media (max-width: 1024px) {
+  .hero-section {
+    background-attachment: scroll;
+  }
+}
+
+/* Button Styles */
+.btn-red {
+  background-color: #dc2626;
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  transform: translateZ(0);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-red:hover {
+  background-color: #b91c1c;
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+}
+
+.btn-indigo {
+  background-color: #4f46e5;
+  color: white;
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  transform: translateZ(0);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-indigo:hover {
+  background-color: #4338ca;
+  transform: scale(1.05);
+  -webkit-transform: scale(1.05);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid #6366f1;
+  color: white;
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background-color: #6366f1;
+  color: white;
+}
+
+/* Sticky Header */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background-color 0.3s ease-in-out;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Reveal Animation - Fixed to show by default */
+.reveal {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s, transform 0.8s;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Only hide if explicitly marked as hidden */
+.reveal.hidden {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Font Serif Georgia */
+.font-serif-georgia {
+  font-family: 'Georgia', serif;
+}
+
+/* Car Card Hover Effect */
+.car-card {
+  transition: transform 0.3s ease;
+}
+
+.car-card:hover {
+  transform: scale(1.05);
+}
+
+/* Mobile Menu Item */
+.mobile-menu-item {
+  padding: 16px 20px;
+  font-size: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus Styles for Accessibility */
+*:focus {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+button:focus, a:focus {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Improve mobile typography */
+  h1:not(#hero-title) {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    line-height: 1.1;
+  }
+  
+  h2 {
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
+    line-height: 1.2;
+  }
+  
+  h3 {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+    line-height: 1.3;
+  }
+  
+  /* Hero section mobile sizing */
+  #hero-title {
+    font-size: clamp(2.5rem, 8vw, 4rem) !important;
+    line-height: 1.1;
+  }
+  
+  /* Better form inputs on mobile */
+  input, textarea, select {
+    font-size: 16px !important;
+    padding: 12px 16px;
+    border-radius: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  /* Better mobile buttons */
+  .btn-red, .btn-indigo, .btn-outline {
+    padding: 14px 24px;
+    font-size: 16px;
+    min-height: 48px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  .btn-red:hover, .btn-indigo:hover, .btn-outline:hover {
+    transform: none;
+  }
+  
+  /* Better touch feedback */
+  .btn-red:active, .btn-indigo:active, .btn-outline:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Improve car card interactions on touch */
+  .car-card:hover {
+    transform: none;
+  }
+  
+  .car-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .hero-section {
+    background-size: cover;
+    -webkit-background-size: cover;
+  }
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Swiper Overrides */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #dc2626 !important;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 24px !important;
+}
+
+/* Utility classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+

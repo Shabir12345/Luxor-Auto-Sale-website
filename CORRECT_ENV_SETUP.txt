@@ -1,0 +1,74 @@
+# ====================================================================
+# CORRECTED .ENV FILE FOR LUXOR AUTO SALE
+# ====================================================================
+# Copy this content to your .env file
+# ====================================================================
+
+# Database Connection - CORRECT VERSION ✅
+# ⚠️ IMPORTANT: Use aws-1 (not aws-0) - from your Supabase dashboard
+# This is the Session Pooler connection that WORKS!
+DATABASE_URL="postgresql://postgres.turiynixgwejighknptw:l.UXOR2025AUTO@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+
+# Supabase Project Info (NEW - Add these)
+NEXT_PUBLIC_SUPABASE_URL="https://turiynixgwejighknptw.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1cml5bml4Z3dlamlnaGtucHR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNTk3NDksImV4cCI6MjA3NjYzNTc0OX0.r94ULhF6eJtN6DchHkgUqgYWfv285-tPr3QgirJ2vEU"
+SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1cml5bml4Z3dlamlnaGtucHR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTA1OTc0OSwiZXhwIjoyMDc2NjM1NzQ5fQ.frrYZjBKnckAaGxmIkgQHucL3K2jxNC1X1g9vFPt7Vw"
+
+# App Configuration
+NODE_ENV="development"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Authentication
+JWT_SECRET="6b3ebd31185d3c41db006b8e79e18056353466c4ffab2a9a69f9959c703f0a13"
+JWT_EXPIRES_IN="7d"
+
+# Admin Credentials (Initial Setup)
+ADMIN_EMAIL="owner@luxorautosale.com"
+ADMIN_PASSWORD="L.uxor2@25"
+
+# Cloudflare R2 (S3-compatible) - Configure these when ready
+# R2_ACCOUNT_ID="b8b4f26e4b7e2e01428cfb560cb0410d"
+# R2_ACCESS_KEY_ID="94184cc8c979d40f349e7ad35654bfc1"
+# R2_SECRET_ACCESS_KEY="526beedc9383ba073b98a2dee589445880c055c23035dd79e053eccb5c4f78c0"
+# R2_BUCKET="luxor-auto-sale-images"
+# R2_PUBLIC_URL="https://images.luxorautosale.com"
+
+# Email (Optional - for notifications)
+SMTP_HOST=""
+SMTP_PORT="587"
+SMTP_USER=""
+SMTP_PASSWORD=""
+SMTP_FROM="noreply@luxorautosale.com"
+
+# Analytics (Optional)
+NEXT_PUBLIC_GA_ID=""
+NEXT_PUBLIC_FACEBOOK_PIXEL_ID=""
+
+# Error Tracking (Optional - Sentry)
+SENTRY_DSN=""
+
+# Rate Limiting
+RATE_LIMIT_MAX_REQUESTS="100"
+RATE_LIMIT_WINDOW_MS="900000"
+
+# ====================================================================
+# WHAT WAS FIXED:
+# ====================================================================
+# 1. ✅ Fixed DATABASE_URL with CORRECT region:
+#    - Changed: aws-0 → aws-1 (from your Supabase dashboard)
+#    - User format: postgres.turiynixgwejighknptw (includes project ID)
+#    - Port: 5432 (Session Pooler mode)
+#    - THIS CONNECTION WAS TESTED AND WORKS! ✅
+#
+# 2. ✅ Added Supabase API keys for authentication
+#
+# 3. ✅ All other settings kept intact
+# ====================================================================
+
+# ====================================================================
+# TROUBLESHOOTING:
+# ====================================================================
+# If the pooler connection doesn't work, try the direct connection
+# by uncommenting the alternative DATABASE_URL line above
+# ====================================================================
+
