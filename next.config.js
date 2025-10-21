@@ -5,6 +5,23 @@ const nextConfig = {
   poweredByHeader: false,
   output: 'standalone', // For Docker deployment
   
+  // Fix for bcrypt in Next.js
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push({
+        'bcrypt': 'commonjs bcrypt',
+      });
+    }
+    
+    // Ignore node-pre-gyp HTML files
+    config.module.rules.push({
+      test: /\.html$/,
+      loader: 'ignore-loader',
+    });
+
+    return config;
+  },
+  
   images: {
     remotePatterns: [
       {
