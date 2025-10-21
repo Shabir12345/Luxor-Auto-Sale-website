@@ -17,9 +17,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('Received vehicle data:', JSON.stringify(body, null, 2));
+    
     const validation = createVehicleSchema.safeParse(body);
 
     if (!validation.success) {
+      console.error('Validation errors:', validation.error.errors);
       return NextResponse.json<ApiResponse>(
         {
           success: false,

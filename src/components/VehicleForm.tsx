@@ -54,14 +54,30 @@ export default function VehicleForm({ vehicle, isEdit = false }: VehicleFormProp
     try {
       const token = localStorage.getItem('authToken');
       
-      // Convert price to cents
-      const data = {
-        ...formData,
+      // Convert price to cents and clean up empty strings
+      const data: any = {
+        vin: formData.vin,
         year: parseInt(formData.year as any),
+        make: formData.make,
+        model: formData.model,
+        title: formData.title,
         odometerKm: parseInt(formData.odometerKm as any),
         priceCents: Math.round(parseFloat(formData.priceCents as any) * 100),
-        cylinders: formData.cylinders ? parseInt(formData.cylinders as any) : undefined,
+        status: formData.status,
       };
+
+      // Only include optional fields if they have values
+      if (formData.stockNumber) data.stockNumber = formData.stockNumber;
+      if (formData.trim) data.trim = formData.trim;
+      if (formData.bodyType) data.bodyType = formData.bodyType;
+      if (formData.drivetrain) data.drivetrain = formData.drivetrain;
+      if (formData.fuelType) data.fuelType = formData.fuelType;
+      if (formData.transmission) data.transmission = formData.transmission;
+      if (formData.engine) data.engine = formData.engine;
+      if (formData.cylinders) data.cylinders = parseInt(formData.cylinders as any);
+      if (formData.exteriorColor) data.exteriorColor = formData.exteriorColor;
+      if (formData.interiorColor) data.interiorColor = formData.interiorColor;
+      if (formData.description) data.description = formData.description;
 
       const url = isEdit ? `/api/admin/vehicles/${vehicle.id}` : '/api/admin/vehicles';
       const method = isEdit ? 'PATCH' : 'POST';
