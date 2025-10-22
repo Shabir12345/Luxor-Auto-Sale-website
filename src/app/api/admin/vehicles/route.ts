@@ -5,15 +5,16 @@ import { prisma } from '@/lib/prisma';
 import { createVehicleSchema } from '@/lib/validation';
 import { generateVehicleSlug } from '@/utils/slugify';
 import { ApiResponse } from '@/types';
+import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id');
-    if (!userId) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify auth here (Node runtime)
+    const authHeader = request.headers.get('authorization');
+    const token = extractTokenFromHeader(authHeader);
+    const payload = token ? verifyToken(token) : null;
+    if (!payload) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
         ...data,
         seoSlug,
         title: data.title || `${data.year} ${data.make} ${data.model}`,
-        createdById: userId,
+        createdById: payload.userId,
         publishedAt: data.status === 'AVAILABLE' ? new Date() : null,
       },
     });
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
     // Log activity
     await prisma.activityLog.create({
       data: {
-        userId,
+        userId: payload.userId,
         action: 'CREATED_VEHICLE',
         entityType: 'VEHICLE',
         entityId: vehicle.id,
@@ -91,6 +92,51 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  }
+}
+
+// GET /api/admin/vehicles - List vehicles (all statuses)
+export async function GET(request: NextRequest) {
+  try {
+    const authHeader = request.headers.get('authorization');
+    const token = extractTokenFromHeader(authHeader);
+    const payload = token ? verifyToken(token) : null;
+    if (!payload) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const perPage = searchParams.get('perPage') ? parseInt(searchParams.get('perPage')!) : 100;
+    const page = searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1;
+    const skip = (page - 1) * perPage;
+
+    const total = await prisma.vehicle.count();
+    const vehicles = await prisma.vehicle.findMany({
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: perPage,
+      include: {
+        photos: {
+          orderBy: { sortOrder: 'asc' },
+        },
+      },
+    });
+
+    return NextResponse.json<ApiResponse>({
+      success: true,
+      data: {
+        data: vehicles,
+        pagination: {
+          page,
+          perPage,
+          total,
+          totalPages: Math.ceil(total / perPage),
+        },
+      },
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Admin list vehicles error:', error);
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
 

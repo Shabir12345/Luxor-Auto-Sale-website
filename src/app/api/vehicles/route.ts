@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       drivetrain: searchParams.get('drivetrain') || undefined,
       fuelType: searchParams.get('fuelType') || undefined,
       transmission: searchParams.get('transmission') || undefined,
-      status: searchParams.get('status') || 'AVAILABLE',
+      status: searchParams.get('status') || undefined,
       search: searchParams.get('search') || undefined,
       page: searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1,
       perPage: searchParams.get('perPage') ? parseInt(searchParams.get('perPage')!) : 12,
@@ -53,7 +53,8 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: Prisma.VehicleWhereInput = {
-      status: filters.status as any,
+      // Only filter by status if explicitly requested, otherwise show all
+      ...(filters.status && filters.status !== 'ALL' && { status: filters.status as any }),
       ...(filters.make && { make: { contains: filters.make, mode: 'insensitive' } }),
       ...(filters.model && { model: { contains: filters.model, mode: 'insensitive' } }),
       ...(filters.minYear && { year: { gte: filters.minYear } }),
@@ -92,11 +93,12 @@ export async function GET(request: NextRequest) {
       take: filters.perPage,
       include: {
         photos: {
-          where: { isPrimary: true },
+          orderBy: { sortOrder: 'asc' },
           take: 1,
         },
       },
     });
+
 
     const response: PaginatedResponse<any> = {
       data: vehicles,

@@ -25,7 +25,7 @@ export default function InventoryPage() {
   const fetchVehicles = async () => {
     try {
       const params = new URLSearchParams({
-        status: 'AVAILABLE',
+        // Remove status filter to show all vehicles (available, pending, sold)
         ...(filters.search && { search: filters.search }),
         ...(filters.make && { make: filters.make }),
         ...(filters.minPrice && { minPrice: filters.minPrice }),
@@ -144,10 +144,32 @@ export default function InventoryPage() {
                       fill
                       className="object-cover"
                     />
+                    <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
+                      vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
+                      vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
+                      vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                      'bg-gray-600 text-white'
+                    }`}>
+                      {vehicle.status === 'AVAILABLE' ? '✅ Available' :
+                       vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
+                       vehicle.status === 'SOLD' ? '✅ Sold' :
+                       vehicle.status}
+                    </div>
                   </div>
                 ) : (
-                  <div className="h-48 bg-gray-700 flex items-center justify-center">
+                  <div className="relative h-48 bg-gray-700 flex items-center justify-center">
                     <span className="text-gray-500 text-4xl">🚗</span>
+                    <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
+                      vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
+                      vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
+                      vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                      'bg-gray-600 text-white'
+                    }`}>
+                      {vehicle.status === 'AVAILABLE' ? '✅ Available' :
+                       vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
+                       vehicle.status === 'SOLD' ? '✅ Sold' :
+                       vehicle.status}
+                    </div>
                   </div>
                 )}
                 <div className="p-6">

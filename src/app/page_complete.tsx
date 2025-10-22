@@ -211,7 +211,7 @@ export default function HomePage() {
                     <div key={vehicle.id} className="swiper-slide">
                       <div className="car-card bg-gray-900 rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300 h-full flex flex-col">
                         <img 
-                          src={vehicle.photos?.[0]?.urlLarge || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
+                          src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
                           alt={vehicle.title} 
                           className="w-full h-48 object-cover" 
                           loading="lazy" 
@@ -308,7 +308,7 @@ export default function HomePage() {
                   {vehicles.slice(0, 6).map((vehicle: any) => (
                     <div key={vehicle.id} className="bg-gray-800 rounded-2xl overflow-hidden shadow-xl transform hover:-translate-y-2 transition-transform duration-300">
                       <img 
-                        src={vehicle.photos?.[0]?.urlLarge || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
+                        src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
                         alt={vehicle.title} 
                         className="w-full h-56 object-cover" 
                         loading="lazy" 

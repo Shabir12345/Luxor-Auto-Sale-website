@@ -11,14 +11,18 @@ const s3Client = new S3Client({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY || '',
   },
-  // For Cloudflare R2, set custom endpoint
+  forcePathStyle: true, // required for Cloudflare R2
   ...(process.env.R2_ACCOUNT_ID && {
     endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   }),
 });
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || process.env.R2_BUCKET || 'luxor-auto-sale';
-const PUBLIC_URL = process.env.R2_PUBLIC_URL || `https://${BUCKET_NAME}.s3.amazonaws.com`;
+const BUCKET_NAME = process.env.AWS_S3_BUCKET || process.env.R2_BUCKET || 'luxor-auto-sale-images';
+const PUBLIC_URL =
+  process.env.R2_PUBLIC_URL ||
+  (process.env.R2_ACCOUNT_ID
+    ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${BUCKET_NAME}`
+    : `https://${BUCKET_NAME}.s3.amazonaws.com`);
 
 export type ImageSize = {
   width: number;
@@ -34,6 +38,16 @@ export const IMAGE_SIZES = {
   original: { quality: 95 },
 };
 
+function assertStorageConfigured(): void {
+  const hasR2 = !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && BUCKET_NAME);
+  const hasAws = !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && BUCKET_NAME);
+  if (!hasR2 && !hasAws) {
+    throw new Error(
+      'STORAGE_NOT_CONFIGURED: Missing Cloudflare R2 or AWS S3 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET (or AWS_* equivalents).'
+    );
+  }
+}
+
 /**
  * Upload image to S3/R2 with multiple sizes
  */
@@ -42,6 +56,7 @@ export async function uploadVehicleImage(
   vehicleId: string,
   originalFilename: string
 ): Promise<{ urls: Record<string, string>; primaryUrl: string }> {
+  assertStorageConfigured();
   const fileId = nanoid(10);
   const ext = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
   const basePath = `vehicles/${vehicleId}/${fileId}`;
@@ -50,35 +65,30 @@ export async function uploadVehicleImage(
 
   // Process and upload each size
   for (const [sizeName, sizeConfig] of Object.entries(IMAGE_SIZES)) {
-    let processedImage = sharp(buffer);
-
-    // Resize if dimensions specified
-    if (sizeConfig.width) {
-      processedImage = processedImage.resize(sizeConfig.width, sizeConfig.height, {
-        fit: 'inside',
-        withoutEnlargement: true,
-      });
+    try {
+      let processedImage = sharp(buffer);
+      if (sizeConfig.width) {
+        processedImage = processedImage.resize(sizeConfig.width, sizeConfig.height, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        });
+      }
+      const webpBuffer = await processedImage.webp({ quality: sizeConfig.quality || 85 }).toBuffer();
+      const key = `${basePath}-${sizeName}.webp`;
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: key,
+          Body: webpBuffer,
+          ContentType: 'image/webp',
+          CacheControl: 'public, max-age=31536000',
+        })
+      );
+      urls[sizeName] = `${PUBLIC_URL}/${key}`;
+    } catch (err: any) {
+      console.error('S3/R2 upload error:', err?.name, err?.message);
+      throw err;
     }
-
-    // Convert to WebP with quality setting
-    const webpBuffer = await processedImage
-      .webp({ quality: sizeConfig.quality || 85 })
-      .toBuffer();
-
-    const key = `${basePath}-${sizeName}.webp`;
-
-    // Upload to S3/R2
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: key,
-        Body: webpBuffer,
-        ContentType: 'image/webp',
-        CacheControl: 'public, max-age=31536000', // 1 year
-      })
-    );
-
-    urls[sizeName] = `${PUBLIC_URL}/${key}`;
   }
 
   return {

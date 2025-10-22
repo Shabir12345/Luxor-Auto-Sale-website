@@ -3,26 +3,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadVehicleImage, validateImageFile } from '@/lib/storage';
 import { ApiResponse } from '@/types';
+import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id');
-    if (!userId) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify auth here (Node runtime)
+    const authHeader = request.headers.get('authorization');
+    const token = extractTokenFromHeader(authHeader);
+    const payload = token ? verifyToken(token) : null;
+    if (!payload) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const vehicleId = formData.get('vehicleId') as string;
 
-    if (!file || !vehicleId) {
+    if (!file) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
-          error: 'File and vehicleId are required',
+          error: 'File is required',
         },
         { status: 400 }
       );
@@ -44,7 +44,15 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to S3/R2
+    // Use Cloudflare R2 / S3-compatible storage
+    const vehicleId = (formData.get('vehicleId') as string) || 'temp';
+    // Debug config (safe to log lengths/domains only)
+    console.log('R2 config check:', {
+      account: process.env.R2_ACCOUNT_ID ? 'set' : 'missing',
+      bucket: process.env.R2_BUCKET,
+      publicUrl: process.env.R2_PUBLIC_URL,
+    });
+
     const { urls, primaryUrl } = await uploadVehicleImage(buffer, vehicleId, file.name);
 
     return NextResponse.json<ApiResponse>(
@@ -58,12 +66,12 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error);
     return NextResponse.json<ApiResponse>(
       {
         success: false,
-        error: 'Failed to upload image',
+        error: `Upload failed: ${error?.name || 'Error'} - ${error?.message || 'Unknown error'}`,
       },
       { status: 500 }
     );

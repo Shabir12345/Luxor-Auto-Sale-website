@@ -1,18 +1,59 @@
-// POST /api/admin/photos - Add photo to vehicle
+// GET /api/admin/photos - List photos (Protected)
+// POST /api/admin/photos - Create photo (Protected)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createPhotoSchema } from '@/lib/validation';
 import { ApiResponse } from '@/types';
+import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
+
+export async function GET(request: NextRequest) {
+  try {
+    // Verify auth here (Node runtime)
+    const authHeader = request.headers.get('authorization');
+    const token = extractTokenFromHeader(authHeader);
+    const payload = token ? verifyToken(token) : null;
+    if (!payload) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const vehicleId = searchParams.get('vehicleId');
+
+    const where = vehicleId ? { vehicleId } : {};
+
+    const photos = await prisma.vehiclePhoto.findMany({
+      where,
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    return NextResponse.json<ApiResponse>(
+      {
+        success: true,
+        data: photos,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Get photos error:', error);
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id');
-    if (!userId) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify auth here (Node runtime)
+    const authHeader = request.headers.get('authorization');
+    const token = extractTokenFromHeader(authHeader);
+    const payload = token ? verifyToken(token) : null;
+    if (!payload) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -30,25 +71,10 @@ export async function POST(request: NextRequest) {
 
     const data = validation.data;
 
-    // Check if vehicle exists
-    const vehicle = await prisma.vehicle.findUnique({
-      where: { id: data.vehicleId },
-    });
-
-    if (!vehicle) {
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: 'Vehicle not found',
-        },
-        { status: 404 }
-      );
-    }
-
-    // If setting as primary, unset other primary photos
+    // If this is being set as primary, unset other primaries for this vehicle
     if (data.isPrimary) {
       await prisma.vehiclePhoto.updateMany({
-        where: { vehicleId: data.vehicleId, isPrimary: true },
+        where: { vehicleId: data.vehicleId },
         data: { isPrimary: false },
       });
     }
@@ -58,27 +84,16 @@ export async function POST(request: NextRequest) {
       data,
     });
 
-    // Log activity
-    await prisma.activityLog.create({
-      data: {
-        userId,
-        action: 'ADDED_PHOTO',
-        entityType: 'PHOTO',
-        entityId: photo.id,
-        details: { vehicleId: data.vehicleId },
-      },
-    });
-
     return NextResponse.json<ApiResponse>(
       {
         success: true,
         data: photo,
-        message: 'Photo added successfully',
+        message: 'Photo created successfully',
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Add photo error:', error);
+    console.error('Create photo error:', error);
     return NextResponse.json<ApiResponse>(
       {
         success: false,
@@ -88,4 +103,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

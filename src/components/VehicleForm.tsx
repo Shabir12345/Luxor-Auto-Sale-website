@@ -29,7 +29,7 @@ export default function VehicleForm({ vehicle, isEdit = false }: VehicleFormProp
     cylinders: vehicle?.cylinders || '',
     odometerKm: vehicle?.odometerKm || '',
     priceCents: vehicle?.priceCents ? vehicle.priceCents / 100 : '',
-    status: vehicle?.status || 'DRAFT',
+    status: vehicle?.status || 'AVAILABLE',
     exteriorColor: vehicle?.exteriorColor || '',
     interiorColor: vehicle?.interiorColor || '',
     title: vehicle?.title || '',

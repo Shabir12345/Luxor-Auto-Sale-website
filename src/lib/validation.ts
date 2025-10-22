@@ -44,6 +44,7 @@ export const createVehicleSchema = z.object({
   odometerKm: z.number().int().min(0),
   priceCents: z.number().int().min(0),
   status: z.enum(['AVAILABLE', 'PENDING', 'SOLD', 'DRAFT']).default('DRAFT'),
+  isFeatured: z.boolean().default(false),
   exteriorColor: z.string().optional(),
   interiorColor: z.string().optional(),
   title: z.string().min(1, 'Title is required'),

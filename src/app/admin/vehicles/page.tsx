@@ -17,7 +17,12 @@ export default function VehiclesListPage() {
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch('/api/vehicles?perPage=1000');
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/admin/vehicles?perPage=1000', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -48,6 +53,27 @@ export default function VehiclesListPage() {
       }
     } catch (error) {
       console.error('Failed to update status:', error);
+    }
+  };
+
+  const handleFeaturedToggle = async (vehicleId: string, isFeatured: boolean) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/admin/vehicles/${vehicleId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isFeatured: !isFeatured }),
+      });
+
+      if (response.ok) {
+        // Refresh list
+        fetchVehicles();
+      }
+    } catch (error) {
+      console.error('Failed to update featured status:', error);
     }
   };
 
@@ -127,6 +153,9 @@ export default function VehiclesListPage() {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
+                    Featured
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
                     Actions
                   </th>
                 </tr>
@@ -151,7 +180,25 @@ export default function VehiclesListPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleFeaturedToggle(vehicle.id, vehicle.isFeatured || false)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium text-white transition-colors ${
+                          vehicle.isFeatured 
+                            ? 'bg-yellow-500 hover:bg-yellow-600' 
+                            : 'bg-gray-500 hover:bg-gray-600'
+                        }`}
+                      >
+                        {vehicle.isFeatured ? 'Featured' : 'Not Featured'}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
                       <div className="flex gap-2">
+                        <Link
+                          href={`/admin/vehicles/${vehicle.id}/photos`}
+                          className="text-green-400 hover:text-green-300 text-sm"
+                        >
+                          Photos
+                        </Link>
                         <Link
                           href={`/admin/vehicles/${vehicle.id}/edit`}
                           className="text-blue-400 hover:text-blue-300 text-sm"

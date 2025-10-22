@@ -141,6 +141,17 @@ export default async function VehicleDetailPage({ params }: Props) {
                       className="object-cover"
                       priority
                     />
+                    <div className={`absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-bold ${
+                      vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
+                      vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
+                      vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                      'bg-gray-600 text-white'
+                    }`}>
+                      {vehicle.status === 'AVAILABLE' ? '✅ Available' :
+                       vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
+                       vehicle.status === 'SOLD' ? '✅ Sold' :
+                       vehicle.status}
+                    </div>
                   </div>
                   {vehicle.photos.length > 1 && (
                     <div className="grid grid-cols-4 gap-2">

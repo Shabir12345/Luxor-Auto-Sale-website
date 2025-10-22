@@ -36,6 +36,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.r2.cloudflarestorage.com', // Cloudflare R2
       },
+      {
+        protocol: 'https',
+        hostname: '**.cloudflare-ipfs.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.r2.dev', // Cloudflare R2 public buckets
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.luxorautosale.com', // Custom CDN/domain
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],

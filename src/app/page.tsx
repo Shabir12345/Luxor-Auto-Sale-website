@@ -17,11 +17,18 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchVehicles() {
       try {
-        const response = await fetch('/api/vehicles?status=AVAILABLE&perPage=50');
-        const data = await response.json();
-        if (data.success) {
-          setVehicles(data.data || []);
-          setFeaturedVehicles((data.data || []).slice(0, 6)); // First 6 as featured
+        // Fetch all vehicles for inventory (including pending and sold)
+        const vehiclesResponse = await fetch('/api/vehicles?perPage=50');
+        const vehiclesData = await vehiclesResponse.json();
+        if (vehiclesData.success) {
+          setVehicles(vehiclesData.data.data || []);
+        }
+
+        // Fetch featured vehicles
+        const featuredResponse = await fetch('/api/vehicles/featured?limit=3');
+        const featuredData = await featuredResponse.json();
+        if (featuredData.success) {
+          setFeaturedVehicles(featuredData.data || []);
         }
       } catch (error) {
         console.error('Failed to fetch vehicles:', error);
@@ -197,44 +204,93 @@ export default function HomePage() {
         </section>
 
         {/* Featured Inventory Section */}
-        <section id="featured-inventory" className="py-20 bg-gray-800">
-          <div className="container mx-auto px-6 text-center reveal">
-            <h2 className="text-3xl md:text-4xl font-bold mb-2">Featured Vehicles</h2>
-            <p className="mb-12 text-gray-400">Hand-picked selection of our finest cars, inspected for your peace of mind.</p>
+        <section id="featured-inventory" className="py-20 bg-gradient-to-br from-gray-800 via-gray-900 to-black relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}></div>
+          </div>
+          
+          <div className="container mx-auto px-6 text-center reveal relative z-10">
+            <div className="mb-8">
+              <span className="inline-block bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                ⭐ Featured Selection
+              </span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Premium Vehicles
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Hand-picked selection of our finest cars, meticulously inspected for your peace of mind.
+              </p>
+            </div>
             
             {loading ? (
-              <div className="text-gray-400">Loading vehicles...</div>
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+                <span className="ml-4 text-gray-400 text-lg">Loading premium vehicles...</span>
+              </div>
             ) : featuredVehicles.length > 0 ? (
-              <div className="swiper featured-carousel">
-                <div className="swiper-wrapper">
-                  {featuredVehicles.map((vehicle: any) => (
-                    <div key={vehicle.id} className="swiper-slide">
-                      <div className="car-card bg-gray-900 rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300 h-full flex flex-col">
-                        <img 
-                          src={vehicle.photos?.[0]?.urlLarge || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
-                          alt={vehicle.title} 
-                          className="w-full h-48 object-cover" 
-                          loading="lazy" 
-                        />
-                        <div className="p-6 flex-grow flex flex-col justify-between">
-                          <div>
-                            <h3 className="text-xl font-bold">{vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}</h3>
-                            <p className="text-green-500 font-semibold mt-2 text-2xl">{formatPrice(vehicle.priceCents)}</p>
-                            <p className="text-gray-400 text-sm">{formatMileage(vehicle.odometerKm)}</p>
-                          </div>
-                          <Link href={`/vehicles/${vehicle.slug}`} className="mt-4 inline-block btn-outline w-full text-center">
-                            View Details
-                          </Link>
-                        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                {featuredVehicles.slice(0, 3).map((vehicle: any, index: number) => (
+                  <div key={vehicle.id} className="group car-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 hover:shadow-red-500/20 transition-all duration-500 h-full flex flex-col border border-gray-700 hover:border-red-500/50">
+                    <div className="relative overflow-hidden">
+                      <img 
+                        src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
+                        alt={vehicle.title} 
+                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" 
+                        loading="lazy" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                        Featured #{index + 1}
+                      </div>
+                      <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
+                        vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
+                        vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
+                        vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                        'bg-gray-600 text-white'
+                      }`}>
+                        {vehicle.status === 'AVAILABLE' ? '✅ Available' :
+                         vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
+                         vehicle.status === 'SOLD' ? '✅ Sold' :
+                         vehicle.status}
                       </div>
                     </div>
-                  ))}
-                </div>
-                <div className="swiper-button-next text-red-500"></div>
-                <div className="swiper-button-prev text-red-500"></div>
+                    <div className="p-6 flex-grow flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-red-400 transition-colors">
+                          {vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                        </h3>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-green-400 font-bold text-2xl">
+                            {formatPrice(vehicle.priceCents)}
+                          </span>
+                          <span className="text-gray-400 text-sm">
+                            {formatMileage(vehicle.odometerKm)}
+                          </span>
+                        </div>
+                        <div className="flex items-center text-gray-400 text-sm">
+                          <span className="mr-4">📅 {vehicle.year}</span>
+                          <span>🔧 {vehicle.transmission || 'Auto'}</span>
+                        </div>
+                      </div>
+                      <Link 
+                        href={`/vehicles/${vehicle.seoSlug}`} 
+                        className="mt-6 inline-block bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-xl w-full text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
+                      >
+                        View Details →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="text-gray-400">No featured vehicles available yet. Check back soon!</div>
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-12 border border-gray-700">
+                <div className="text-6xl mb-4">🚗</div>
+                <h3 className="text-2xl font-bold text-white mb-4">Premium Vehicles Coming Soon</h3>
+                <p className="text-gray-400 text-lg">We're curating an exceptional selection of vehicles for you. Check back soon!</p>
+              </div>
             )}
           </div>
         </section>
@@ -296,47 +352,114 @@ export default function HomePage() {
         </section>
 
         {/* Full Inventory Section */}
-        <section id="inventory" className="py-20 bg-gray-900">
-          <div className="container mx-auto px-6 reveal">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Our Inventory</h2>
+        <section id="inventory" className="py-20 bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
+          {/* Background Elements */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-red-500 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+          </div>
+          
+          <div className="container mx-auto px-6 reveal relative z-10">
+            <div className="text-center mb-16">
+              <span className="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm font-semibold mb-6">
+                🚗 Complete Inventory
+              </span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Our Vehicle Collection
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                Explore our carefully curated selection of quality pre-owned vehicles, each inspected and ready for your next adventure.
+              </p>
+            </div>
             
             {loading ? (
-              <div className="text-center text-gray-400">Loading inventory...</div>
+              <div className="flex items-center justify-center py-16">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500"></div>
+                <span className="ml-4 text-gray-400 text-xl">Loading our collection...</span>
+              </div>
             ) : vehicles.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {vehicles.slice(0, 6).map((vehicle: any) => (
-                    <div key={vehicle.id} className="bg-gray-800 rounded-2xl overflow-hidden shadow-xl transform hover:-translate-y-2 transition-transform duration-300">
-                      <img 
-                        src={vehicle.photos?.[0]?.urlLarge || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
-                        alt={vehicle.title} 
-                        className="w-full h-56 object-cover" 
-                        loading="lazy" 
-                      />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                  {vehicles.slice(0, 6).map((vehicle: any, index: number) => (
+                    <div key={vehicle.id} className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl overflow-hidden shadow-2xl transform hover:-translate-y-4 hover:shadow-red-500/20 transition-all duration-500 border border-gray-700 hover:border-red-500/50">
+                      <div className="relative overflow-hidden">
+                        <img 
+                          src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
+                          alt={vehicle.title} 
+                          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" 
+                          loading="lazy" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
+                          vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
+                          vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
+                          vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                          'bg-gray-600 text-white'
+                        }`}>
+                          {vehicle.status === 'AVAILABLE' ? '✅ Available' :
+                           vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
+                           vehicle.status === 'SOLD' ? '✅ Sold' :
+                           vehicle.status}
+                        </div>
+                      </div>
                       <div className="p-6">
-                        <h3 className="text-xl font-bold">{vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}</h3>
-                        <p className="text-green-500 font-semibold mt-2 text-2xl">{formatPrice(vehicle.priceCents)}</p>
-                        <p className="text-gray-400 text-sm">{formatMileage(vehicle.odometerKm)} | {vehicle.transmission}</p>
-                        <div className="mt-4 flex space-x-2">
-                          <a href="#contact" className="btn-indigo flex-1 text-center py-2 px-4">Book Viewing</a>
-                          <Link href={`/vehicles/${vehicle.slug}`} className="btn-outline flex-1 text-center py-2 px-4">
-                            Details
+                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-400 transition-colors">
+                          {vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                        </h3>
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-green-400 font-bold text-2xl">
+                            {formatPrice(vehicle.priceCents)}
+                          </span>
+                          <span className="text-gray-400 text-sm">
+                            {formatMileage(vehicle.odometerKm)}
+                          </span>
+                        </div>
+                        <div className="flex items-center text-gray-400 text-sm mb-6">
+                          <span className="mr-4">📅 {vehicle.year}</span>
+                          <span>🔧 {vehicle.transmission || 'Auto'}</span>
+                          {vehicle.exteriorColor && <span className="ml-4">🎨 {vehicle.exteriorColor}</span>}
+                        </div>
+                        <div className="flex space-x-3">
+                          <a 
+                            href="#contact" 
+                            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
+                          >
+                            Book Viewing
+                          </a>
+                          <Link 
+                            href={`/vehicles/${vehicle.seoSlug}`} 
+                            className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
+                          >
+                            Details →
                           </Link>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="text-center mt-12">
-                  <Link href="/inventory" className="btn-indigo text-lg px-8 py-4">
+                <div className="text-center">
+                  <Link 
+                    href="/inventory" 
+                    className="inline-flex items-center bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-red-500/25"
+                  >
                     View All {vehicles.length} Vehicles
+                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                 </div>
               </>
             ) : (
-              <div className="text-center text-gray-400">
-                <p className="mb-4">We're currently updating our inventory. Check back soon!</p>
-                <Link href="/admin" className="btn-indigo">Admin: Add Vehicles</Link>
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-3xl p-16 border border-gray-700 text-center">
+                <div className="text-8xl mb-6">🚗</div>
+                <h3 className="text-3xl font-bold text-white mb-6">Inventory Coming Soon</h3>
+                <p className="text-gray-400 text-xl mb-8">We're preparing an amazing selection of vehicles for you. Check back soon!</p>
+                <Link 
+                  href="/admin" 
+                  className="inline-block bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  Admin: Add Vehicles
+                </Link>
               </div>
             )}
           </div>
@@ -646,20 +769,6 @@ export default function HomePage() {
         {`
           window.addEventListener('load', function() {
             if (typeof Swiper !== 'undefined') {
-              new Swiper('.featured-carousel', {
-                slidesPerView: 1,
-                spaceBetween: 30,
-                loop: true,
-                navigation: {
-                  nextEl: '.swiper-button-next',
-                  prevEl: '.swiper-button-prev',
-                },
-                breakpoints: {
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3 },
-                },
-              });
-              
               new Swiper('.testimonial-carousel', {
                 slidesPerView: 1,
                 spaceBetween: 30,

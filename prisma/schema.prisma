@@ -58,6 +58,7 @@ model Vehicle {
   // Pricing & Status
   priceCents      Int             // Store in cents to avoid float issues
   status          VehicleStatus   @default(AVAILABLE)
+  isFeatured      Boolean         @default(false)
   
   // Appearance
   exteriorColor   String?
@@ -85,6 +86,7 @@ model Vehicle {
   @@index([odometerKm])
   @@index([createdAt])
   @@index([seoSlug])
+  @@index([isFeatured])
   @@map("vehicles")
 }
 
