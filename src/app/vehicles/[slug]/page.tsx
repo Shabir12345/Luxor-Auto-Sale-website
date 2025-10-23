@@ -280,7 +280,7 @@ export default async function VehicleDetailPage({ params }: Props) {
                 </p>
                 <a
                   href="/#contact"
-                  className="block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  className="block text-center btn-modern"
                 >
                   Book a Viewing
                 </a>

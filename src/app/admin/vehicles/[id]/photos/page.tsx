@@ -210,7 +210,7 @@ export default function VehiclePhotosPage() {
           </div>
           <Link
             href="/admin/vehicles"
-            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors"
+            className="btn-outline-modern"
           >
             Back to Vehicles
           </Link>
@@ -287,7 +287,7 @@ export default function VehiclePhotosPage() {
                     {!photo.isPrimary && (
                       <button
                         onClick={() => handleSetPrimary(photo.id)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors"
+                        className="flex-1 btn-modern text-sm"
                       >
                         Set Primary
                       </button>

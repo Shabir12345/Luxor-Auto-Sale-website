@@ -117,7 +117,7 @@ export default function DashboardPage() {
           <div className="flex gap-4">
             <Link
               href="/admin/vehicles/new"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+              className="btn-modern flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -126,7 +126,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/admin/vehicles"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors"
+              className="btn-outline-modern"
             >
               View All
             </Link>

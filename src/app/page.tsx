@@ -404,7 +404,7 @@ export default function HomePage() {
                           </div>
                       <Link 
                         href={`/vehicles/${vehicle.seoSlug}`} 
-                        className="mt-6 inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl w-full text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25"
+                        className="mt-6 inline-block btn-modern w-full text-center"
                       >
                         View Details →
                           </Link>
@@ -488,7 +488,7 @@ export default function HomePage() {
           
           <div className="container mx-auto px-6 reveal relative z-10">
             <div className="text-center mb-16">
-              <span className="inline-block bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-full text-sm font-semibold mb-6">
+              <span className="inline-block btn-modern px-6 py-3 rounded-full text-sm font-semibold mb-6">
                 🚗 Complete Inventory
               </span>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -549,13 +549,13 @@ export default function HomePage() {
                         <div className="flex space-x-3">
                           <a 
                             href="#contact" 
-                            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            className="flex-1 btn-modern text-center"
                           >
                             Book Viewing
                           </a>
                           <Link 
                             href={`/vehicles/${vehicle.seoSlug}`} 
-                            className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            className="flex-1 btn-outline-modern text-center"
                           >
                             Details →
                           </Link>
@@ -567,7 +567,7 @@ export default function HomePage() {
                 <div className="text-center">
                   <Link 
                     href="/inventory" 
-                    className="inline-flex items-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-blue-500/25"
+                    className="inline-flex items-center btn-modern text-lg"
                   >
                     View All {vehicles.length} Vehicles
                     <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -583,7 +583,7 @@ export default function HomePage() {
                 <p className="text-gray-400 text-xl mb-8">We're preparing an amazing selection of vehicles for you. Check back soon!</p>
                 <Link 
                   href="/admin" 
-                  className="inline-block bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  className="inline-block btn-modern"
                 >
                   Admin: Add Vehicles
                 </Link>
