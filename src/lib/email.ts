@@ -91,10 +91,21 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
     // Check if email is configured
     if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
       console.log('Email not configured - skipping email notification');
+      console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Not set');
+      console.log('EMAIL_APP_PASSWORD:', process.env.EMAIL_APP_PASSWORD ? 'Set' : 'Not set');
       return false;
     }
 
+    console.log('Attempting to send email...');
+    console.log('From:', process.env.EMAIL_USER);
+    console.log('To:', to);
+    console.log('Subject:', subject);
+
     const transporter = createTransporter();
+    
+    // Test the connection first
+    await transporter.verify();
+    console.log('SMTP connection verified successfully');
     
     const mailOptions = {
       from: `"Luxor Auto Sales" <${process.env.EMAIL_USER}>`,
@@ -108,6 +119,10 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
     return true;
   } catch (error) {
     console.error('Failed to send email:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return false;
   }
 }
