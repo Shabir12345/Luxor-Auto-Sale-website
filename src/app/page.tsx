@@ -14,23 +14,48 @@ export default function HomePage() {
   const [formStatus, setFormStatus] = useState({ type: '', message: '' });
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  
+  // Filter states for homepage inventory
+  const [filters, setFilters] = useState({
+    search: '',
+    make: '',
+    status: 'ALL',
+    sortBy: 'newest',
+  });
+  const [availableMakes, setAvailableMakes] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch vehicles from API
   useEffect(() => {
     async function fetchVehicles() {
       try {
+        // Build query parameters for filtering
+        const params = new URLSearchParams({
+          perPage: '50',
+          ...(filters.search && { search: filters.search }),
+          ...(filters.make && { make: filters.make }),
+          ...(filters.status !== 'ALL' && { status: filters.status }),
+          ...(filters.sortBy && { sortBy: filters.sortBy }),
+        });
+
         // Fetch all vehicles for inventory (including pending and sold)
-        const vehiclesResponse = await fetch('/api/vehicles?perPage=50');
+        const vehiclesResponse = await fetch(`/api/vehicles?${params}`);
         const vehiclesData = await vehiclesResponse.json();
         if (vehiclesData.success) {
           setVehicles(vehiclesData.data.data || []);
+          
+          // Extract unique makes for dropdown
+          const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort();
+          setAvailableMakes(makes);
         }
 
-        // Fetch featured vehicles
-        const featuredResponse = await fetch('/api/vehicles/featured?limit=3');
-        const featuredData = await featuredResponse.json();
-        if (featuredData.success) {
-          setFeaturedVehicles(featuredData.data || []);
+        // Fetch featured vehicles (only if no filters applied)
+        if (!filters.search && !filters.make && filters.status === 'ALL') {
+          const featuredResponse = await fetch('/api/vehicles/featured?limit=3');
+          const featuredData = await featuredResponse.json();
+          if (featuredData.success) {
+            setFeaturedVehicles(featuredData.data || []);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch vehicles:', error);
@@ -39,7 +64,30 @@ export default function HomePage() {
       }
     }
     fetchVehicles();
-  }, []);
+  }, [filters]);
+
+  // Filter handlers
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      make: '',
+      status: 'ALL',
+      sortBy: 'newest',
+    });
+  };
+
+  const getFilterCount = () => {
+    let count = 0;
+    if (filters.search) count++;
+    if (filters.make) count++;
+    if (filters.status !== 'ALL') count++;
+    return count;
+  };
 
   // Modern scroll detection and navigation
   useEffect(() => {
@@ -612,6 +660,100 @@ export default function HomePage() {
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                 Explore our carefully curated selection of quality pre-owned vehicles, each inspected and ready for your next adventure.
               </p>
+            </div>
+
+            {/* Quick Search & Filter */}
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 mb-8 border border-blue-500/20">
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="search"
+                    value={filters.search}
+                    onChange={handleFilterChange}
+                    placeholder="Search by make, model, year, or any keyword..."
+                    className="w-full px-4 py-3 pl-12 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                  />
+                  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Quick Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <select
+                  name="make"
+                  value={filters.make}
+                  onChange={handleFilterChange}
+                  className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                >
+                  <option value="">All Makes</option>
+                  {availableMakes.map(make => (
+                    <option key={make} value={make}>{make}</option>
+                  ))}
+                </select>
+
+                <select
+                  name="status"
+                  value={filters.status}
+                  onChange={handleFilterChange}
+                  className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                >
+                  <option value="ALL">All Status</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="SOLD">Sold</option>
+                </select>
+
+                <select
+                  name="sortBy"
+                  value={filters.sortBy}
+                  onChange={handleFilterChange}
+                  className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="mileage-low">Mileage: Low to High</option>
+                  <option value="mileage-high">Mileage: High to Low</option>
+                </select>
+              </div>
+
+              {/* Filter Controls */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center text-blue-400 hover:text-blue-300 transition-colors"
+                  >
+                    <svg className={`w-5 h-5 mr-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    More Filters
+                    {getFilterCount() > 0 && (
+                      <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                        {getFilterCount()}
+                      </span>
+                    )}
+                  </button>
+
+                  {getFilterCount() > 0 && (
+                    <button
+                      onClick={clearFilters}
+                      className="text-gray-400 hover:text-white transition-colors text-sm"
+                    >
+                      Clear All Filters
+                    </button>
+                  )}
+                </div>
+
+                <div className="text-sm text-gray-400">
+                  {loading ? 'Loading...' : `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''} found`}
+                </div>
+              </div>
             </div>
             
             {loading ? (
