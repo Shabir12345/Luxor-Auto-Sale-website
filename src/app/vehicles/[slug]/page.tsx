@@ -107,18 +107,22 @@ export default async function VehicleDetailPage({ params }: Props) {
         {/* Header */}
         <header className="bg-gray-800 border-b border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-white">
-              Luxor Auto Sale
+            <div className="flex justify-between items-center nav-mobile" style={{height: '104px'}}>
+            <Link href="/" className="flex items-center">
+              <img 
+                src="/Logo.png" 
+                alt="Luxor Auto Sale Logo" 
+                className="logo transition-all duration-300"
+              />
             </Link>
-              <nav className="flex gap-6">
-                <Link href="/" className="text-gray-300 hover:text-white">
-                  Home
-                </Link>
-                <Link href="/inventory" className="text-gray-300 hover:text-white">
-                  Inventory
-                </Link>
-              </nav>
+            <nav className="flex gap-6">
+              <Link href="/" className="text-gray-300 hover:text-blue-400 transition-colors">
+                Home
+              </Link>
+              <Link href="/inventory" className="text-gray-300 hover:text-blue-400 transition-colors">
+                Inventory
+              </Link>
+            </nav>
             </div>
           </div>
         </header>
@@ -141,12 +145,12 @@ export default async function VehicleDetailPage({ params }: Props) {
                       className="object-cover"
                       priority
                     />
-                    <div className={`absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-bold ${
-                      vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
-                      vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                      vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
-                      'bg-gray-600 text-white'
-                    }`}>
+        <div className={`absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-bold ${
+          vehicle.status === 'AVAILABLE' ? 'bg-green-500 text-white' :
+          vehicle.status === 'PENDING' ? 'bg-yellow-500 text-white' :
+          vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
+          'bg-gray-600 text-white'
+        }`}>
                       {vehicle.status === 'AVAILABLE' ? '✅ Available' :
                        vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
                        vehicle.status === 'SOLD' ? '✅ Sold' :

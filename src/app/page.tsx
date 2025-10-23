@@ -12,6 +12,8 @@ export default function HomePage() {
   const [featuredVehicles, setFeaturedVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formStatus, setFormStatus] = useState({ type: '', message: '' });
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
   // Fetch vehicles from API
   useEffect(() => {
@@ -37,6 +39,62 @@ export default function HomePage() {
       }
     }
     fetchVehicles();
+  }, []);
+
+  // Modern scroll detection and navigation
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50);
+
+      // Update active section based on scroll position
+      const sections = ['home', 'featured-inventory', 'financing', 'sell-trade', 'about', 'contact'];
+      const currentSection = sections.find(section => {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          return rect.top <= 100 && rect.bottom >= 100;
+        }
+        return false;
+      });
+      
+      if (currentSection) {
+        setActiveSection(currentSection);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Smooth scroll to section
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Intersection Observer for reveal animations
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    // Observe all reveal elements
+    const revealElements = document.querySelectorAll('.reveal');
+    revealElements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
   }, []);
 
   // Handle Contact Form Submission
@@ -141,29 +199,95 @@ export default function HomePage() {
   return (
     <>
       {/* Skip to main content for accessibility */}
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-red-600 text-white px-4 py-2 rounded-lg z-50 transition-all">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-lg z-50 transition-all">
         Skip to main content
       </a>
 
       {/* Header */}
-      <header className="sticky-header bg-gray-900 bg-opacity-80 shadow-lg" role="banner">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center" role="navigation" aria-label="Main navigation">
+      <header className={`sticky-header bg-gray-900 bg-opacity-80 shadow-lg transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`} role="banner">
+        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation" style={{height: '104px'}}>
           <a href="#home" className="flex items-center" aria-label="Luxor Auto Sale - Home">
-            <span className="text-white text-xl font-bold tracking-wider">
-              LUXOR <span className="text-red-500">AUTO</span> SALE
-            </span>
+            <img 
+              src="/Logo.png" 
+              alt="Luxor Auto Sale Logo" 
+              className="logo transition-all duration-300"
+            />
           </a>
-          <div className="hidden md:flex space-x-8 items-center" role="menubar">
-            <a href="#home" className="text-gray-300 hover:text-red-500 transition-colors" role="menuitem">Home</a>
-            <a href="#inventory" className="text-gray-300 hover:text-red-500 transition-colors" role="menuitem">Inventory</a>
-            <a href="#financing" className="text-gray-300 hover:text-red-500 transition-colors" role="menuitem">Financing</a>
-            <a href="#sell-trade" className="text-gray-300 hover:text-red-500 transition-colors" role="menuitem">Sell/Trade</a>
-            <a href="#about" className="text-gray-300 hover:text-red-500 transition-colors" role="menuitem">About</a>
-            <a href="#contact" className="text-gray-300 hover:text-red-500 transition-colors" role="menuitem">Contact</a>
+          <div className="hidden md:flex space-x-6 items-center" role="menubar">
+            <button 
+              onClick={() => scrollToSection('home')} 
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                activeSection === 'home' 
+                  ? 'text-blue-600 bg-blue-600/10' 
+                  : 'text-gray-300 hover:text-blue-600 hover:bg-white/5'
+              }`}
+              role="menuitem"
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => scrollToSection('featured-inventory')} 
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                activeSection === 'featured-inventory' 
+                  ? 'text-blue-600 bg-blue-600/10' 
+                  : 'text-gray-300 hover:text-blue-600 hover:bg-white/5'
+              }`}
+              role="menuitem"
+            >
+              Inventory
+            </button>
+            <button 
+              onClick={() => scrollToSection('financing')} 
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                activeSection === 'financing' 
+                  ? 'text-blue-600 bg-blue-600/10' 
+                  : 'text-gray-300 hover:text-blue-600 hover:bg-white/5'
+              }`}
+              role="menuitem"
+            >
+              Financing
+            </button>
+            <button 
+              onClick={() => scrollToSection('sell-trade')} 
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                activeSection === 'sell-trade' 
+                  ? 'text-blue-600 bg-blue-600/10' 
+                  : 'text-gray-300 hover:text-blue-600 hover:bg-white/5'
+              }`}
+              role="menuitem"
+            >
+              Sell/Trade
+            </button>
+            <button 
+              onClick={() => scrollToSection('about')} 
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                activeSection === 'about' 
+                  ? 'text-blue-600 bg-blue-600/10' 
+                  : 'text-gray-300 hover:text-blue-600 hover:bg-white/5'
+              }`}
+              role="menuitem"
+            >
+              About
+            </button>
+            <button 
+              onClick={() => scrollToSection('contact')} 
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                activeSection === 'contact' 
+                  ? 'text-blue-600 bg-blue-600/10' 
+                  : 'text-gray-300 hover:text-blue-600 hover:bg-white/5'
+              }`}
+              role="menuitem"
+            >
+              Contact
+            </button>
           </div>
-          <a href="#contact" className="hidden md:inline-block btn-indigo text-base" role="button">
+          <button 
+            onClick={() => scrollToSection('contact')} 
+            className="hidden md:inline-block btn-modern text-base" 
+            role="button"
+          >
             Book a Viewing
-          </a>
+          </button>
           <div className="md:hidden">
             <button id="mobile-menu-button" className="text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,14 +299,14 @@ export default function HomePage() {
         
         {/* Mobile Menu */}
         <div id="mobile-menu" className="md:hidden bg-gray-800 shadow-lg hidden">
-          <a href="#home" className="mobile-menu-item block text-white hover:bg-red-600 transition-colors px-6 py-4">Home</a>
-          <a href="#inventory" className="mobile-menu-item block text-white hover:bg-red-600 transition-colors px-6 py-4">Inventory</a>
-          <a href="#financing" className="mobile-menu-item block text-white hover:bg-red-600 transition-colors px-6 py-4">Financing</a>
-          <a href="#sell-trade" className="mobile-menu-item block text-white hover:bg-red-600 transition-colors px-6 py-4">Sell/Trade</a>
-          <a href="#about" className="mobile-menu-item block text-white hover:bg-red-600 transition-colors px-6 py-4">About</a>
-          <a href="#contact" className="mobile-menu-item block text-white hover:bg-red-600 transition-colors px-6 py-4">Contact</a>
+          <a href="#home" className="mobile-menu-item block text-white hover:bg-blue-600 transition-colors px-6 py-4">Home</a>
+          <a href="#inventory" className="mobile-menu-item block text-white hover:bg-blue-600 transition-colors px-6 py-4">Inventory</a>
+          <a href="#financing" className="mobile-menu-item block text-white hover:bg-blue-600 transition-colors px-6 py-4">Financing</a>
+          <a href="#sell-trade" className="mobile-menu-item block text-white hover:bg-blue-600 transition-colors px-6 py-4">Sell/Trade</a>
+          <a href="#about" className="mobile-menu-item block text-white hover:bg-blue-600 transition-colors px-6 py-4">About</a>
+          <a href="#contact" className="mobile-menu-item block text-white hover:bg-blue-600 transition-colors px-6 py-4">Contact</a>
           <div className="p-4">
-            <a href="#contact" className="block text-center btn-indigo w-full">Book a Viewing</a>
+            <a href="#contact" className="block text-center btn-modern w-full">Book a Viewing</a>
           </div>
         </div>
       </header>
@@ -197,14 +321,17 @@ export default function HomePage() {
             <p className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed">
               Your trusted, stress-free car buying experience starts here.
             </p>
-            <a href="#contact" className="btn-indigo text-2xl animate-pulse">
+            <button 
+              onClick={() => scrollToSection('contact')} 
+              className="btn-modern text-2xl animate-pulse"
+            >
               Book a Viewing
-            </a>
+            </button>
           </div>
         </section>
 
         {/* Featured Inventory Section */}
-        <section id="featured-inventory" className="py-20 bg-gradient-to-br from-gray-800 via-gray-900 to-black relative overflow-hidden">
+        <section id="featured-inventory" className="py-20 bg-gradient-to-br from-gray-800 via-gray-900 to-black relative overflow-hidden section-blend">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -214,7 +341,7 @@ export default function HomePage() {
           
           <div className="container mx-auto px-6 text-center reveal relative z-10">
             <div className="mb-8">
-              <span className="inline-block bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <span className="inline-block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
                 ⭐ Featured Selection
               </span>
               <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -233,22 +360,22 @@ export default function HomePage() {
             ) : featuredVehicles.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 {featuredVehicles.slice(0, 3).map((vehicle: any, index: number) => (
-                  <div key={vehicle.id} className="group car-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 hover:shadow-red-500/20 transition-all duration-500 h-full flex flex-col border border-gray-700 hover:border-red-500/50">
+                  <div key={vehicle.id} className="group car-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 hover:shadow-blue-500/20 transition-all duration-500 h-full flex flex-col border border-gray-700 hover:border-blue-500/50">
                     <div className="relative overflow-hidden">
                       <img 
                         src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
-                        alt={vehicle.title} 
+                          alt={vehicle.title} 
                         className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" 
-                        loading="lazy" 
-                      />
+                          loading="lazy" 
+                        />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                      <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         Featured #{index + 1}
                       </div>
                       <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
                         vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
                         vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                        vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                        vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
                         'bg-gray-600 text-white'
                       }`}>
                         {vehicle.status === 'AVAILABLE' ? '✅ Available' :
@@ -257,9 +384,9 @@ export default function HomePage() {
                          vehicle.status}
                       </div>
                     </div>
-                    <div className="p-6 flex-grow flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-red-400 transition-colors">
+                        <div className="p-6 flex-grow flex flex-col justify-between">
+                          <div>
+                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
                           {vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                         </h3>
                         <div className="flex items-center justify-between mb-3">
@@ -274,17 +401,17 @@ export default function HomePage() {
                           <span className="mr-4">📅 {vehicle.year}</span>
                           <span>🔧 {vehicle.transmission || 'Auto'}</span>
                         </div>
-                      </div>
+                          </div>
                       <Link 
                         href={`/vehicles/${vehicle.seoSlug}`} 
-                        className="mt-6 inline-block bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-xl w-full text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
+                        className="mt-6 inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl w-full text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25"
                       >
                         View Details →
-                      </Link>
+                          </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
             ) : (
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-12 border border-gray-700">
                 <div className="text-6xl mb-4">🚗</div>
@@ -296,28 +423,28 @@ export default function HomePage() {
         </section>
 
         {/* About Section Teaser */}
-        <section className="py-20 bg-gray-900">
+        <section className="py-20 bg-gray-900 section-blend">
           <div className="container mx-auto px-6 text-center reveal">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose a Family-Owned Dealership?</h2>
             <p className="max-w-3xl mx-auto font-serif-georgia text-gray-400 leading-relaxed">
               At Luxor Auto Sale, you're not just another sale; you're our neighbour. As a family-owned business in Oshawa, our reputation is built on honesty and trust. We're here to build relationships and help our community drive with confidence.
             </p>
             <div className="mt-12 flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
-              <a href="#inventory" className="btn-indigo">Browse Inventory</a>
-              <a href="#financing" className="btn-outline">Get Financing</a>
-              <a href="#sell-trade" className="btn-outline">Value Your Trade</a>
+              <button onClick={() => scrollToSection('featured-inventory')} className="btn-modern">Browse Inventory</button>
+              <button onClick={() => scrollToSection('financing')} className="btn-outline-modern">Get Financing</button>
+              <button onClick={() => scrollToSection('sell-trade')} className="btn-outline-modern">Value Your Trade</button>
             </div>
           </div>
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-20 bg-gray-800">
+        <section className="py-20 bg-gray-800 section-blend">
           <div className="container mx-auto px-6 text-center reveal">
             <h2 className="text-3xl md:text-4xl font-bold mb-12">Here's What Our Neighbours are Saying</h2>
             <div className="swiper testimonial-carousel">
               <div className="swiper-wrapper">
                 <div className="swiper-slide">
-                  <div className="bg-gray-900 p-8 rounded-2xl shadow-lg h-full">
+                  <div className="card-modern p-8 h-full">
                     <div className="text-red-500 text-3xl mb-4">"</div>
                     <p className="font-serif-georgia text-gray-300">"I was dreading the car buying process, but the team at Luxor made it so easy and stress-free. No pressure, just honest advice."</p>
                     <div className="mt-4">
@@ -327,7 +454,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="swiper-slide">
-                  <div className="bg-gray-900 p-8 rounded-2xl shadow-lg h-full">
+                  <div className="card-modern p-8 h-full">
                     <div className="text-red-500 text-3xl mb-4">"</div>
                     <p className="font-serif-georgia text-gray-300">"They gave me a better trade-in value than any of the big dealerships. It felt good to support a local family business."</p>
                     <div className="mt-4">
@@ -337,7 +464,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="swiper-slide">
-                  <div className="bg-gray-900 p-8 rounded-2xl shadow-lg h-full">
+                  <div className="card-modern p-8 h-full">
                     <div className="text-red-500 text-3xl mb-4">"</div>
                     <p className="font-serif-georgia text-gray-300">"My credit isn't perfect, and I was worried I wouldn't get approved. They worked with me and found a financing solution that fit my budget. So grateful!"</p>
                     <div className="mt-4">
@@ -361,7 +488,7 @@ export default function HomePage() {
           
           <div className="container mx-auto px-6 reveal relative z-10">
             <div className="text-center mb-16">
-              <span className="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm font-semibold mb-6">
+              <span className="inline-block bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-full text-sm font-semibold mb-6">
                 🚗 Complete Inventory
               </span>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -381,19 +508,19 @@ export default function HomePage() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                   {vehicles.slice(0, 6).map((vehicle: any, index: number) => (
-                    <div key={vehicle.id} className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl overflow-hidden shadow-2xl transform hover:-translate-y-4 hover:shadow-red-500/20 transition-all duration-500 border border-gray-700 hover:border-red-500/50">
+                    <div key={vehicle.id} className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl overflow-hidden shadow-2xl transform hover:-translate-y-4 hover:shadow-blue-500/20 transition-all duration-500 border border-gray-700 hover:border-blue-500/50">
                       <div className="relative overflow-hidden">
                         <img 
                           src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
-                          alt={vehicle.title} 
+                        alt={vehicle.title} 
                           className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" 
-                          loading="lazy" 
-                        />
+                        loading="lazy" 
+                      />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
                           vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
                           vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                          vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                          vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
                           'bg-gray-600 text-white'
                         }`}>
                           {vehicle.status === 'AVAILABLE' ? '✅ Available' :
@@ -403,7 +530,7 @@ export default function HomePage() {
                         </div>
                       </div>
                       <div className="p-6">
-                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-400 transition-colors">
+                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
                           {vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                         </h3>
                         <div className="flex items-center justify-between mb-4">
@@ -440,7 +567,7 @@ export default function HomePage() {
                 <div className="text-center">
                   <Link 
                     href="/inventory" 
-                    className="inline-flex items-center bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-red-500/25"
+                    className="inline-flex items-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-blue-500/25"
                   >
                     View All {vehicles.length} Vehicles
                     <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -480,54 +607,54 @@ export default function HomePage() {
                     name="firstName"
                     placeholder="First Name"
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="text"
                     name="lastName"
                     placeholder="Last Name"
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="email"
                     name="email"
                     placeholder="Email Address"
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="tel"
                     name="phone"
                     placeholder="Phone Number"
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="text"
                     name="vehicleInterest"
                     placeholder="Vehicle of Interest"
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 md:col-span-2"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 md:col-span-2"
                   />
                 </div>
-                <button type="submit" className="btn-indigo w-full mt-6">Get Pre-Approved in Seconds</button>
+                <button type="submit" className="btn-modern w-full mt-6">Get Pre-Approved in Seconds</button>
                 {formStatus.type === 'success' && <p className="text-green-500 mt-4">{formStatus.message}</p>}
                 {formStatus.type === 'error' && <p className="text-red-500 mt-4">{formStatus.message}</p>}
               </form>
             </div>
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
               <div className="p-6 bg-gray-900 rounded-2xl">
-                <div className="text-red-500 text-3xl mb-4">✓</div>
+                <div className="text-blue-500 text-3xl mb-4">✓</div>
                 <h3 className="font-bold text-xl mb-2">Quick Approvals</h3>
                 <p className="text-gray-400">Get a decision in minutes, not days.</p>
               </div>
               <div className="p-6 bg-gray-900 rounded-2xl">
-                <div className="text-red-500 text-3xl mb-4">%</div>
+                <div className="text-green-500 text-3xl mb-4">%</div>
                 <h3 className="font-bold text-xl mb-2">Competitive Rates</h3>
                 <p className="text-gray-400">We work with multiple lenders to find you the best rates.</p>
               </div>
               <div className="p-6 bg-gray-900 rounded-2xl">
-                <div className="text-red-500 text-3xl mb-4">🤝</div>
+                <div className="text-blue-500 text-3xl mb-4">🤝</div>
                 <h3 className="font-bold text-xl mb-2">Solutions for All Credit</h3>
                 <p className="text-gray-400">We believe everyone deserves a reliable car.</p>
               </div>
@@ -545,15 +672,15 @@ export default function HomePage() {
               </p>
               <ul className="space-y-4">
                 <li className="flex items-start">
-                  <span className="bg-red-600 text-white rounded-full h-8 w-8 text-center leading-8 font-bold mr-4 shrink-0">1</span>
+                  <span className="bg-blue-600 text-white rounded-full h-8 w-8 text-center leading-8 font-bold mr-4 shrink-0">1</span>
                   <span>Fast & Easy Form: Tell us about your car in under 2 minutes.</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="bg-red-600 text-white rounded-full h-8 w-8 text-center leading-8 font-bold mr-4 shrink-0">2</span>
+                  <span className="bg-green-500 text-white rounded-full h-8 w-8 text-center leading-8 font-bold mr-4 shrink-0">2</span>
                   <span>Get a Fair Offer: We'll send you a competitive, real-market valuation.</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="bg-red-600 text-white rounded-full h-8 w-8 text-center leading-8 font-bold mr-4 shrink-0">3</span>
+                  <span className="bg-blue-500 text-white rounded-full h-8 w-8 text-center leading-8 font-bold mr-4 shrink-0">3</span>
                   <span>Get Paid: Bring your car in for a quick inspection and walk away with a check.</span>
                 </li>
               </ul>
@@ -567,31 +694,31 @@ export default function HomePage() {
                     name="vehicle"
                     placeholder="Year, Make, Model"
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="text"
                     name="mileage"
                     placeholder="Mileage (km)"
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <textarea
                     name="condition"
                     placeholder="Describe the condition..."
                     rows={3}
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="email"
                     name="email"
                     placeholder="Your Email"
                     required
-                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <button type="submit" className="btn-indigo w-full mt-6">Get My Offer</button>
+                <button type="submit" className="btn-modern w-full mt-6">Get My Offer</button>
                 {formStatus.type === 'success' && <p className="text-green-500 mt-4 text-sm">{formStatus.message}</p>}
                 {formStatus.type === 'error' && <p className="text-red-500 mt-4 text-sm">{formStatus.message}</p>}
               </form>
@@ -649,30 +776,30 @@ export default function HomePage() {
                     name="name"
                     placeholder="Your Name"
                     required
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="email"
                     name="email"
                     placeholder="Your Email"
                     required
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="tel"
                     name="phone"
                     placeholder="Your Phone"
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <textarea
                     name="message"
                     placeholder="Your Message..."
                     rows={4}
                     required
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <button type="submit" className="btn-indigo w-full mt-6">Send Message</button>
+                <button type="submit" className="btn-modern w-full mt-6">Send Message</button>
                 {formStatus.type === 'success' && <p className="text-green-500 mt-4">{formStatus.message}</p>}
                 {formStatus.type === 'error' && <p className="text-red-500 mt-4">{formStatus.message}</p>}
               </form>
@@ -709,8 +836,12 @@ export default function HomePage() {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
-              <a href="#home" className="text-white text-2xl font-bold tracking-wider mb-4 inline-block">
-                LUXOR <span className="text-red-500">AUTO</span> SALE
+              <a href="#home" className="mb-4 inline-block">
+                <img 
+                  src="/Logo.png" 
+                  alt="Luxor Auto Sale Logo" 
+                  className="logo transition-all duration-300"
+                />
               </a>
               <p className="text-gray-400 mb-4">
                 Family-owned dealership serving Oshawa and the Durham Region with quality used vehicles and exceptional service.
@@ -719,18 +850,18 @@ export default function HomePage() {
             <div>
               <h3 className="text-white text-lg font-bold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#inventory" className="hover:text-red-500 transition-colors">Browse Inventory</a></li>
-                <li><a href="#financing" className="hover:text-red-500 transition-colors">Get Financing</a></li>
-                <li><a href="#sell-trade" className="hover:text-red-500 transition-colors">Sell Your Car</a></li>
-                <li><a href="#about" className="hover:text-red-500 transition-colors">About Us</a></li>
-                <li><a href="#contact" className="hover:text-red-500 transition-colors">Contact</a></li>
+                <li><a href="#inventory" className="hover:text-blue-400 transition-colors">Browse Inventory</a></li>
+                <li><a href="#financing" className="hover:text-blue-400 transition-colors">Get Financing</a></li>
+                <li><a href="#sell-trade" className="hover:text-blue-400 transition-colors">Sell Your Car</a></li>
+                <li><a href="#about" className="hover:text-blue-400 transition-colors">About Us</a></li>
+                <li><a href="#contact" className="hover:text-blue-400 transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
               <h3 className="text-white text-lg font-bold mb-4">Legal</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="/privacy" className="hover:text-red-500 transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms" className="hover:text-red-500 transition-colors">Terms of Service</a></li>
+                <li><a href="/privacy" className="hover:text-blue-400 transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms" className="hover:text-blue-400 transition-colors">Terms of Service</a></li>
               </ul>
               <div className="mt-4">
                 <Link href="/admin" className="text-gray-600 hover:text-gray-400 text-sm">Staff Login</Link>

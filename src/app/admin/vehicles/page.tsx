@@ -184,8 +184,8 @@ export default function VehiclesListPage() {
                         onClick={() => handleFeaturedToggle(vehicle.id, vehicle.isFeatured || false)}
                         className={`px-3 py-1 rounded-full text-xs font-medium text-white transition-colors ${
                           vehicle.isFeatured 
-                            ? 'bg-yellow-500 hover:bg-yellow-600' 
-                            : 'bg-gray-500 hover:bg-gray-600'
+                            ? 'bg-green-500 hover:bg-green-600' 
+                            : 'bg-blue-500 hover:bg-blue-600'
                         }`}
                       >
                         {vehicle.isFeatured ? 'Featured' : 'Not Featured'}

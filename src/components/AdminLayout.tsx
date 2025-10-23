@@ -47,13 +47,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700">
+      <header className="bg-gray-800/90 backdrop-blur-sm border-b border-blue-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link href="/admin/dashboard" className="text-2xl font-bold text-white">
-                Luxor Admin
-              </Link>
+            <Link href="/admin/dashboard" className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+              Luxor Admin
+            </Link>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-gray-300">
@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </span>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 Logout
               </button>
@@ -72,7 +72,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-gray-800 min-h-[calc(100vh-4rem)] border-r border-gray-700">
+        <aside className="w-64 bg-gray-800/90 backdrop-blur-sm min-h-[calc(100vh-4rem)] border-r border-blue-500/20">
           <nav className="p-4 space-y-2">
             {navItems.map((item) => (
               <Link
@@ -80,8 +80,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   pathname === item.href
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-300 hover:bg-gray-700'
+                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
+                    : 'text-gray-300 hover:bg-blue-600/10 hover:text-blue-400'
                 }`}
               >
                 <span className="text-xl">{item.icon}</span>

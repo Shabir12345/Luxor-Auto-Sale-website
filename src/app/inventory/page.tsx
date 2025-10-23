@@ -56,15 +56,19 @@ export default function InventoryPage() {
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-white">
-              Luxor Auto Sale
+          <div className="flex justify-between items-center nav-mobile" style={{height: '104px'}}>
+            <Link href="/" className="flex items-center">
+              <img 
+                src="/Logo.png" 
+                alt="Luxor Auto Sale Logo" 
+                className="logo transition-all duration-300"
+              />
             </Link>
             <nav className="flex gap-6">
-              <Link href="/" className="text-gray-300 hover:text-white">
+              <Link href="/" className="text-gray-300 hover:text-blue-400 transition-colors">
                 Home
               </Link>
-              <Link href="/inventory" className="text-white font-semibold">
+              <Link href="/inventory" className="text-blue-400 font-semibold">
                 Inventory
               </Link>
             </nav>
@@ -73,10 +77,10 @@ export default function InventoryPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-white mb-8">Our Inventory</h1>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-8">Our Inventory</h1>
 
         {/* Filters */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 mb-8 border border-blue-500/20">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <input
               type="text"
@@ -84,7 +88,7 @@ export default function InventoryPage() {
               value={filters.search}
               onChange={handleFilterChange}
               placeholder="Search..."
-              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
             />
             <input
               type="text"
@@ -92,7 +96,7 @@ export default function InventoryPage() {
               value={filters.make}
               onChange={handleFilterChange}
               placeholder="Make (e.g., Honda)"
-              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
             />
             <input
               type="number"
@@ -100,7 +104,7 @@ export default function InventoryPage() {
               value={filters.minPrice}
               onChange={handleFilterChange}
               placeholder="Min Price"
-              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
             />
             <input
               type="number"
@@ -108,7 +112,7 @@ export default function InventoryPage() {
               value={filters.maxPrice}
               onChange={handleFilterChange}
               placeholder="Max Price"
-              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
             />
             <input
               type="number"
@@ -116,7 +120,7 @@ export default function InventoryPage() {
               value={filters.maxMileage}
               onChange={handleFilterChange}
               placeholder="Max Mileage (km)"
-              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
             />
           </div>
         </div>
@@ -147,7 +151,7 @@ export default function InventoryPage() {
                     <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
                       vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
                       vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                      vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                      vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
                       'bg-gray-600 text-white'
                     }`}>
                       {vehicle.status === 'AVAILABLE' ? '✅ Available' :
@@ -162,7 +166,7 @@ export default function InventoryPage() {
                     <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
                       vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
                       vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                      vehicle.status === 'SOLD' ? 'bg-red-600 text-white' :
+                      vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
                       'bg-gray-600 text-white'
                     }`}>
                       {vehicle.status === 'AVAILABLE' ? '✅ Available' :

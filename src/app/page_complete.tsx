@@ -140,11 +140,13 @@ export default function HomePage() {
 
       {/* Header */}
       <header className="sticky-header bg-gray-900 bg-opacity-80 shadow-lg" role="banner">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center" role="navigation" aria-label="Main navigation">
+        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation" style={{height: '104px'}}>
           <a href="#home" className="flex items-center" aria-label="Luxor Auto Sale - Home">
-            <span className="text-white text-xl font-bold tracking-wider">
-              LUXOR <span className="text-red-500">AUTO</span> SALE
-            </span>
+            <img 
+              src="/Logo.png" 
+              alt="Luxor Auto Sale Logo" 
+              className="logo transition-all duration-300"
+            />
           </a>
           <div className="hidden md:flex space-x-8 items-center" role="menubar">
             <a href="#home" className="text-gray-300 hover:text-red-500 transition-colors" role="menuitem">Home</a>
@@ -586,8 +588,12 @@ export default function HomePage() {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
-              <a href="#home" className="text-white text-2xl font-bold tracking-wider mb-4 inline-block">
-                LUXOR <span className="text-red-500">AUTO</span> SALE
+              <a href="#home" className="mb-4 inline-block">
+                <img 
+                  src="/Logo.png" 
+                  alt="Luxor Auto Sale Logo" 
+                  className="logo transition-all duration-300"
+                />
               </a>
               <p className="text-gray-400 mb-4">
                 Family-owned dealership serving Oshawa and the Durham Region with quality used vehicles and exceptional service.

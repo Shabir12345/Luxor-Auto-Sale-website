@@ -6,10 +6,57 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Georgia&display=swap');
 
 :root {
-  --brand-red: #dc2626;
-  --brand-red-dark: #b91c1c;
-  --brand-indigo: #4f46e5;
-  --brand-indigo-dark: #4338ca;
+  --brand-primary: #1e40af; /* Deep Blue - Trust & Professionalism */
+  --brand-primary-dark: #1e3a8a; /* Darker Blue */
+  --brand-secondary: #059669; /* Forest Green - Growth & Stability */
+  --brand-secondary-dark: #047857; /* Darker Green */
+  --brand-accent: #0ea5e9; /* Sky Blue - Modern & Fresh */
+  --brand-accent-dark: #0284c7; /* Darker Sky Blue */
+  
+  /* Modern smooth gradients */
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #059669 100%); /* Blue to Green */
+  --gradient-secondary: linear-gradient(135deg, #0ea5e9 0%, #1e40af 100%); /* Sky Blue to Deep Blue */
+  --gradient-accent: linear-gradient(135deg, #059669 0%, #0ea5e9 100%); /* Green to Sky Blue */
+  --gradient-dark: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  
+  /* Smooth shadows */
+  --shadow-soft: 0 8px 32px rgba(0,0,0,0.1);
+  --shadow-medium: 0 12px 40px rgba(0,0,0,0.15);
+  --shadow-strong: 0 20px 60px rgba(0,0,0,0.2);
+  
+  /* Blur effects */
+  --blur-light: blur(10px);
+  --blur-medium: blur(20px);
+  --blur-strong: blur(40px);
+}
+
+/* Logo Styles */
+.logo {
+  max-height: 125px; /* 104px + 20% = 125px */
+  width: auto;
+  object-fit: contain;
+  background: transparent;
+  /* Clean styling for transparent logo */
+  filter: brightness(1.1) contrast(1.05);
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  filter: brightness(1.2) contrast(1.1);
+  transform: scale(1.02);
+}
+
+/* Navigation height adjustments for mobile */
+@media (max-width: 640px) {
+  .logo {
+    max-height: 100px; /* 83px + 20% = 100px */
+  }
+  
+  /* Adjust navigation height for mobile */
+  .nav-mobile {
+    height: 60px !important;
+  }
 }
 
 * {
@@ -18,8 +65,205 @@
   padding: 0;
 }
 
+/* Modern Smooth Design Classes */
+.glassmorphism {
+  background: var(--gradient-glass);
+  backdrop-filter: var(--blur-light);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-soft);
+}
+
+.smooth-gradient {
+  background: var(--gradient-primary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smooth-gradient:hover {
+  background: var(--gradient-secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.rounded-smooth {
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rounded-smooth:hover {
+  border-radius: 32px;
+  transform: scale(1.02);
+}
+
+.blur-background {
+  backdrop-filter: var(--blur-medium);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.smooth-shadow {
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow 0.3s ease;
+}
+
+.smooth-shadow:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+/* Smooth animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.6s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Smooth transitions */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smooth-transition-slow {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 html {
   scroll-behavior: smooth;
+}
+
+/* Modern Navigation Enhancements */
+.sticky-header {
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sticky-header.scrolled {
+  background: rgba(17, 24, 39, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Smooth section transitions */
+.section-blend {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-blend::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, transparent 0%, rgba(17, 24, 39, 0.1) 50%, rgba(17, 24, 39, 0.3) 100%);
+  pointer-events: none;
+}
+
+.section-blend::after {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(0deg, transparent 0%, rgba(17, 24, 39, 0.1) 50%, rgba(17, 24, 39, 0.3) 100%);
+  pointer-events: none;
+}
+
+/* Modern button styles */
+.btn-modern {
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+  background: var(--gradient-secondary);
+}
+
+.btn-outline-modern {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 10px 22px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.btn-outline-modern:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Smooth reveal animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Modern card styles */
+.card-modern {
+  background: rgba(31, 41, 55, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 body {
