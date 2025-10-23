@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const params = {
       make: searchParams.get('make') || undefined,
       model: searchParams.get('model') || undefined,
+      year: searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined,
       minYear: searchParams.get('minYear') ? parseInt(searchParams.get('minYear')!) : undefined,
       maxYear: searchParams.get('maxYear') ? parseInt(searchParams.get('maxYear')!) : undefined,
       minPrice: searchParams.get('minPrice')
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
       search: searchParams.get('search') || undefined,
       page: searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1,
       perPage: searchParams.get('perPage') ? parseInt(searchParams.get('perPage')!) : 12,
-      sortBy: (searchParams.get('sortBy') as any) || 'createdAt',
+      sortBy: (searchParams.get('sortBy') as any) || 'newest',
       sortOrder: (searchParams.get('sortOrder') as any) || 'desc',
     };
 
@@ -57,6 +58,7 @@ export async function GET(request: NextRequest) {
       ...(filters.status && filters.status !== 'ALL' && { status: filters.status as any }),
       ...(filters.make && { make: { contains: filters.make, mode: 'insensitive' } }),
       ...(filters.model && { model: { contains: filters.model, mode: 'insensitive' } }),
+      ...(filters.year && { year: filters.year }),
       ...(filters.minYear && { year: { gte: filters.minYear } }),
       ...(filters.maxYear && { year: { lte: filters.maxYear } }),
       ...(filters.minPrice && { priceCents: { gte: filters.minPrice } }),
@@ -76,10 +78,31 @@ export async function GET(request: NextRequest) {
       }),
     };
 
-    // Build order by
-    const orderBy: Prisma.VehicleOrderByWithRelationInput = {
-      [filters.sortBy]: filters.sortOrder,
-    };
+    // Build order by based on sortBy parameter
+    let orderBy: Prisma.VehicleOrderByWithRelationInput;
+    
+    switch (filters.sortBy) {
+      case 'newest':
+        orderBy = { createdAt: 'desc' };
+        break;
+      case 'oldest':
+        orderBy = { createdAt: 'asc' };
+        break;
+      case 'price-low':
+        orderBy = { priceCents: 'asc' };
+        break;
+      case 'price-high':
+        orderBy = { priceCents: 'desc' };
+        break;
+      case 'mileage-low':
+        orderBy = { odometerKm: 'asc' };
+        break;
+      case 'mileage-high':
+        orderBy = { odometerKm: 'desc' };
+        break;
+      default:
+        orderBy = { createdAt: 'desc' };
+    }
 
     // Count total
     const total = await prisma.vehicle.count({ where });
