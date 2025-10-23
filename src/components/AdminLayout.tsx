@@ -42,6 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { href: '/admin/vehicles', label: 'Vehicles', icon: '🚗' },
     { href: '/admin/vehicles/new', label: 'Add Vehicle', icon: '➕' },
+    { href: '/admin/submissions', label: 'Form Submissions', icon: '📝' },
   ];
 
   return (

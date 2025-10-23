@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       ...(filters.status && filters.status !== 'ALL' && { status: filters.status as any }),
       ...(filters.make && { make: { contains: filters.make, mode: 'insensitive' } }),
       ...(filters.model && { model: { contains: filters.model, mode: 'insensitive' } }),
-      ...(filters.year && { year: filters.year }),
+      // Note: year filtering is handled by minYear/maxYear
       ...(filters.minYear && { year: { gte: filters.minYear } }),
       ...(filters.maxYear && { year: { lte: filters.maxYear } }),
       ...(filters.minPrice && { priceCents: { gte: filters.minPrice } }),

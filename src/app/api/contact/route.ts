@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
+import { sendContactFormNotification } from '@/lib/email';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -13,11 +14,14 @@ const contactSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Contact form API called');
     const body = await request.json();
+    console.log('Request body:', body);
     
     // Validate input
     const validation = contactSchema.safeParse(body);
     if (!validation.success) {
+      console.log('Validation failed:', validation.error);
       return NextResponse.json(
         {
           success: false,
@@ -28,11 +32,21 @@ export async function POST(request: NextRequest) {
     }
 
     const { name, email, phone, message } = validation.data;
+    console.log('Validated data:', { name, email, phone, message });
 
-    // Store in database (you can create a ContactSubmission model)
-    // For now, we'll log it and send email notification
-    
-    console.log('Contact Form Submission:', {
+    // Store in database
+    console.log('Attempting to save to database...');
+    const submission = await prisma.contactSubmission.create({
+      data: {
+        name,
+        email,
+        phone,
+        message,
+      },
+    });
+
+    console.log('Contact Form Submission saved:', {
+      id: submission.id,
       name,
       email,
       phone,
@@ -40,17 +54,14 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    // TODO: Send email notification to owner
-    // await sendEmail({
-    //   to: process.env.ADMIN_EMAIL,
-    //   subject: `New Contact Form Submission from ${name}`,
-    //   body: `
-    //     Name: ${name}
-    //     Email: ${email}
-    //     Phone: ${phone || 'Not provided'}
-    //     Message: ${message}
-    //   `,
-    // });
+    // Send email notification to owner
+    try {
+      await sendContactFormNotification({ name, email, phone, message });
+      console.log('Contact form email notification sent');
+    } catch (error) {
+      console.error('Failed to send contact form email:', error);
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json(
       {
@@ -61,10 +72,15 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Contact form error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to process your request. Please try again.',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

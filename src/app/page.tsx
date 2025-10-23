@@ -81,7 +81,7 @@ export default function HomePage() {
           setVehicles(vehiclesData.data.data || []);
           
           // Extract unique makes for dropdown
-          const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort();
+          const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
           setAvailableMakes(makes);
         }
 
@@ -296,24 +296,29 @@ export default function HomePage() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    const requestData = {
+      vehicle: formData.get('vehicle'),
+      mileage: formData.get('mileage'),
+      condition: formData.get('condition'),
+      email: formData.get('email'),
+    };
+
+    console.log('Trade-in form data:', requestData);
+
     try {
       const response = await fetch('/api/trade-in', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          vehicle: formData.get('vehicle'),
-          mileage: formData.get('mileage'),
-          condition: formData.get('condition'),
-          email: formData.get('email'),
-        }),
+        body: JSON.stringify(requestData),
       });
 
       const result = await response.json();
+      console.log('Trade-in response:', result);
       if (result.success) {
         setFormStatus({ type: 'success', message: 'Appraisal request received! Check your email.' });
         form.reset();
       } else {
-        setFormStatus({ type: 'error', message: 'Failed to submit. Please try again.' });
+        setFormStatus({ type: 'error', message: result.error || 'Failed to submit. Please try again.' });
       }
     } catch (error) {
       setFormStatus({ type: 'error', message: 'Network error. Please try again.' });
@@ -448,7 +453,7 @@ export default function HomePage() {
         <section id="home" className="hero-section min-h-screen flex items-center justify-center text-center px-4">
           <div className="reveal visible max-w-4xl mx-auto">
             <h1 id="hero-title" className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl">
-              Drive Confidently.
+              Drive Confidently
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed">
               Your trusted, stress-free car buying experience starts here.

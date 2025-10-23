@@ -33,7 +33,7 @@
 
 /* Logo Styles */
 .logo {
-  max-height: 125px; /* 104px + 20% = 125px */
+  max-height: 150px; /* 125px + 20% = 150px */
   width: auto;
   object-fit: contain;
   background: transparent;
@@ -50,7 +50,7 @@
 /* Navigation height adjustments for mobile */
 @media (max-width: 640px) {
   .logo {
-    max-height: 100px; /* 83px + 20% = 100px */
+    max-height: 120px; /* 100px + 20% = 120px */
   }
   
   /* Adjust navigation height for mobile */

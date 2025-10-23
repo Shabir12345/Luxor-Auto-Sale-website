@@ -2,25 +2,45 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import { sendTradeInRequestNotification } from '@/lib/email';
 
 const tradeInSchema = z.object({
-  vehicle: z.string().min(5, 'Please provide year, make, and model'),
+  vehicle: z.string().min(1, 'Vehicle information is required'),
   mileage: z.string().min(1, 'Mileage is required'),
-  condition: z.string().min(10, 'Please describe the vehicle condition'),
+  condition: z.string().min(1, 'Condition description is required'),
   email: z.string().email('Invalid email address'),
 });
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Trade-in form API called');
     const body = await request.json();
+    console.log('Request body:', body);
+    console.log('Body type:', typeof body);
+    console.log('Body keys:', Object.keys(body || {}));
+    
+    // Check if body is valid
+    if (!body || typeof body !== 'object') {
+      console.log('Invalid body received');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid request data',
+        },
+        { status: 400 }
+      );
+    }
     
     // Validate input
     const validation = tradeInSchema.safeParse(body);
     if (!validation.success) {
+      console.log('Validation failed:', validation.error.errors);
       return NextResponse.json(
         {
           success: false,
           error: validation.error.errors[0].message,
+          details: validation.error.errors,
         },
         { status: 400 }
       );
@@ -28,8 +48,18 @@ export async function POST(request: NextRequest) {
 
     const { vehicle, mileage, condition, email } = validation.data;
 
-    // Log the submission
-    console.log('Trade-In Appraisal Request:', {
+    // Store in database
+    const tradeInRequest = await prisma.tradeInRequest.create({
+      data: {
+        vehicle,
+        mileage,
+        condition,
+        email,
+      },
+    });
+
+    console.log('Trade-In Request saved:', {
+      id: tradeInRequest.id,
       vehicle,
       mileage,
       condition,
@@ -37,17 +67,14 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    // TODO: Send email notification to owner
-    // await sendEmail({
-    //   to: process.env.ADMIN_EMAIL,
-    //   subject: `New Trade-In Appraisal Request - ${vehicle}`,
-    //   body: `
-    //     Vehicle: ${vehicle}
-    //     Mileage: ${mileage}
-    //     Condition: ${condition}
-    //     Email: ${email}
-    //   `,
-    // });
+    // Send email notification to owner
+    try {
+      await sendTradeInRequestNotification({ vehicle, mileage, condition, email });
+      console.log('Trade-in request email notification sent');
+    } catch (error) {
+      console.error('Failed to send trade-in request email:', error);
+      // Don't fail the request if email fails
+    }
 
     // TODO: Send confirmation email to customer
     // await sendEmail({

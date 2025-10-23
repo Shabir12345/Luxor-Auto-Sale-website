@@ -57,9 +57,9 @@ export default function InventoryPage() {
         setVehicles(data.data.data);
         
         // Extract unique makes and models for dropdowns
-        const makes = [...new Set(data.data.data.map((v: any) => v.make).filter(Boolean))].sort();
-        const models = [...new Set(data.data.data.map((v: any) => v.model).filter(Boolean))].sort();
-        
+        const makes = [...new Set(data.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
+        const models = [...new Set(data.data.data.map((v: any) => v.model).filter(Boolean))].sort() as string[];
+
         setAvailableMakes(makes);
         setAvailableModels(models);
       }

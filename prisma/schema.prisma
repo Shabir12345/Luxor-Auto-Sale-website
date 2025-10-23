@@ -184,3 +184,64 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
+// Form Submissions
+model ContactSubmission {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  message     String   @db.Text
+  status      SubmissionStatus @default(NEW)
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_submissions")
+}
+
+model FinancingApplication {
+  id              String   @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  vehicleInterest String?
+  status          SubmissionStatus @default(NEW)
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("financing_applications")
+}
+
+model TradeInRequest {
+  id          String   @id @default(cuid())
+  vehicle     String   // Year, Make, Model
+  mileage     String
+  condition   String   @db.Text
+  email       String
+  status      SubmissionStatus @default(NEW)
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("trade_in_requests")
+}
+
+enum SubmissionStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+

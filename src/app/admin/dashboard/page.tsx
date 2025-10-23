@@ -45,17 +45,17 @@ export default function DashboardPage() {
       
       // Calculate stats
       const totalVehicles = vehicles.length;
-      const availableVehicles = vehicles.filter(v => v.status === 'AVAILABLE').length;
-      const pendingVehicles = vehicles.filter(v => v.status === 'PENDING').length;
-      const soldVehicles = vehicles.filter(v => v.status === 'SOLD').length;
-      const draftVehicles = vehicles.filter(v => v.status === 'DRAFT').length;
+      const availableVehicles = vehicles.filter((v: any) => v.status === 'AVAILABLE').length;
+      const pendingVehicles = vehicles.filter((v: any) => v.status === 'PENDING').length;
+      const soldVehicles = vehicles.filter((v: any) => v.status === 'SOLD').length;
+      const draftVehicles = vehicles.filter((v: any) => v.status === 'DRAFT').length;
       
-      const totalValue = vehicles.reduce((sum, v) => sum + v.priceCents, 0);
+      const totalValue = vehicles.reduce((sum: number, v: any) => sum + v.priceCents, 0);
       const averagePrice = totalVehicles > 0 ? totalValue / totalVehicles : 0;
       
       // Recent vehicles (last 5)
       const recentVehicles = vehicles
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 5);
 
       setStats({

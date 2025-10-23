@@ -2,6 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import { sendFinancingApplicationNotification } from '@/lib/email';
 
 const financingSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -29,8 +31,19 @@ export async function POST(request: NextRequest) {
 
     const { firstName, lastName, email, phone, vehicleInterest } = validation.data;
 
-    // Log the submission
-    console.log('Financing Application Submission:', {
+    // Store in database
+    const application = await prisma.financingApplication.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        phone,
+        vehicleInterest,
+      },
+    });
+
+    console.log('Financing Application saved:', {
+      id: application.id,
       firstName,
       lastName,
       email,
@@ -39,17 +52,14 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    // TODO: Send email notification to owner
-    // await sendEmail({
-    //   to: process.env.ADMIN_EMAIL,
-    //   subject: `New Financing Application from ${firstName} ${lastName}`,
-    //   body: `
-    //     Name: ${firstName} ${lastName}
-    //     Email: ${email}
-    //     Phone: ${phone}
-    //     Vehicle of Interest: ${vehicleInterest || 'Not specified'}
-    //   `,
-    // });
+    // Send email notification to owner
+    try {
+      await sendFinancingApplicationNotification({ firstName, lastName, email, phone, vehicleInterest });
+      console.log('Financing application email notification sent');
+    } catch (error) {
+      console.error('Failed to send financing application email:', error);
+      // Don't fail the request if email fails
+    }
 
     // TODO: Forward to financing partner API if applicable
     
