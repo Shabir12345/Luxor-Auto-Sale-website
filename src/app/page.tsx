@@ -21,9 +21,38 @@ export default function HomePage() {
     make: '',
     status: 'ALL',
     sortBy: 'newest',
+    minPrice: '',
+    maxPrice: '',
+    minYear: '',
+    maxYear: '',
+    maxMileage: '',
+    transmission: '',
+    fuelType: '',
   });
   const [availableMakes, setAvailableMakes] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout | null>(null);
+
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlFilters = {
+        search: urlParams.get('search') || '',
+        make: urlParams.get('make') || '',
+        status: urlParams.get('status') || 'ALL',
+        sortBy: urlParams.get('sortBy') || 'newest',
+        minPrice: urlParams.get('minPrice') || '',
+        maxPrice: urlParams.get('maxPrice') || '',
+        minYear: urlParams.get('minYear') || '',
+        maxYear: urlParams.get('maxYear') || '',
+        maxMileage: urlParams.get('maxMileage') || '',
+        transmission: urlParams.get('transmission') || '',
+        fuelType: urlParams.get('fuelType') || '',
+      };
+      setFilters(urlFilters);
+    }
+  }, []);
 
   // Fetch vehicles from API
   useEffect(() => {
@@ -36,6 +65,13 @@ export default function HomePage() {
           ...(filters.make && { make: filters.make }),
           ...(filters.status !== 'ALL' && { status: filters.status }),
           ...(filters.sortBy && { sortBy: filters.sortBy }),
+          ...(filters.minPrice && { minPrice: filters.minPrice }),
+          ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
+          ...(filters.minYear && { minYear: filters.minYear }),
+          ...(filters.maxYear && { maxYear: filters.maxYear }),
+          ...(filters.maxMileage && { maxMileage: filters.maxMileage }),
+          ...(filters.transmission && { transmission: filters.transmission }),
+          ...(filters.fuelType && { fuelType: filters.fuelType }),
         });
 
         // Fetch all vehicles for inventory (including pending and sold)
@@ -66,18 +102,61 @@ export default function HomePage() {
     fetchVehicles();
   }, [filters]);
 
-  // Filter handlers
+  // Update URL when filters change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      const params = new URLSearchParams();
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== 'ALL' && value !== 'newest') {
+          params.set(key, value);
+        }
+      });
+      
+      const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [filters]);
+
+  // Filter handlers with debouncing for search
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+    
+    if (name === 'search') {
+      // Debounce search input for better performance
+      if (searchDebounce) {
+        clearTimeout(searchDebounce);
+      }
+      
+      const timeout = setTimeout(() => {
+        setFilters((prev) => ({ ...prev, [name]: value }));
+      }, 300);
+      
+      setSearchDebounce(timeout);
+    } else {
+      // Immediate update for other filters
+      setFilters((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const clearFilters = () => {
+    if (searchDebounce) {
+      clearTimeout(searchDebounce);
+      setSearchDebounce(null);
+    }
     setFilters({
       search: '',
       make: '',
       status: 'ALL',
       sortBy: 'newest',
+      minPrice: '',
+      maxPrice: '',
+      minYear: '',
+      maxYear: '',
+      maxMileage: '',
+      transmission: '',
+      fuelType: '',
     });
   };
 
@@ -86,6 +165,11 @@ export default function HomePage() {
     if (filters.search) count++;
     if (filters.make) count++;
     if (filters.status !== 'ALL') count++;
+    if (filters.minPrice || filters.maxPrice) count++;
+    if (filters.minYear || filters.maxYear) count++;
+    if (filters.maxMileage) count++;
+    if (filters.transmission) count++;
+    if (filters.fuelType) count++;
     return count;
   };
 
@@ -682,7 +766,7 @@ export default function HomePage() {
               </div>
 
               {/* Quick Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <select
                   name="make"
                   value={filters.make}
@@ -722,9 +806,111 @@ export default function HomePage() {
                 </select>
               </div>
 
+              {/* Advanced Filters Panel */}
+              {showFilters && (
+                <div className="mt-6 p-6 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                  <h3 className="text-lg font-semibold text-white mb-4">Advanced Filters</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="sm:col-span-2 lg:col-span-1">
+                      <label className="block text-sm text-gray-300 mb-2">Price Range</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="number"
+                          name="minPrice"
+                          value={filters.minPrice}
+                          onChange={handleFilterChange}
+                          placeholder="Min Price"
+                          className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                        />
+                        <input
+                          type="number"
+                          name="maxPrice"
+                          value={filters.maxPrice}
+                          onChange={handleFilterChange}
+                          placeholder="Max Price"
+                          className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-2 lg:col-span-1">
+                      <label className="block text-sm text-gray-300 mb-2">Year Range</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="number"
+                          name="minYear"
+                          value={filters.minYear}
+                          onChange={handleFilterChange}
+                          placeholder="Min Year"
+                          min="1990"
+                          max="2024"
+                          className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                        />
+                        <input
+                          type="number"
+                          name="maxYear"
+                          value={filters.maxYear}
+                          onChange={handleFilterChange}
+                          placeholder="Max Year"
+                          min="1990"
+                          max="2024"
+                          className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">Max Mileage</label>
+                      <input
+                        type="number"
+                        name="maxMileage"
+                        value={filters.maxMileage}
+                        onChange={handleFilterChange}
+                        placeholder="e.g., 100000"
+                        min="0"
+                        className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">Transmission</label>
+                      <select
+                        name="transmission"
+                        value={filters.transmission}
+                        onChange={handleFilterChange}
+                        className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                      >
+                        <option value="">Any Transmission</option>
+                        <option value="AUTOMATIC">Automatic</option>
+                        <option value="MANUAL">Manual</option>
+                        <option value="CVT">CVT</option>
+                        <option value="DCT">DCT</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">Fuel Type</label>
+                      <select
+                        name="fuelType"
+                        value={filters.fuelType}
+                        onChange={handleFilterChange}
+                        className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                      >
+                        <option value="">Any Fuel Type</option>
+                        <option value="GASOLINE">Gasoline</option>
+                        <option value="DIESEL">Diesel</option>
+                        <option value="HYBRID">Hybrid</option>
+                        <option value="ELECTRIC">Electric</option>
+                        <option value="PLUG_IN_HYBRID">Plug-in Hybrid</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Filter Controls */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <button
                     onClick={() => setShowFilters(!showFilters)}
                     className="flex items-center text-blue-400 hover:text-blue-300 transition-colors"
@@ -732,7 +918,7 @@ export default function HomePage() {
                     <svg className={`w-5 h-5 mr-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
-                    More Filters
+                    {showFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
                     {getFilterCount() > 0 && (
                       <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                         {getFilterCount()}
@@ -743,15 +929,25 @@ export default function HomePage() {
                   {getFilterCount() > 0 && (
                     <button
                       onClick={clearFilters}
-                      className="text-gray-400 hover:text-white transition-colors text-sm"
+                      className="text-gray-400 hover:text-white transition-colors text-sm flex items-center"
                     >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
                       Clear All Filters
                     </button>
                   )}
                 </div>
 
-                <div className="text-sm text-gray-400">
-                  {loading ? 'Loading...' : `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''} found`}
+                <div className="text-sm text-gray-400 text-center sm:text-right">
+                  {loading ? (
+                    <div className="flex items-center justify-center sm:justify-end">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                      Loading...
+                    </div>
+                  ) : (
+                    `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''} found`
+                  )}
                 </div>
               </div>
             </div>
@@ -763,9 +959,13 @@ export default function HomePage() {
               </div>
             ) : vehicles.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 transition-all duration-500">
                   {vehicles.slice(0, 6).map((vehicle: any, index: number) => (
-                    <div key={vehicle.id} className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl overflow-hidden shadow-2xl transform hover:-translate-y-4 hover:shadow-blue-500/20 transition-all duration-500 border border-gray-700 hover:border-blue-500/50">
+                    <div 
+                      key={vehicle.id} 
+                      className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl overflow-hidden shadow-2xl transform hover:-translate-y-4 hover:shadow-blue-500/20 transition-all duration-500 border border-gray-700 hover:border-blue-500/50 animate-fadeInUp"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
                       <div className="relative overflow-hidden">
                         <img 
                           src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
