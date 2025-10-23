@@ -136,15 +136,18 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
 // Send notification emails for form submissions
 export async function sendContactFormNotification(data: { name: string; email: string; phone?: string; message: string }): Promise<boolean> {
   const template = emailTemplates.contactForm(data);
-  return await sendEmail(process.env.ADMIN_EMAIL || process.env.EMAIL_USER || '', template.subject, template.html);
+  // Send to your personal email for now
+  return await sendEmail(process.env.EMAIL_USER || '', template.subject, template.html);
 }
 
 export async function sendFinancingApplicationNotification(data: { firstName: string; lastName: string; email: string; phone: string; vehicleInterest?: string }): Promise<boolean> {
   const template = emailTemplates.financingApplication(data);
-  return await sendEmail(process.env.ADMIN_EMAIL || process.env.EMAIL_USER || '', template.subject, template.html);
+  // Send to your personal email for now
+  return await sendEmail(process.env.EMAIL_USER || '', template.subject, template.html);
 }
 
 export async function sendTradeInRequestNotification(data: { vehicle: string; mileage: string; condition: string; email: string }): Promise<boolean> {
   const template = emailTemplates.tradeInRequest(data);
-  return await sendEmail(process.env.ADMIN_EMAIL || process.env.EMAIL_USER || '', template.subject, template.html);
+  // Send to your personal email for now
+  return await sendEmail(process.env.EMAIL_USER || '', template.subject, template.html);
 }
