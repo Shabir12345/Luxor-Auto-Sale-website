@@ -11,6 +11,42 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
 
     // Parse query parameters
+    const sortByParam = searchParams.get('sortBy') || 'newest';
+    
+    // Convert new sort values to validation schema values
+    let sortBy: 'price' | 'year' | 'odometer' | 'createdAt' = 'createdAt';
+    let sortOrder: 'asc' | 'desc' = 'desc';
+    
+    switch (sortByParam) {
+      case 'newest':
+        sortBy = 'createdAt';
+        sortOrder = 'desc';
+        break;
+      case 'oldest':
+        sortBy = 'createdAt';
+        sortOrder = 'asc';
+        break;
+      case 'price-low':
+        sortBy = 'price';
+        sortOrder = 'asc';
+        break;
+      case 'price-high':
+        sortBy = 'price';
+        sortOrder = 'desc';
+        break;
+      case 'mileage-low':
+        sortBy = 'odometer';
+        sortOrder = 'asc';
+        break;
+      case 'mileage-high':
+        sortBy = 'odometer';
+        sortOrder = 'desc';
+        break;
+      default:
+        sortBy = 'createdAt';
+        sortOrder = 'desc';
+    }
+    
     const params = {
       make: searchParams.get('make') || undefined,
       model: searchParams.get('model') || undefined,
@@ -34,8 +70,8 @@ export async function GET(request: NextRequest) {
       search: searchParams.get('search') || undefined,
       page: searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1,
       perPage: searchParams.get('perPage') ? parseInt(searchParams.get('perPage')!) : 12,
-      sortBy: (searchParams.get('sortBy') as any) || 'newest',
-      sortOrder: (searchParams.get('sortOrder') as any) || 'desc',
+      sortBy,
+      sortOrder,
     };
 
     // Validate
@@ -78,31 +114,10 @@ export async function GET(request: NextRequest) {
       }),
     };
 
-    // Build order by based on sortBy parameter
-    let orderBy: Prisma.VehicleOrderByWithRelationInput;
-    
-    switch (filters.sortBy) {
-      case 'newest':
-        orderBy = { createdAt: 'desc' };
-        break;
-      case 'oldest':
-        orderBy = { createdAt: 'asc' };
-        break;
-      case 'price-low':
-        orderBy = { priceCents: 'asc' };
-        break;
-      case 'price-high':
-        orderBy = { priceCents: 'desc' };
-        break;
-      case 'mileage-low':
-        orderBy = { odometerKm: 'asc' };
-        break;
-      case 'mileage-high':
-        orderBy = { odometerKm: 'desc' };
-        break;
-      default:
-        orderBy = { createdAt: 'desc' };
-    }
+    // Build order by
+    const orderBy: Prisma.VehicleOrderByWithRelationInput = {
+      [filters.sortBy]: filters.sortOrder,
+    };
 
     // Count total
     const total = await prisma.vehicle.count({ where });
