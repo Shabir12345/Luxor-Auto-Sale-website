@@ -31,11 +31,11 @@ export type ImageSize = {
 };
 
 export const IMAGE_SIZES = {
-  thumbnail: { width: 300, height: 200, quality: 80 },
-  small: { width: 640, quality: 85 },
-  medium: { width: 1024, quality: 85 },
-  large: { width: 1920, quality: 90 },
-  original: { quality: 95 },
+  thumbnail: { width: 400, height: 300, quality: 90 },
+  small: { width: 800, quality: 92 },
+  medium: { width: 1200, quality: 94 },
+  large: { width: 1920, quality: 96 },
+  original: { quality: 98 },
 };
 
 function assertStorageConfigured(): void {
@@ -67,20 +67,58 @@ export async function uploadVehicleImage(
   for (const [sizeName, sizeConfig] of Object.entries(IMAGE_SIZES)) {
     try {
       let processedImage = sharp(buffer);
-      if (sizeConfig.width) {
-        processedImage = processedImage.resize(sizeConfig.width, sizeConfig.height, {
+      if ('width' in sizeConfig && sizeConfig.width) {
+        processedImage = processedImage.resize(sizeConfig.width, 'height' in sizeConfig ? sizeConfig.height : undefined, {
           fit: 'inside',
           withoutEnlargement: true,
+          kernel: sharp.kernel.lanczos3, // Better resampling algorithm
         });
       }
-      const webpBuffer = await processedImage.webp({ quality: sizeConfig.quality || 85 }).toBuffer();
-      const key = `${basePath}-${sizeName}.webp`;
+      
+      // For original size, preserve the original format if it's JPEG/PNG
+      let processedBuffer: Buffer;
+      let contentType: string;
+      let fileExtension: string;
+      
+      if (sizeName === 'original' && (ext === 'jpg' || ext === 'jpeg' || ext === 'png')) {
+        // Keep original format for highest quality
+        if (ext === 'png') {
+          processedBuffer = await processedImage.png({ 
+            quality: sizeConfig.quality || 98,
+            compressionLevel: 6
+          }).toBuffer();
+          contentType = 'image/png';
+          fileExtension = 'png';
+        } else {
+          processedBuffer = await processedImage.jpeg({ 
+            quality: sizeConfig.quality || 98,
+            progressive: true,
+            mozjpeg: true
+          }).toBuffer();
+          contentType = 'image/jpeg';
+          fileExtension = 'jpg';
+        }
+      } else {
+        // Use WebP for all other sizes
+        processedBuffer = await processedImage
+          .webp({ 
+            quality: sizeConfig.quality || 90,
+            effort: 6, // Higher effort for better compression
+            lossless: false,
+            nearLossless: false
+          })
+          .toBuffer();
+        contentType = 'image/webp';
+        fileExtension = 'webp';
+      }
+      
+      const key = `${basePath}-${sizeName}.${fileExtension}`;
       await s3Client.send(
         new PutObjectCommand({
           Bucket: BUCKET_NAME,
           Key: key,
-          Body: webpBuffer,
-          ContentType: 'image/webp',
+          Body: processedBuffer,
+          ContentType: contentType,
           CacheControl: 'public, max-age=31536000',
         })
       );
@@ -108,12 +146,20 @@ export async function deleteVehicleImage(imageUrl: string): Promise<void> {
 
     // Delete all sizes
     for (const sizeName of Object.keys(IMAGE_SIZES)) {
-      await s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: BUCKET_NAME,
-          Key: `${basePath}-${sizeName}.webp`,
-        })
-      );
+      // Try both .webp and original format extensions
+      const extensions = ['webp', 'jpg', 'jpeg', 'png'];
+      for (const ext of extensions) {
+        try {
+          await s3Client.send(
+            new DeleteObjectCommand({
+              Bucket: BUCKET_NAME,
+              Key: `${basePath}-${sizeName}.${ext}`,
+            })
+          );
+        } catch (error) {
+          // Ignore errors for files that don't exist
+        }
+      }
     }
   } catch (error) {
     console.error('Error deleting image:', error);
@@ -125,7 +171,7 @@ export async function deleteVehicleImage(imageUrl: string): Promise<void> {
  */
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  const maxSize = 20 * 1024 * 1024; // 20MB (increased for higher quality)
 
   if (!allowedTypes.includes(file.type)) {
     return {
@@ -137,7 +183,7 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
   if (file.size > maxSize) {
     return {
       valid: false,
-      error: 'File too large. Maximum size is 10MB.',
+      error: 'File too large. Maximum size is 20MB.',
     };
   }
 
