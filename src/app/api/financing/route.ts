@@ -54,10 +54,13 @@ export async function POST(request: NextRequest) {
 
     // Send email notification to owner
     try {
-      await sendFinancingApplicationNotification({ firstName, lastName, email, phone, vehicleInterest });
+      console.log('Attempting to send financing application email notification...');
+      const emailResult = await sendFinancingApplicationNotification({ firstName, lastName, email, phone, vehicleInterest });
+      console.log('Financing application email notification result:', emailResult);
       console.log('Financing application email notification sent');
     } catch (error) {
       console.error('Failed to send financing application email:', error);
+      console.error('Email error details:', error);
       // Don't fail the request if email fails
     }
 
