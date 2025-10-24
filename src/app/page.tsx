@@ -1312,13 +1312,15 @@ export default function HomePage() {
                 
                 <div className="relative">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2878.891395982877!2d-78.8576486845!3d43.878132979114!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDUyJzQxLjMiTiA3OMKwNTEnMjcuNSJX!5e0!3m2!1sen!2sca!4v1672545600000!5m2!1sen!2sca"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9165.568808671715!2d-78.84816250000002!3d43.88747840000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89d51d6348abea79%3A0x7f64e7cc74c6053d!2sLuxor%20Auto%20Sales!5e1!3m2!1sen!2sca!4v1761310128466!5m2!1sen!2sca"
                     width="100%"
                     height="300"
                     style={{ border: 0 }}
                     allowFullScreen
                     loading="lazy"
                     className="rounded-2xl shadow-2xl"
+                    title="Luxor Auto Sale Location - 477 Ritson Rd S, Oshawa, ON L1H 5K1"
+                    referrerPolicy="no-referrer-when-downgrade"
                   />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
                     <p className="text-sm font-semibold text-gray-800">📍 Visit Us</p>
