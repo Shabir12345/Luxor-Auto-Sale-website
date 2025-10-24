@@ -1331,68 +1331,211 @@ export default function HomePage() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-20 bg-gray-900">
-          <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 reveal">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Get In Touch</h2>
-              <p className="text-gray-300 mb-6">Have a question or want to book a viewing? Send us a message!</p>
-              <form onSubmit={handleContactSubmit}>
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    required
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Your Email"
-                    required
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Your Phone"
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <textarea
-                    name="message"
-                    placeholder="Your Message..."
-                    rows={4}
-                    required
-                    className="bg-gray-800 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <button type="submit" className="btn-modern w-full mt-6">Send Message</button>
-                {formStatus.type === 'success' && <p className="text-green-500 mt-4">{formStatus.message}</p>}
-                {formStatus.type === 'error' && <p className="text-red-500 mt-4">{formStatus.message}</p>}
-              </form>
+        <section id="contact" className="py-24 bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }} />
+          </div>
+          
+          <div className="container mx-auto px-6 relative z-10">
+            {/* Header */}
+            <div className="text-center mb-16 reveal">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 rounded-full mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
+                Get In Touch
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Have a question or want to <span className="text-blue-400 font-semibold">book a viewing</span>? 
+                We're here to help you find your perfect vehicle!
+              </p>
+              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-green-500 mx-auto rounded-full mt-6"></div>
             </div>
-            <div className="text-left">
-              <h3 className="text-2xl font-bold mb-4">Contact Information</h3>
-              <ul className="space-y-4 text-gray-300">
-                <li className="flex items-center">
-                  <span className="text-red-500 w-6 text-center mr-4">📍</span>
-                  477 Ritson Rd S, Oshawa, ON L1H 5K1
-                </li>
-                <li className="flex items-center">
-                  <span className="text-red-500 w-6 text-center mr-4">📞</span>
-                  <a href="tel:416-523-5375" className="hover:text-red-500">416-523-5375</a>
-                </li>
-                <li className="flex items-center">
-                  <span className="text-red-500 w-6 text-center mr-4">✉️</span>
-                  <a href="mailto:sales@luxorautosale.com" className="hover:text-red-500">sales@luxorautosale.com</a>
-                </li>
-              </ul>
-              <h3 className="text-2xl font-bold mt-8 mb-4">Business Hours</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>Mon - Fri: 9:00 AM - 7:00 PM</li>
-                <li>Saturday: 10:00 AM - 5:00 PM</li>
-                <li>Sunday: Closed</li>
-              </ul>
+
+            <div className="grid lg:grid-cols-2 gap-16 items-start">
+              {/* Contact Form */}
+              <div className="reveal">
+                <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-white/10 rounded-3xl p-8 md:p-10">
+                  <div className="mb-8">
+                    <h3 className="text-2xl font-bold text-white mb-4">Send us a Message</h3>
+                    <p className="text-gray-300">We'll get back to you within 24 hours</p>
+                  </div>
+                  
+                  <form onSubmit={handleContactSubmit} className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="group">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Your Name *</label>
+                        <input
+                          type="text"
+                          name="name"
+                          placeholder="Enter your full name"
+                          required
+                          className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
+                        />
+                      </div>
+                      <div className="group">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Your Email *</label>
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="Enter your email address"
+                          required
+                          className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        placeholder="Enter your phone number"
+                        className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
+                      />
+                    </div>
+                    
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Your Message *</label>
+                      <textarea
+                        name="message"
+                        placeholder="Tell us about your vehicle needs, questions, or how we can help you..."
+                        rows={5}
+                        required
+                        className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 resize-none"
+                      />
+                    </div>
+                    
+                    <button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25"
+                    >
+                      <span className="flex items-center justify-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        Send Message
+                      </span>
+                    </button>
+                    
+                    {formStatus.type === 'success' && (
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mt-4">
+                        <p className="text-green-400 flex items-center">
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {formStatus.message}
+                        </p>
+                      </div>
+                    )}
+                    {formStatus.type === 'error' && (
+                      <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mt-4">
+                        <p className="text-red-400 flex items-center">
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {formStatus.message}
+                        </p>
+                      </div>
+                    )}
+                  </form>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="reveal">
+                <div className="space-y-8">
+                  {/* Contact Details */}
+                  <div className="bg-gradient-to-br from-blue-500/10 to-green-500/10 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+                      <svg className="w-6 h-6 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Contact Information
+                    </h3>
+                    
+                    <div className="space-y-6">
+                      <div className="flex items-start group">
+                        <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-500/30 transition-all duration-300">
+                          <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white mb-1">Visit Our Showroom</h4>
+                          <p className="text-gray-300">477 Ritson Rd S, Oshawa, ON L1H 5K1</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start group">
+                        <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-green-500/30 transition-all duration-300">
+                          <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white mb-1">Call Us Directly</h4>
+                          <a href="tel:416-523-5375" className="text-green-400 hover:text-green-300 transition-colors duration-300 text-lg font-medium">
+                            416-523-5375
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start group">
+                        <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-purple-500/30 transition-all duration-300">
+                          <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white mb-1">Email Us</h4>
+                          <a href="mailto:sales@luxorautosale.com" className="text-purple-400 hover:text-purple-300 transition-colors duration-300">
+                            sales@luxorautosale.com
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Business Hours */}
+                  <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+                      <svg className="w-6 h-6 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Business Hours
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-3 border-b border-gray-700/50">
+                        <span className="text-gray-300 font-medium">Monday - Friday</span>
+                        <span className="text-green-400 font-semibold">9:00 AM - 7:00 PM</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3 border-b border-gray-700/50">
+                        <span className="text-gray-300 font-medium">Saturday</span>
+                        <span className="text-green-400 font-semibold">10:00 AM - 5:00 PM</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3">
+                        <span className="text-gray-300 font-medium">Sunday</span>
+                        <span className="text-red-400 font-semibold">Closed</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-xl border border-blue-500/20">
+                      <p className="text-sm text-gray-300 text-center">
+                        <span className="text-blue-400 font-semibold">Quick Response:</span> We typically respond to messages within 2-4 hours during business hours.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
