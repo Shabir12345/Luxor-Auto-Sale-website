@@ -14,6 +14,7 @@ export default function HomePage() {
   const [formStatus, setFormStatus] = useState({ type: '', message: '' });
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [lastFeaturedUpdate, setLastFeaturedUpdate] = useState(Date.now());
   
   // Filter states for homepage inventory
   const [filters, setFilters] = useState({
@@ -87,10 +88,18 @@ export default function HomePage() {
 
         // Fetch featured vehicles (only if no filters applied)
         if (!filters.search && !filters.make && filters.status === 'ALL') {
-          const featuredResponse = await fetch('/api/vehicles/featured?limit=3');
+          console.log('Fetching featured vehicles...');
+          const featuredResponse = await fetch('/api/vehicles/featured?limit=3', {
+            cache: 'no-store', // Prevent caching
+            headers: {
+              'Cache-Control': 'no-cache',
+            },
+          });
           const featuredData = await featuredResponse.json();
+          console.log('Featured vehicles response:', featuredData);
           if (featuredData.success) {
             setFeaturedVehicles(featuredData.data || []);
+            console.log('Featured vehicles set:', featuredData.data);
           }
         }
       } catch (error) {
@@ -101,6 +110,58 @@ export default function HomePage() {
     }
     fetchVehicles();
   }, [filters]);
+
+  // Separate effect to fetch featured vehicles independently
+  useEffect(() => {
+    const fetchFeaturedVehicles = async () => {
+      try {
+        console.log('Fetching featured vehicles independently...');
+        const featuredResponse = await fetch('/api/vehicles/featured?limit=3', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
+        const featuredData = await featuredResponse.json();
+        console.log('Independent featured vehicles response:', featuredData);
+        if (featuredData.success) {
+          setFeaturedVehicles(featuredData.data || []);
+          console.log('Independent featured vehicles set:', featuredData.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch featured vehicles:', error);
+      }
+    };
+
+    fetchFeaturedVehicles();
+  }, []); // Run once on mount
+
+  // Periodic refresh of featured vehicles every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('Periodic featured vehicles refresh...');
+      const fetchFeaturedVehicles = async () => {
+        try {
+          const featuredResponse = await fetch('/api/vehicles/featured?limit=3', {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache',
+            },
+          });
+          const featuredData = await featuredResponse.json();
+          if (featuredData.success) {
+            setFeaturedVehicles(featuredData.data || []);
+            setLastFeaturedUpdate(Date.now());
+          }
+        } catch (error) {
+          console.error('Failed to refresh featured vehicles:', error);
+        }
+      };
+      fetchFeaturedVehicles();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Update URL when filters change
   useEffect(() => {
@@ -487,6 +548,33 @@ export default function HomePage() {
               <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
                 Hand-picked selection of our finest cars, meticulously inspected for your peace of mind.
               </p>
+              <div className="mt-4 flex items-center justify-center gap-4">
+                <button 
+                  onClick={async () => {
+                    console.log('Manual refresh of featured vehicles...');
+                    try {
+                      const featuredResponse = await fetch('/api/vehicles/featured?limit=3', {
+                        cache: 'no-store',
+                        headers: { 'Cache-Control': 'no-cache' },
+                      });
+                      const featuredData = await featuredResponse.json();
+                      if (featuredData.success) {
+                        setFeaturedVehicles(featuredData.data || []);
+                        setLastFeaturedUpdate(Date.now());
+                        console.log('Featured vehicles manually refreshed:', featuredData.data);
+                      }
+                    } catch (error) {
+                      console.error('Manual refresh failed:', error);
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  🔄 Refresh Featured
+                </button>
+                <span className="text-xs text-gray-400">
+                  Last updated: {new Date(lastFeaturedUpdate).toLocaleTimeString()}
+                </span>
+              </div>
             </div>
             
             {loading ? (
