@@ -35,36 +35,17 @@ export async function GET(request: NextRequest) {
       isFeatured: v.isFeatured 
     })));
 
-    // If we don't have enough featured vehicles, get additional available vehicles
+    // Only return truly featured vehicles - don't add non-featured vehicles
     let vehicles = featuredVehicles;
+    
+    // Log if we don't have enough featured vehicles
     if (vehicles.length < limit) {
-      const additionalVehicles = await prisma.vehicle.findMany({
-        where: {
-          status: 'AVAILABLE',
-          isFeatured: false,
-          id: {
-            notIn: vehicles.map(v => v.id),
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: limit - vehicles.length,
-        include: {
-          photos: {
-            orderBy: { sortOrder: 'asc' },
-            take: 1,
-          },
-        },
-      });
-      vehicles = [...vehicles, ...additionalVehicles];
-      console.log('Additional vehicles added:', additionalVehicles.map(v => ({ 
-        id: v.id, 
-        title: v.title, 
-        make: v.make,
-        model: v.model,
-        year: v.year,
-        isFeatured: v.isFeatured 
-      })));
+      console.log(`WARNING: Only ${vehicles.length} featured vehicles found, but limit is ${limit}`);
+      console.log('Consider marking more vehicles as featured in the admin panel');
     }
+    
+    // Don't add non-featured vehicles - only show what's actually featured
+    console.log('Returning only truly featured vehicles:', vehicles.length);
 
     console.log('Total vehicles returned:', vehicles.length);
     console.log('Final vehicles list:', vehicles.map(v => ({ 
