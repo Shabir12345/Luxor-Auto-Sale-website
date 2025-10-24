@@ -572,7 +572,7 @@ export default function HomePage() {
                   🔄 Refresh Featured
                 </button>
                 <span className="text-xs text-gray-400">
-                  Last updated: {new Date(lastFeaturedUpdate).toLocaleTimeString()}
+                  Last updated: <span suppressHydrationWarning>{new Date(lastFeaturedUpdate).toLocaleTimeString()}</span>
                 </span>
               </div>
             </div>
