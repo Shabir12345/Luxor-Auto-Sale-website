@@ -25,7 +25,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log('Featured vehicles found:', featuredVehicles.length, featuredVehicles.map(v => ({ id: v.id, title: v.title, isFeatured: v.isFeatured })));
+    console.log('Featured vehicles found:', featuredVehicles.length);
+    console.log('Featured vehicles details:', featuredVehicles.map(v => ({ 
+      id: v.id, 
+      title: v.title, 
+      make: v.make,
+      model: v.model,
+      year: v.year,
+      isFeatured: v.isFeatured 
+    })));
 
     // If we don't have enough featured vehicles, get additional available vehicles
     let vehicles = featuredVehicles;
@@ -48,9 +56,25 @@ export async function GET(request: NextRequest) {
         },
       });
       vehicles = [...vehicles, ...additionalVehicles];
+      console.log('Additional vehicles added:', additionalVehicles.map(v => ({ 
+        id: v.id, 
+        title: v.title, 
+        make: v.make,
+        model: v.model,
+        year: v.year,
+        isFeatured: v.isFeatured 
+      })));
     }
 
     console.log('Total vehicles returned:', vehicles.length);
+    console.log('Final vehicles list:', vehicles.map(v => ({ 
+      id: v.id, 
+      title: v.title, 
+      make: v.make,
+      model: v.model,
+      year: v.year,
+      isFeatured: v.isFeatured 
+    })));
 
     return NextResponse.json<ApiResponse>(
       {
