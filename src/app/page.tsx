@@ -1189,36 +1189,141 @@ export default function HomePage() {
         </section>
 
         {/* About Section */}
-        <section id="about" className="py-20 bg-gray-800">
-          <div className="container mx-auto px-6 reveal">
-            <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">About Luxor Auto Sale</h2>
-              <p className="max-w-3xl mx-auto text-gray-300 font-serif-georgia mb-12 leading-relaxed">
-                Founded on the principles of honesty, integrity, and community, Luxor Auto Sale has been proudly serving Oshawa and the Durham Region. As a family-owned business, we understand the importance of trust. Our mission is to provide high-quality, reliable pre-owned vehicles at fair prices, ensuring a transparent and enjoyable car-buying experience for every customer.
-              </p>
+        <section id="about" className="py-24 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }} />
+          </div>
+          
+          <div className="container mx-auto px-6 relative z-10">
+            {/* Header */}
+            <div className="text-center mb-16 reveal">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 rounded-full mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
+                About Luxor Auto Sale
+              </h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-green-500 mx-auto rounded-full"></div>
             </div>
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <img
-                src="https://images.unsplash.com/photo-1549411227-5afe55a93551?q=80&w=1965&auto=format&fit=crop"
-                alt="Luxor Auto Sale dealership"
-                className="rounded-2xl shadow-xl"
-                loading="lazy"
-              />
-              <div>
-                <h3 className="text-2xl font-bold mb-4">Our Commitment to You</h3>
-                <p className="text-gray-400 font-serif-georgia leading-relaxed">
-                  We're not just selling cars; we're building relationships. Our knowledgeable team is here to guide you, not pressure you. Every vehicle on our lot undergoes a rigorous inspection to meet our high standards for safety and quality. Come visit us and experience the Luxor Auto difference.
-                </p>
-                <div className="mt-6">
+
+            {/* Main Content */}
+            <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
+              {/* Left Side - Image */}
+              <div className="reveal">
+                <div className="relative group">
+                  <img
+                    src="https://images.unsplash.com/photo-1549411227-5afe55a93551?q=80&w=1965&auto=format&fit=crop"
+                    alt="Luxor Auto Sale dealership"
+                    className="rounded-3xl shadow-2xl transform group-hover:scale-105 transition-all duration-700"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
+                  <div className="absolute bottom-6 left-6 text-white">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                      <p className="text-sm font-medium">Family-Owned Since Day One</p>
+                      <p className="text-xs opacity-90">Serving Oshawa & Durham Region</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Content */}
+              <div className="reveal">
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-3xl font-bold mb-4 text-white">Our Story</h3>
+                    <p className="text-gray-300 leading-relaxed text-lg mb-6">
+                      Founded on the principles of <span className="text-blue-400 font-semibold">honesty</span>, <span className="text-green-400 font-semibold">integrity</span>, and <span className="text-blue-400 font-semibold">community</span>, Luxor Auto Sale has been proudly serving Oshawa and the Durham Region.
+                    </p>
+                    <p className="text-gray-300 leading-relaxed text-lg">
+                      As a family-owned business, we understand the importance of trust. Our mission is to provide high-quality, reliable pre-owned vehicles at fair prices, ensuring a transparent and enjoyable car-buying experience for every customer.
+                    </p>
+                  </div>
+
+                  {/* Values Cards */}
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 backdrop-blur-sm border border-blue-500/20 rounded-xl p-6 text-center hover:scale-105 transition-all duration-300">
+                      <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h4 className="font-bold text-white mb-2">Quality</h4>
+                      <p className="text-sm text-gray-300">Rigorous inspection on every vehicle</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 backdrop-blur-sm border border-green-500/20 rounded-xl p-6 text-center hover:scale-105 transition-all duration-300">
+                      <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </div>
+                      <h4 className="font-bold text-white mb-2">Trust</h4>
+                      <p className="text-sm text-gray-300">Family-owned, community-focused</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6 text-center hover:scale-105 transition-all duration-300">
+                      <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                      </div>
+                      <h4 className="font-bold text-white mb-2">Value</h4>
+                      <p className="text-sm text-gray-300">Fair prices, transparent process</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Commitment Section */}
+            <div className="bg-gradient-to-r from-blue-500/10 via-green-500/10 to-blue-500/10 backdrop-blur-sm border border-white/10 rounded-3xl p-8 md:p-12 reveal">
+              <div className="text-center mb-8">
+                <h3 className="text-3xl md:text-4xl font-bold mb-4 text-white">Our Commitment to You</h3>
+                <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-green-500 mx-auto rounded-full"></div>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                  <p className="text-gray-300 leading-relaxed text-lg mb-6">
+                    We're not just selling cars; we're <span className="text-blue-400 font-semibold">building relationships</span>. Our knowledgeable team is here to guide you, not pressure you.
+                  </p>
+                  <p className="text-gray-300 leading-relaxed text-lg mb-8">
+                    Every vehicle on our lot undergoes a <span className="text-green-400 font-semibold">rigorous inspection</span> to meet our high standards for safety and quality. Come visit us and experience the Luxor Auto difference.
+                  </p>
+                  
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-blue-400 mb-2">100%</div>
+                      <div className="text-sm text-gray-300">Quality Inspected</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-green-400 mb-2">24/7</div>
+                      <div className="text-sm text-gray-300">Customer Support</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="relative">
                   <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2878.891395982877!2d-78.8576486845!3d43.878132979114!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDUyJzQxLjMiTiA3OMKwNTEnMjcuNSJX!5e0!3m2!1sen!2sca!4v1672545600000!5m2!1sen!2sca"
                     width="100%"
-                    height="250"
+                    height="300"
                     style={{ border: 0 }}
                     allowFullScreen
                     loading="lazy"
-                    className="rounded-2xl"
+                    className="rounded-2xl shadow-2xl"
                   />
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
+                    <p className="text-sm font-semibold text-gray-800">📍 Visit Us</p>
+                    <p className="text-xs text-gray-600">Oshawa, ON</p>
+                  </div>
                 </div>
               </div>
             </div>
