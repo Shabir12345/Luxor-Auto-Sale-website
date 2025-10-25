@@ -3,10 +3,16 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
+import { writeFile, mkdir, unlink } from 'fs/promises';
+import { join } from 'path';
 
 // S3 Client Configuration (works with both AWS S3 and Cloudflare R2)
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'auto',
+// Only initialize if credentials are provided
+const hasR2 = !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY);
+const hasAws = !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
+
+const s3Client = (hasR2 || hasAws) ? new S3Client({
+  region: process.env.AWS_REGION || process.env.R2_REGION || 'auto',
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY || '',
@@ -15,7 +21,7 @@ const s3Client = new S3Client({
   ...(process.env.R2_ACCOUNT_ID && {
     endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   }),
-});
+}) : null;
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET || process.env.R2_BUCKET || 'luxor-auto-sale-images';
 const PUBLIC_URL =
@@ -39,13 +45,86 @@ export const IMAGE_SIZES = {
 };
 
 function assertStorageConfigured(): void {
-  const hasR2 = !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && BUCKET_NAME);
-  const hasAws = !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && BUCKET_NAME);
-  if (!hasR2 && !hasAws) {
-    throw new Error(
-      'STORAGE_NOT_CONFIGURED: Missing Cloudflare R2 or AWS S3 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET (or AWS_* equivalents).'
-    );
+  // Storage is now optional - will use local filesystem as fallback
+  return;
+}
+
+/**
+ * Upload image locally (fallback when S3/R2 not configured)
+ */
+async function uploadToLocalFilesystem(
+  buffer: Buffer,
+  vehicleId: string,
+  originalFilename: string
+): Promise<{ urls: Record<string, string>; primaryUrl: string }> {
+  const fileId = nanoid(10);
+  const ext = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
+  const basePath = `vehicles/${vehicleId}/${fileId}`;
+  const uploadDir = join(process.cwd(), 'public', 'uploads', 'vehicles', vehicleId);
+  
+  // Create directory if it doesn't exist
+  await mkdir(uploadDir, { recursive: true });
+
+  const urls: Record<string, string> = {};
+
+  // Only upload thumbnail and large sizes for local storage (to save space)
+  const sizesToProcess = ['thumbnail', 'large'];
+  
+  for (const sizeName of sizesToProcess) {
+    const sizeConfig = IMAGE_SIZES[sizeName as keyof typeof IMAGE_SIZES];
+    try {
+      let processedImage = sharp(buffer);
+      if ('width' in sizeConfig && sizeConfig.width) {
+        processedImage = processedImage.resize(sizeConfig.width, 'height' in sizeConfig ? sizeConfig.height : undefined, {
+          fit: 'inside',
+          withoutEnlargement: true,
+          kernel: sharp.kernel.lanczos3,
+        });
+      }
+      
+      let processedBuffer: Buffer;
+      let fileExtension: string;
+      
+      if (sizeName === 'thumbnail') {
+        // Use WebP for thumbnails
+        processedBuffer = await processedImage
+          .webp({ quality: sizeConfig.quality || 90, effort: 6 })
+          .toBuffer();
+        fileExtension = 'webp';
+      } else {
+        // Keep original format for large size
+        if (ext === 'png') {
+          processedBuffer = await processedImage.png({ 
+            quality: sizeConfig.quality || 98,
+            compressionLevel: 6
+          }).toBuffer();
+          fileExtension = 'png';
+        } else {
+          processedBuffer = await processedImage.jpeg({ 
+            quality: sizeConfig.quality || 98,
+            progressive: true,
+            mozjpeg: true
+          }).toBuffer();
+          fileExtension = 'jpg';
+        }
+      }
+      
+      const fileName = `${fileId}-${sizeName}.${fileExtension}`;
+      const filePath = join(uploadDir, fileName);
+      await writeFile(filePath, processedBuffer);
+      
+      // Return relative URL
+      urls[sizeName] = `/uploads/vehicles/${vehicleId}/${fileName}`;
+    } catch (err: any) {
+      console.error('Local file upload error:', err?.name, err?.message);
+      throw err;
+    }
   }
+
+  return {
+    urls,
+    primaryUrl: urls.large || urls.thumbnail,
+  };
 }
 
 /**
@@ -57,6 +136,13 @@ export async function uploadVehicleImage(
   originalFilename: string
 ): Promise<{ urls: Record<string, string>; primaryUrl: string }> {
   assertStorageConfigured();
+  
+  // Use local filesystem if S3/R2 is not configured
+  if (!s3Client) {
+    console.log('S3/R2 not configured, using local filesystem');
+    return uploadToLocalFilesystem(buffer, vehicleId, originalFilename);
+  }
+  
   const fileId = nanoid(10);
   const ext = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
   const basePath = `vehicles/${vehicleId}/${fileId}`;
@@ -140,9 +226,27 @@ export async function uploadVehicleImage(
  */
 export async function deleteVehicleImage(imageUrl: string): Promise<void> {
   try {
+    // Check if it's a local file or S3/R2 URL
+    if (imageUrl.startsWith('/uploads/')) {
+      // Local file
+      const filePath = join(process.cwd(), 'public', imageUrl.replace(/^\//, ''));
+      try {
+        await unlink(filePath);
+      } catch (error) {
+        // Ignore errors for files that don't exist
+      }
+      return;
+    }
+
+    // S3/R2 file
+    if (!s3Client) {
+      console.log('S3/R2 not configured, skipping delete');
+      return;
+    }
+
     // Extract key from URL
     const key = imageUrl.replace(PUBLIC_URL + '/', '');
-    const basePath = key.replace(/-[^-]+\.webp$/, '');
+    const basePath = key.replace(/-[^-]+\.(webp|jpg|jpeg|png)$/, '');
 
     // Delete all sizes
     for (const sizeName of Object.keys(IMAGE_SIZES)) {

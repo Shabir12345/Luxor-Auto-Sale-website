@@ -297,13 +297,16 @@ export default function HomePage() {
     const formData = new FormData(form);
 
     try {
+      // Get phone value and convert to undefined if empty
+      const phoneValue = formData.get('phone')?.toString().trim();
+      
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.get('name'),
           email: formData.get('email'),
-          phone: formData.get('phone'),
+          phone: phoneValue || undefined,
           message: formData.get('message'),
         }),
       });
@@ -313,7 +316,7 @@ export default function HomePage() {
         setFormStatus({ type: 'success', message: 'Message sent! We\'ll get back to you soon.' });
         form.reset();
       } else {
-        setFormStatus({ type: 'error', message: 'Failed to send message. Please try again.' });
+        setFormStatus({ type: 'error', message: result.error || 'Failed to send message. Please try again.' });
       }
     } catch (error) {
       setFormStatus({ type: 'error', message: 'Network error. Please try again.' });
