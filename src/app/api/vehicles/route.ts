@@ -118,9 +118,22 @@ export async function GET(request: NextRequest) {
     };
 
     // Build order by
-    const orderBy: Prisma.VehicleOrderByWithRelationInput = {
-      [filters.sortBy]: filters.sortOrder,
-    };
+    let orderBy: Prisma.VehicleOrderByWithRelationInput;
+    switch (filters.sortBy) {
+      case 'price':
+        orderBy = { priceCents: filters.sortOrder } as Prisma.VehicleOrderByWithRelationInput;
+        break;
+      case 'odometer':
+        orderBy = { odometerKm: filters.sortOrder } as Prisma.VehicleOrderByWithRelationInput;
+        break;
+      case 'year':
+        orderBy = { year: filters.sortOrder } as Prisma.VehicleOrderByWithRelationInput;
+        break;
+      case 'createdAt':
+      default:
+        orderBy = { createdAt: filters.sortOrder } as Prisma.VehicleOrderByWithRelationInput;
+        break;
+    }
 
     // Count total
     const total = await prisma.vehicle.count({ where });
