@@ -6,6 +6,8 @@ import { vehicleFiltersSchema } from '@/lib/validation';
 import { ApiResponse, PaginatedResponse } from '@/types';
 import { Prisma } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
