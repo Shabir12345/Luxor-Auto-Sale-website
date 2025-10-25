@@ -31,13 +31,19 @@
   --blur-strong: blur(40px);
 }
 
+/* Base font size for consistent scaling across all devices */
+html {
+  font-size: 16px; /* Base font size for consistent rem/em calculations */
+  -webkit-text-size-adjust: 100%; /* Prevent iOS Safari from scaling text */
+  text-size-adjust: 100%;
+}
+
 /* Logo Styles */
 .logo {
-  max-height: 150px; /* 125px + 20% = 150px */
+  max-height: 120px; /* Consistent size across devices */
   width: auto;
   object-fit: contain;
   background: transparent;
-  /* Clean styling for transparent logo */
   filter: brightness(1.1) contrast(1.05);
   transition: all 0.3s ease;
 }
@@ -47,15 +53,34 @@
   transform: scale(1.02);
 }
 
-/* Navigation height adjustments for mobile */
+/* Navigation height adjustments for all screen sizes */
 @media (max-width: 640px) {
   .logo {
-    max-height: 120px; /* 100px + 20% = 120px */
+    max-height: 80px; /* Smaller on mobile */
   }
   
-  /* Adjust navigation height for mobile */
   .nav-mobile {
-    height: 60px !important;
+    height: auto !important;
+    min-height: 70px;
+    padding: 8px 16px;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .logo {
+    max-height: 100px;
+  }
+  
+  .nav-mobile {
+    height: 90px !important;
+  }
+}
+
+/* Desktop - standard size */
+@media (min-width: 1025px) {
+  .logo {
+    max-height: 120px;
   }
 }
 
@@ -174,6 +199,57 @@ html {
 .sticky-header.scrolled {
   background: rgba(17, 24, 39, 0.95);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Typography - Ensure consistent text sizing across all screens */
+h1 {
+  font-size: clamp(2rem, 5vw, 4.5rem); /* Responsive heading 1 */
+}
+
+h2 {
+  font-size: clamp(1.75rem, 4vw, 3.5rem); /* Responsive heading 2 */
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem); /* Responsive heading 3 */
+}
+
+h4 {
+  font-size: clamp(1.25rem, 3vw, 2rem); /* Responsive heading 4 */
+}
+
+/* Button sizes for better consistency */
+.btn-modern {
+  font-size: clamp(0.875rem, 2vw, 1rem); /* Responsive button text */
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+}
+
+/* Navigation button text size */
+button.nav-button {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+
+/* Card text consistency */
+.card-modern {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+}
+
+/* Container max-width for better layout control */
+.container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1rem, 4vw, 2rem);
+  padding-right: clamp(1rem, 4vw, 2rem);
+}
+
+/* Prevent zoom on input focus (iOS Safari) */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+textarea,
+select {
+  font-size: 16px; /* Prevents iOS zoom */
 }
 
 /* Smooth section transitions */
