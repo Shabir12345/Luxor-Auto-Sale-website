@@ -7,6 +7,8 @@ import { createPhotoSchema } from '@/lib/validation';
 import { ApiResponse } from '@/types';
 import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Verify auth here (Node runtime)

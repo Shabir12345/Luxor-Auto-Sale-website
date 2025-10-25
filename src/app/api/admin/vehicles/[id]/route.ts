@@ -9,6 +9,8 @@ import { generateVehicleSlug } from '@/utils/slugify';
 import { ApiResponse } from '@/types';
 import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

@@ -7,6 +7,8 @@ import { generateVehicleSlug } from '@/utils/slugify';
 import { ApiResponse } from '@/types';
 import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // Verify auth here (Node runtime)
