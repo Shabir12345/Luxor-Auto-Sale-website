@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/types';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(
   request: NextRequest,
@@ -60,6 +61,10 @@ export async function GET(
     );
   } catch (error) {
     console.error('Get vehicle error:', error);
+    console.error('Vehicle slug API error details:', {
+      message: (error as any)?.message,
+      stack: (error as any)?.stack,
+    });
     return NextResponse.json<ApiResponse>(
       {
         success: false,

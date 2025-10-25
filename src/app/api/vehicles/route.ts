@@ -7,6 +7,7 @@ import { ApiResponse, PaginatedResponse } from '@/types';
 import { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
@@ -159,6 +160,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error('Get vehicles error:', error);
+    console.error('Vehicles API error details:', {
+      message: (error as any)?.message,
+      stack: (error as any)?.stack,
+    });
     return NextResponse.json<ApiResponse>(
       {
         success: false,

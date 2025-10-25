@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { sendContactFormNotification } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),

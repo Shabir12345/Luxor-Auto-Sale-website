@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { sendFinancingApplicationNotification } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const financingSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),

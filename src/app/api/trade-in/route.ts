@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { sendTradeInRequestNotification } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const tradeInSchema = z.object({
   vehicle: z.string().min(1, 'Vehicle information is required'),

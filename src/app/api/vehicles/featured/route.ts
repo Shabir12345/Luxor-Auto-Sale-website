@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/types';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,6 +69,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error('Get featured vehicles error:', error);
+    console.error('Featured API error details:', {
+      message: (error as any)?.message,
+      stack: (error as any)?.stack,
+    });
     return NextResponse.json<ApiResponse>(
       {
         success: false,
