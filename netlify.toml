@@ -1,0 +1,17 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+  
+# Netlify functions for API routes
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["src/app/api/**"]
+
+# Redirect all requests to Next.js
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/nextjs"
+  status = 200
