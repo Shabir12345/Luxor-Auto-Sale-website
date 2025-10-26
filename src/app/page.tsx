@@ -406,7 +406,7 @@ export default function HomePage() {
 
       {/* Header */}
       <header className={`sticky-header bg-gray-900 bg-opacity-80 shadow-lg transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`} role="banner">
-        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation" style={{height: '104px'}}>
+        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation" style={{height: '88px'}}>
           <a href="#home" className="flex items-center" aria-label="Luxor Auto Sale - Home">
             <img 
               src="/Logo.png" 
