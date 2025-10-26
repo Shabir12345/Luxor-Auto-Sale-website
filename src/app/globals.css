@@ -40,7 +40,7 @@ html {
 
 /* Logo Styles */
 .logo {
-  max-height: 120px; /* Consistent size across devices */
+  max-height: 102px; /* 120px * 85% = 102px */
   width: auto;
   object-fit: contain;
   background: transparent;
@@ -56,12 +56,12 @@ html {
 /* Navigation height adjustments for all screen sizes */
 @media (max-width: 640px) {
   .logo {
-    max-height: 80px; /* Smaller on mobile */
+    max-height: 68px; /* 80px * 85% = 68px */
   }
   
   .nav-mobile {
     height: auto !important;
-    min-height: 70px;
+    min-height: 59.5px; /* 70px * 85% = 59.5px */
     padding: 8px 16px;
   }
 }
@@ -69,18 +69,18 @@ html {
 /* Tablet adjustments */
 @media (min-width: 641px) and (max-width: 1024px) {
   .logo {
-    max-height: 100px;
+    max-height: 85px; /* 100px * 85% = 85px */
   }
   
   .nav-mobile {
-    height: 90px !important;
+    height: 76.5px !important; /* 90px * 85% = 76.5px */
   }
 }
 
 /* Desktop - standard size */
 @media (min-width: 1025px) {
   .logo {
-    max-height: 120px;
+    max-height: 102px; /* 120px * 85% = 102px */
   }
 }
 
@@ -188,6 +188,7 @@ html {
 
 html {
   scroll-behavior: smooth;
+  font-size: 13.6px; /* 85% of 16px base size */
 }
 
 /* Modern Navigation Enhancements */
