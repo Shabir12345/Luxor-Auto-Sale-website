@@ -5,6 +5,13 @@ const nextConfig = {
   poweredByHeader: false,
   output: 'standalone', // For Docker deployment
   
+  // Optimize API routes for Netlify
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
   // Fix for bcrypt in Next.js
   webpack: (config, { isServer }) => {
     if (isServer) {
