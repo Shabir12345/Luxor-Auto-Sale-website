@@ -189,7 +189,15 @@ export async function GET(request: NextRequest) {
     console.error('Vehicles API error details:', {
       message: (error as any)?.message,
       stack: (error as any)?.stack,
+      name: (error as any)?.name,
+      code: (error as any)?.code,
     });
+    
+    // Check if it's a Prisma error
+    if ((error as any)?.code === 'P2002' || (error as any)?.code?.startsWith('P')) {
+      console.error('Prisma error detected:', (error as any)?.code);
+    }
+    
     return NextResponse.json<ApiResponse>(
       {
         success: false,
