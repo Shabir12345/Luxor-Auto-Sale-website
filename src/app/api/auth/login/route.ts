@@ -7,9 +7,22 @@ import { loginSchema } from '@/lib/validation';
 import { ApiResponse } from '@/types';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Prisma is initialized
+    if (!prisma) {
+      console.error('Prisma client not initialized');
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: 'Database connection not initialized',
+        },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const validation = loginSchema.safeParse(body);
 
@@ -83,6 +96,25 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Login error:', error);
+    console.error('Login error details:', {
+      message: (error as any)?.message,
+      name: (error as any)?.name,
+      code: (error as any)?.code,
+      stack: (error as any)?.stack,
+    });
+    
+    // Check if it's a database connection error
+    if ((error as any)?.code === 'P1001' || (error as any)?.message?.includes('Can\'t reach database server')) {
+      console.error('Database connection error detected');
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: 'Database connection failed',
+        },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json<ApiResponse>(
       {
         success: false,
