@@ -4,6 +4,7 @@
 // All sections from original index.html with backend integration
 
 import Link from 'next/link';
+import Image from 'next/image';
 import Script from 'next/script';
 import { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -19,7 +20,6 @@ export default function HomePage() {
   const [formStatus, setFormStatus] = useState({ type: '', message: '' });
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const [lastFeaturedUpdate, setLastFeaturedUpdate] = useState(Date.now());
   
   // Filter states for homepage inventory
   const [filters, setFilters] = useState({
@@ -42,6 +42,7 @@ export default function HomePage() {
   // Google Reviews state
   const [googleReviews, setGoogleReviews] = useState<any>(null);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   // Initialize filters from URL parameters
   useEffect(() => {
@@ -126,11 +127,11 @@ export default function HomePage() {
     fetchVehicles();
   }, [filters]);
 
-  // Separate effect to fetch featured vehicles independently
+  // Fetch featured vehicles independently (only once on mount)
   useEffect(() => {
     const fetchFeaturedVehicles = async () => {
       try {
-        console.log('Fetching featured vehicles independently...');
+        console.log('Fetching featured vehicles...');
         const featuredResponse = await fetch('/api/vehicles/featured?limit=3', {
           cache: 'no-store',
           headers: {
@@ -138,10 +139,8 @@ export default function HomePage() {
           },
         });
         const featuredData = await featuredResponse.json();
-        console.log('Independent featured vehicles response:', featuredData);
         if (featuredData.success) {
           setFeaturedVehicles(featuredData.data || []);
-          console.log('Independent featured vehicles set:', featuredData.data);
         }
       } catch (error) {
         console.error('Failed to fetch featured vehicles:', error);
@@ -149,33 +148,11 @@ export default function HomePage() {
     };
 
     fetchFeaturedVehicles();
-  }, []); // Run once on mount
+  }, []); // Run once on mount only
 
-  // Periodic refresh of featured vehicles every 30 seconds
+  // Set isClient to true on mount
   useEffect(() => {
-    const interval = setInterval(() => {
-      console.log('Periodic featured vehicles refresh...');
-      const fetchFeaturedVehicles = async () => {
-        try {
-          const featuredResponse = await fetch('/api/vehicles/featured?limit=3', {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache',
-            },
-          });
-          const featuredData = await featuredResponse.json();
-          if (featuredData.success) {
-            setFeaturedVehicles(featuredData.data || []);
-            setLastFeaturedUpdate(Date.now());
-          }
-        } catch (error) {
-          console.error('Failed to refresh featured vehicles:', error);
-        }
-      };
-      fetchFeaturedVehicles();
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(interval);
+    setIsClient(true);
   }, []);
 
   // Fetch Google Reviews
@@ -443,10 +420,13 @@ export default function HomePage() {
       <header className={`sticky-header bg-gray-900 bg-opacity-80 shadow-lg transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`} role="banner">
         <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation" style={{height: '88px'}}>
           <a href="#home" className="flex items-center" aria-label="Luxor Auto Sale - Home">
-            <img 
+            <Image 
               src="/Logo.png" 
               alt="Luxor Auto Sale Logo" 
+              width={150}
+              height={60}
               className="logo transition-all duration-300"
+              priority
             />
           </a>
           <div className="hidden md:flex space-x-6 items-center" role="menubar">
@@ -586,7 +566,7 @@ export default function HomePage() {
               <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
                 Hand-picked selection of our finest cars, meticulously inspected for your peace of mind.
               </p>
-              <div className="mt-4 flex items-center justify-center gap-4">
+              <div className="mt-4 flex items-center justify-center">
                 <button 
                   onClick={async () => {
                     console.log('Manual refresh of featured vehicles...');
@@ -598,7 +578,6 @@ export default function HomePage() {
                       const featuredData = await featuredResponse.json();
                       if (featuredData.success) {
                         setFeaturedVehicles(featuredData.data || []);
-                        setLastFeaturedUpdate(Date.now());
                         console.log('Featured vehicles manually refreshed:', featuredData.data);
                       }
                     } catch (error) {
@@ -609,9 +588,6 @@ export default function HomePage() {
                 >
                   🔄 Refresh Featured
                 </button>
-                <span className="text-xs text-gray-400">
-                  Last updated: <span suppressHydrationWarning>{new Date(lastFeaturedUpdate).toLocaleTimeString()}</span>
-                </span>
               </div>
             </div>
             
@@ -625,12 +601,14 @@ export default function HomePage() {
                 {featuredVehicles.slice(0, 3).map((vehicle: any, index: number) => (
                   <div key={vehicle.id} className="group car-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 hover:shadow-blue-500/20 transition-all duration-500 h-full flex flex-col border border-gray-700 hover:border-blue-500/50">
                     <div className="relative overflow-hidden">
-                      <img 
+                      <Image 
                         src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
-                          alt={vehicle.title} 
-                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" 
-                          loading="lazy" 
-                        />
+                        alt={vehicle.title || 'Vehicle image'} 
+                        width={800}
+                        height={400}
+                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                        loading="lazy"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         Featured #{index + 1}
@@ -718,7 +696,7 @@ export default function HomePage() {
             </div>
 
             {/* Google Reviews Display */}
-            {reviewsLoading ? (
+            {reviewsLoading || !isClient ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
                 <p className="mt-4 text-gray-400">Loading reviews...</p>
@@ -757,9 +735,11 @@ export default function HomePage() {
                           {/* Author Info */}
                           <div className="flex items-center mb-4">
                             {review.authorPhoto && (
-                              <img 
+                              <Image 
                                 src={review.authorPhoto} 
                                 alt={review.author} 
+                                width={48}
+                                height={48}
                                 className="w-12 h-12 rounded-full mr-3 flex-shrink-0"
                               />
                             )}
@@ -1070,12 +1050,15 @@ export default function HomePage() {
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <div className="relative overflow-hidden">
-                        <img 
+                        <Image 
                           src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
-                        alt={vehicle.title} 
-                          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" 
-                        loading="lazy" 
-                      />
+                          alt={vehicle.title || 'Vehicle image'} 
+                          width={800}
+                          height={400}
+                          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                          loading="lazy"
+                          unoptimized={false}
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
                           vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
@@ -1661,8 +1644,8 @@ export default function HomePage() {
                         </div>
                         <div>
                           <h4 className="font-semibold text-white mb-1">Email Us</h4>
-                          <a href="mailto:sales@luxorautosale.com" className="text-purple-400 hover:text-purple-300 transition-colors duration-300">
-                            sales@luxorautosale.com
+                          <a href="mailto:luxorautosale@gmail.com" className="text-purple-400 hover:text-purple-300 transition-colors duration-300">
+                            luxorautosale@gmail.com
                           </a>
                         </div>
                       </div>
@@ -1722,9 +1705,11 @@ export default function HomePage() {
             {/* Company Info */}
             <div className="lg:col-span-2">
               <a href="#home" className="mb-6 inline-block group">
-                <img 
+                <Image 
                   src="/Logo.png" 
                   alt="Luxor Auto Sale Logo" 
+                  width={150}
+                  height={60}
                   className="logo transition-all duration-300 group-hover:scale-105"
                 />
               </a>
@@ -1757,7 +1742,7 @@ export default function HomePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <a href="mailto:sales@luxorautosale.com" className="hover:text-purple-400 transition-colors">sales@luxorautosale.com</a>
+                  <a href="mailto:luxorautosale@gmail.com" className="hover:text-purple-400 transition-colors">luxorautosale@gmail.com</a>
                 </div>
               </div>
             </div>

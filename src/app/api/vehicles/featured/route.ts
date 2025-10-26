@@ -34,13 +34,32 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
       take: limit,
-      include: {
+      select: {
+        id: true,
+        seoSlug: true,
+        make: true,
+        model: true,
+        year: true,
+        title: true,
+        description: true,
+        priceCents: true,
+        odometerKm: true,
+        exteriorColor: true,
+        interiorColor: true,
+        status: true,
+        isFeatured: true,
+        createdAt: true,
         photos: {
           orderBy: [
-            { isPrimary: 'desc' }, // Primary photos first
-            { sortOrder: 'asc' }, // Then by sort order
+            { isPrimary: 'desc' },
+            { sortOrder: 'asc' },
           ],
           take: 1,
+          select: {
+            id: true,
+            url: true,
+            isPrimary: true,
+          },
         },
       },
     });

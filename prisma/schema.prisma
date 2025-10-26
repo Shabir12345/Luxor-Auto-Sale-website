@@ -81,6 +81,9 @@ model Vehicle {
   features        VehicleFeature[]
   
   @@index([status, make, model])
+  @@index([status, isFeatured])
+  @@index([status, createdAt])
+  @@index([make, year])
   @@index([priceCents])
   @@index([year])
   @@index([odometerKm])

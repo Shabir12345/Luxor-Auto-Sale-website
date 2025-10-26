@@ -228,7 +228,7 @@ export default async function VehicleDetailPage({ params }: Props) {
                   <div className="pt-4 border-t border-gray-700">
                     <p className="text-xs text-gray-400 mb-2">Quick Contact:</p>
                     <p className="text-sm text-white font-semibold">📞 (416) 523-5375</p>
-                    <p className="text-sm text-white">📧 info@luxorautosale.com</p>
+                    <p className="text-sm text-white">📧 luxorautosale@gmail.com</p>
                   </div>
                 </div>
               </div>

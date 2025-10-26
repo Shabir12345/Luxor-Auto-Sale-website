@@ -11,6 +11,19 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
   },
+
+  // Performance optimizations
+  compress: true,
+  
+  // Optimize fonts
+  optimizeFonts: true,
+  
+  // Reduce JavaScript bundle size
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
   
   // Fix for bcrypt in Next.js
   webpack: (config, { isServer }) => {
@@ -55,6 +68,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.luxorautosale.com', // Custom CDN/domain
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com', // Google profile images
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -93,6 +110,24 @@ const nextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self)',
+          },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
