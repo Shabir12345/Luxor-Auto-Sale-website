@@ -15,6 +15,7 @@ export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [lastFeaturedUpdate, setLastFeaturedUpdate] = useState(Date.now());
+  const [googleReviews, setGoogleReviews] = useState<any>(null);
   
   // Filter states for homepage inventory
   const [filters, setFilters] = useState({
@@ -167,6 +168,22 @@ export default function HomePage() {
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Fetch Google Reviews
+  useEffect(() => {
+    async function fetchGoogleReviews() {
+      try {
+        const response = await fetch('/api/google-reviews');
+        const data = await response.json();
+        if (data.success) {
+          setGoogleReviews(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch Google reviews:', error);
+      }
+    }
+    fetchGoogleReviews();
   }, []);
 
   // Update URL when filters change
@@ -682,127 +699,76 @@ export default function HomePage() {
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                 </svg>
                 <span className="text-white font-semibold">Google Reviews</span>
-                <span className="ml-2 text-yellow-400 font-bold">4.9/5</span>
+                <span className="ml-2 text-yellow-400 font-bold">{googleReviews?.rating || '4.9'}/5</span>
+                {googleReviews?.totalRatings && (
+                  <span className="ml-2 text-gray-400 text-sm">({googleReviews.totalRatings} reviews)</span>
+                )}
               </div>
             </div>
 
             <div className="swiper testimonial-carousel">
               <div className="swiper-wrapper">
-                {/* Google Review 1 */}
-                <div className="swiper-slide">
-                  <div className="card-modern p-8 h-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                          J
-                    </div>
-                        <div className="ml-3">
-                          <p className="font-bold text-white">John D.</p>
-                          <div className="flex text-yellow-400">
-                            ★★★★★
-                  </div>
-                </div>
-                      </div>
-                      <div className="text-sm text-gray-400">2 days ago</div>
-                    </div>
-                    <p className="font-serif-georgia text-gray-300 text-left">"I was dreading the car buying process, but the team at Luxor made it so easy and stress-free. No pressure, just honest advice. Found the perfect car for my family!"</p>
-                    <div className="mt-4 text-left">
-                      <div className="flex items-center text-sm text-gray-400">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                        </svg>
-                        Oshawa, ON
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Google Review 2 */}
-                <div className="swiper-slide">
-                  <div className="card-modern p-8 h-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                          S
-                    </div>
-                        <div className="ml-3">
-                          <p className="font-bold text-white">Sarah K.</p>
-                          <div className="flex text-yellow-400">
-                            ★★★★★
-                  </div>
-                </div>
-                      </div>
-                      <div className="text-sm text-gray-400">1 week ago</div>
-                    </div>
-                    <p className="font-serif-georgia text-gray-300 text-left">"They gave me a better trade-in value than any of the big dealerships. It felt good to support a local family business. The financing process was smooth and transparent."</p>
-                    <div className="mt-4 text-left">
-                      <div className="flex items-center text-sm text-gray-400">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                        </svg>
-                        Whitby, ON
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Google Review 3 */}
-                <div className="swiper-slide">
-                  <div className="card-modern p-8 h-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                          M
-                    </div>
-                        <div className="ml-3">
-                          <p className="font-bold text-white">Mike R.</p>
-                          <div className="flex text-yellow-400">
-                            ★★★★★
-                  </div>
-                </div>
-              </div>
-                      <div className="text-sm text-gray-400">2 weeks ago</div>
-                    </div>
-                    <p className="font-serif-georgia text-gray-300 text-left">"My credit isn't perfect, and I was worried I wouldn't get approved. They worked with me and found a financing solution that fit my budget. So grateful for their patience and understanding!"</p>
-                    <div className="mt-4 text-left">
-                      <div className="flex items-center text-sm text-gray-400">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                        </svg>
-                        Bowmanville, ON
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Google Review 4 */}
-                <div className="swiper-slide">
-                  <div className="card-modern p-8 h-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                          L
-                        </div>
-                        <div className="ml-3">
-                          <p className="font-bold text-white">Lisa M.</p>
-                          <div className="flex text-yellow-400">
-                            ★★★★★
+                {googleReviews?.reviews && googleReviews.reviews.length > 0 ? (
+                  googleReviews.reviews.map((review: any, index: number) => {
+                    const initials = review.author.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+                    const gradientClasses = [
+                      'from-blue-500 to-green-500',
+                      'from-green-500 to-blue-500',
+                      'from-blue-500 to-purple-500',
+                      'from-green-500 to-yellow-500'
+                    ];
+                    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                    
+                    return (
+                      <div key={index} className="swiper-slide">
+                        <div className="card-modern p-8 h-full">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center">
+                              {review.authorPhoto ? (
+                                <img src={review.authorPhoto} alt={review.author} className="w-12 h-12 rounded-full" />
+                              ) : (
+                                <div className={`w-12 h-12 bg-gradient-to-r ${gradientClasses[index % gradientClasses.length]} rounded-full flex items-center justify-center text-white font-bold text-lg`}>
+                                  {initials}
+                                </div>
+                              )}
+                              <div className="ml-3">
+                                <p className="font-bold text-white">{review.author}</p>
+                                <div className="flex text-yellow-400 text-sm">
+                                  {stars}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-sm text-gray-400">{review.time}</div>
                           </div>
+                          <p className="font-serif-georgia text-gray-300 text-left">"{review.text}"</p>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-400">3 weeks ago</div>
-                    </div>
-                    <p className="font-serif-georgia text-gray-300 text-left">"Excellent service from start to finish! The team was knowledgeable, friendly, and never pressured me into anything. They helped me find exactly what I was looking for within my budget."</p>
-                    <div className="mt-4 text-left">
-                      <div className="flex items-center text-sm text-gray-400">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                        </svg>
-                        Ajax, ON
+                    );
+                  })
+                ) : (
+                  // Fallback to placeholder reviews if API fails
+                  <>
+                    <div className="swiper-slide">
+                      <div className="card-modern p-8 h-full">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center">
+                            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                              J
+                            </div>
+                            <div className="ml-3">
+                              <p className="font-bold text-white">John D.</p>
+                              <div className="flex text-yellow-400">
+                                ★★★★★
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-400">2 days ago</div>
+                        </div>
+                        <p className="font-serif-georgia text-gray-300 text-left">"I was dreading the car buying process, but the team at Luxor made it so easy and stress-free. No pressure, just honest advice. Found the perfect car for my family!"</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
             </div>
 
