@@ -33,6 +33,10 @@ export default function HomePage() {
   const [availableMakes, setAvailableMakes] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout | null>(null);
+  
+  // Google Reviews state
+  const [googleReviews, setGoogleReviews] = useState<any>(null);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   // Initialize filters from URL parameters
   useEffect(() => {
@@ -169,7 +173,25 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-
+  // Fetch Google Reviews
+  useEffect(() => {
+    async function fetchGoogleReviews() {
+      try {
+        const response = await fetch('/api/google-reviews', {
+          cache: 'no-store',
+        });
+        const data = await response.json();
+        if (data.success && data.data) {
+          setGoogleReviews(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch Google reviews:', error);
+      } finally {
+        setReviewsLoading(false);
+      }
+    }
+    fetchGoogleReviews();
+  }, []);
 
   // Update URL when filters change
   useEffect(() => {
@@ -684,31 +706,92 @@ export default function HomePage() {
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                 </svg>
                 <span className="text-white font-semibold">Google Reviews</span>
-                <span className="ml-2 text-yellow-400 font-bold">4.9/5</span>
+                {googleReviews && (
+                  <span className="ml-2 text-yellow-400 font-bold">{googleReviews.rating}/5</span>
+                )}
               </div>
             </div>
 
-            {/* Google Reviews Call-to-Action */}
-            <div className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 backdrop-blur-sm rounded-lg p-8 border border-white/20 mb-8 text-center">
-              <svg className="w-16 h-16 text-yellow-400 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-              <h3 className="text-2xl font-bold text-white mb-3">See What Our Customers Are Saying</h3>
-              <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-                We're proud of our 4.9-star rating from real customers. Read genuine reviews from families in Oshawa and across the Durham Region who have trusted us with their car buying journey.
-              </p>
-              <a 
-                href="https://www.google.com/maps/place/Luxor+Auto+Sale/@43.897235,-78.850816,15z/data=!4m6!3m5!1s0x89d51e3b598e3b0f:0x1e0bbd5c4e8c9c8c!8m2!3d43.897235!4d-78.850816!16s%2Fg%2F1trvkkkz?entry=ttu&g_ep=EgoyMDI0MDYwNy4wIKXMDSoASAFQAw%3D%3D"
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center btn-modern px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform"
-              >
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.545 15.467l-.396-.396c.292-.539.416-1.145.416-1.783a3.848 3.848 0 00-3.848-3.847 3.848 3.848 0 00-3.847 3.847c0 .638.124 1.244.416 1.783l-.396.396-2.11 2.11v2.829h2.829l2.11-2.11.396.396c.539-.292 1.145-.416 1.783-.416s1.244.124 1.783.416l.396-.396 2.11-2.11h2.829v-2.829l-2.11 2.11zm-3.523-3.536a.856.856 0 110-1.712.856.856 0 010 1.712zM7.5 10a2 2 0 11-.001 3.999A2 2 0 017.5 10zm5.443 3.413l-.716-.716c-.436-.436-1.062-.707-1.727-.707s-1.291.271-1.727.707l-.716.716H5v-4.827l2.11-2.11h2.829l2.11 2.11V13.413zM14.443 21.413h-1.729l-3.656-3.656c1.225 1.186 2.927 1.913 4.816 1.913 1.535 0 2.974-.516 4.126-1.449l-1.449 1.449c-.707.707-1.718 1.106-2.749 1.106s-2.042-.399-2.749-1.106v.157h-.01z"/>
+            {/* Google Reviews Display */}
+            {reviewsLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <p className="mt-4 text-gray-400">Loading reviews...</p>
+              </div>
+            ) : googleReviews?.reviews && googleReviews.reviews.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {googleReviews.reviews.map((review: any, index: number) => (
+                    <div key={index} className="bg-gray-900/60 backdrop-blur-sm rounded-lg p-6 border border-white/10 hover:border-blue-500/50 transition-all hover:shadow-xl">
+                      {/* Author Info */}
+                      <div className="flex items-center mb-4">
+                        {review.authorPhoto && (
+                          <img 
+                            src={review.authorPhoto} 
+                            alt={review.author} 
+                            className="w-12 h-12 rounded-full mr-3"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-white">{review.author}</h4>
+                          <p className="text-sm text-gray-400">{review.time}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Rating Stars */}
+                      <div className="flex mb-3">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                            className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-600'}`}
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        ))}
+                      </div>
+                      
+                      {/* Review Text */}
+                      <p className="text-gray-300 leading-relaxed line-clamp-4">{review.text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* View All Reviews Link */}
+                <div className="text-center">
+                  <a 
+                    href="https://www.google.com/maps/place/Luxor+Auto+Sale/@43.897235,-78.850816,15z/data=!4m6!3m5!1s0x89d51e3b598e3b0f:0x1e0bbd5c4e8c9c8c!8m2!3d43.897235!4d-78.850816!16s%2Fg%2F1trvkkkz?entry=ttu"
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center btn-outline-modern px-6 py-3 rounded-full text-sm font-semibold hover:scale-105 transition-transform"
+                  >
+                    View All {googleReviews.totalRatings || ''} Reviews on Google
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </>
+            ) : (
+              <div className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 backdrop-blur-sm rounded-lg p-8 border border-white/20 text-center">
+                <svg className="w-16 h-16 text-yellow-400 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                 </svg>
-                Read All Reviews on Google
-              </a>
-            </div>
+                <h3 className="text-2xl font-bold text-white mb-3">See What Our Customers Are Saying</h3>
+                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                  We're proud of our 4.9-star rating from real customers. Read genuine reviews from families in Oshawa and across the Durham Region who have trusted us with their car buying journey.
+                </p>
+                <a 
+                  href="https://www.google.com/maps/place/Luxor+Auto+Sale/@43.897235,-78.850816,15z/data=!4m6!3m5!1s0x89d51e3b598e3b0f:0x1e0bbd5c4e8c9c8c!8m2!3d43.897235!4d-78.850816!16s%2Fg%2F1trvkkkz?entry=ttu"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center btn-modern px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform"
+                >
+                  Read All Reviews on Google
+                </a>
+              </div>
+            )}
           </div>
         </section>
 
