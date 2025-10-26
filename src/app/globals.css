@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Georgia&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Georgia:wght@400;700&display=swap');
 
 :root {
   --brand-primary: #1e40af; /* Deep Blue - Trust & Professionalism */
@@ -138,6 +138,11 @@ html {
   padding: 0;
 }
 
+/* Global font consistency - Montserrat for all text by default */
+*, *::before, *::after {
+  font-family: inherit;
+}
+
 /* Modern Smooth Design Classes */
 .glassmorphism {
   background: var(--gradient-glass);
@@ -250,47 +255,74 @@ html {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsive Typography - Ensure consistent text sizing across all screens */
+/* Responsive Typography - Ensure consistent text sizing and weights across all screens */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 h1 {
   font-size: clamp(2rem, 5vw, 4.5rem); /* Responsive heading 1 */
   line-height: 1.2;
+  font-weight: 900; /* Extra bold for hero/primary headings */
 }
 
 h2 {
   font-size: clamp(1.75rem, 4vw, 3.5rem); /* Responsive heading 2 */
   line-height: 1.3;
+  font-weight: 700; /* Bold for section headings */
 }
 
 h3 {
   font-size: clamp(1.5rem, 3.5vw, 2.5rem); /* Responsive heading 3 */
   line-height: 1.4;
+  font-weight: 700; /* Bold for subsections */
 }
 
 h4 {
   font-size: clamp(1.25rem, 3vw, 2rem); /* Responsive heading 4 */
   line-height: 1.4;
+  font-weight: 700; /* Bold for sub-subsections */
 }
 
-/* Additional typography scaling for paragraphs */
-p, li, span, div {
+/* Additional typography scaling for paragraphs and body text */
+p, li, span, div, a {
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-size: clamp(0.875rem, 1.5vw, 1rem);
   line-height: 1.6;
+  font-weight: 400; /* Regular weight for body text */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Button sizes for better consistency */
 .btn-modern {
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-size: clamp(0.875rem, 2vw, 1rem); /* Responsive button text */
+  font-weight: 700; /* Bold for button text */
   padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Navigation button text size */
 button.nav-button {
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-size: clamp(0.875rem, 2vw, 1rem);
+  font-weight: 600; /* Semi-bold for navigation */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Card text consistency */
 .card-modern {
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-size: clamp(0.875rem, 1.5vw, 1rem);
+  font-weight: 400; /* Regular weight for card text */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Container max-width for better layout control */
@@ -340,9 +372,16 @@ button.nav-button {
 input[type="text"],
 input[type="email"],
 input[type="tel"],
+input[type="password"],
+input[type="number"],
 textarea,
-select {
+select,
+label {
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-size: 16px; /* Prevents iOS zoom */
+  font-weight: 400; /* Regular weight for form elements */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Smooth section transitions */
@@ -380,9 +419,12 @@ select {
   border-radius: 12px;
   padding: 12px 24px;
   color: white;
-  font-weight: 600;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 700;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .btn-modern:hover {
@@ -397,9 +439,12 @@ select {
   border-radius: 12px;
   padding: 10px 22px;
   color: white;
-  font-weight: 600;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 700;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .btn-outline-modern:hover {
@@ -436,11 +481,20 @@ select {
 }
 
 body {
-  font-family: 'Montserrat', system-ui, sans-serif;
+  font-family: 'Montserrat', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   background-color: #111827;
   color: #f3f4f6;
+}
+
+/* Ensure all children inherit the body font */
+body * {
+  font-family: inherit;
 }
 
 /* Hero Section with Parallax */
@@ -460,6 +514,7 @@ body {
 .btn-red {
   background-color: #dc2626;
   color: white;
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 700;
   padding: 0.75rem 2rem;
   border-radius: 0.5rem;
@@ -476,6 +531,8 @@ body {
   text-align: center;
   cursor: pointer;
   border: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .btn-red:hover {
@@ -487,6 +544,7 @@ body {
 .btn-indigo {
   background-color: #4f46e5;
   color: white;
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 700;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
@@ -503,6 +561,8 @@ body {
   text-align: center;
   cursor: pointer;
   border: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .btn-indigo:hover {
@@ -515,6 +575,7 @@ body {
   background-color: transparent;
   border: 2px solid #6366f1;
   color: white;
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 700;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
@@ -528,6 +589,8 @@ body {
   display: inline-block;
   text-align: center;
   cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .btn-outline:hover {
@@ -563,9 +626,11 @@ body {
   transform: translateY(30px);
 }
 
-/* Font Serif Georgia */
+/* Font Serif Georgia - For special emphasis or quotes */
 .font-serif-georgia {
-  font-family: 'Georgia', serif;
+  font-family: 'Georgia', 'Times New Roman', Times, serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Car Card Hover Effect */
@@ -653,12 +718,16 @@ button:focus, a:focus {
   }
   
   /* Better form inputs on mobile */
-  input, textarea, select {
+  input, textarea, select, label {
+    font-family: 'Montserrat', system-ui, sans-serif;
     font-size: 16px !important;
+    font-weight: 400;
     padding: 12px 16px;
     border-radius: 8px;
     -webkit-appearance: none;
     appearance: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   /* Better mobile buttons */
@@ -666,6 +735,10 @@ button:focus, a:focus {
     padding: 14px 24px;
     font-size: 16px;
     min-height: 48px;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 700;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   /* Improve spacing on mobile */

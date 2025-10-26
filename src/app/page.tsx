@@ -660,95 +660,7 @@ export default function HomePage() {
           </div>
 
           <div className="container mx-auto px-6 relative z-10">
-            <div className="text-center mb-12 reveal">
-              <span className="inline-block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                🏠 Family-Owned & Operated
-              </span>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
-                Why Choose a Family-Owned Dealership?
-              </h2>
-              <p className="max-w-3xl mx-auto text-xl text-gray-300 leading-relaxed">
-                At Luxor Auto Sale, you're not just another sale; you're our neighbour. We're your local family in the car business, committed to treating you like family.
-              </p>
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-12">
-              {/* Trust & Integrity Card */}
-              <div className="card-modern reveal">
-                <div className="flex items-start">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-3">True Integrity</h3>
-                    <p className="text-gray-300 leading-relaxed">
-                      When your name is on the sign, every customer matters. As a family-owned business, our reputation in Oshawa is our most valuable asset. No pressure tactics, just honest advice from people who live in your community.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Personalized Service Card */}
-              <div className="card-modern reveal">
-                <div className="flex items-start">
-                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-3">Personal Touch</h3>
-                    <p className="text-gray-300 leading-relaxed">
-                      Big dealerships see numbers; we see faces. We take time to understand your needs, budget, and lifestyle. Our team genuinely cares about finding you the perfect vehicle because your success is our success.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Community Investment Card */}
-              <div className="card-modern reveal">
-                <div className="flex items-start">
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-3">Local Commitment</h3>
-                    <p className="text-gray-300 leading-relaxed">
-                      We're not moving anywhere. We're invested in the Durham Region because this is our home too. Your support keeps local families employed and strengthens our community. When you shop local, everyone wins.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Flexible & Understanding Card */}
-              <div className="card-modern reveal">
-                <div className="flex items-start">
-                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-3">We Understand Life</h3>
-                    <p className="text-gray-300 leading-relaxed">
-                      Perfect credit? Great. Rebuilding? We got you. Life happens, and we understand. Our team works with real people with real budgets. We'll find a solution that works for your situation, not just push a sale.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center reveal">
-              <div className="mt-12 flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
-                <button onClick={() => scrollToSection('featured-inventory')} className="btn-modern">Browse Inventory</button>
-                <button onClick={() => scrollToSection('financing')} className="btn-outline-modern">Get Financing</button>
-                <button onClick={() => scrollToSection('sell-trade')} className="btn-outline-modern">Value Your Trade</button>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -1393,32 +1305,20 @@ export default function HomePage() {
           <div className="container mx-auto px-6 relative z-10">
             {/* Header */}
             <div className="text-center mb-16 reveal">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 rounded-full mb-6">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
+              <span className="inline-block bg-gradient-to-r from-blue-600 to-green-600 text-white px-6 py-3 rounded-full text-sm font-semibold mb-6">
+                🏠 Family-Owned & Operated Since Day One
+              </span>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
                 About Luxor Auto Sale
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-green-500 mx-auto rounded-full"></div>
+              <p className="max-w-3xl mx-auto text-xl text-gray-300 leading-relaxed">
+                Your trusted family in Oshawa's automotive community. Where relationships matter more than transactions.
+              </p>
+              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-green-500 mx-auto rounded-full mt-6"></div>
             </div>
 
             {/* Main Content */}
             <div className="max-w-6xl mx-auto">
-              {/* Our Story Section */}
-              <div className="text-center mb-16 reveal">
-                <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white">Our Story</h3>
-                <div className="max-w-4xl mx-auto">
-                  <p className="text-gray-300 leading-relaxed text-lg mb-6">
-                    Founded on the principles of <span className="text-blue-400 font-semibold">honesty</span>, <span className="text-green-400 font-semibold">integrity</span>, and <span className="text-blue-400 font-semibold">community</span>, Luxor Auto Sale has been proudly serving Oshawa and the Durham Region.
-                  </p>
-                  <p className="text-gray-300 leading-relaxed text-lg">
-                    As a family-owned business, we understand the importance of trust. Our mission is to provide high-quality, reliable pre-owned vehicles at fair prices, ensuring a transparent and enjoyable car-buying experience for every customer.
-                  </p>
-                </div>
-              </div>
-
               {/* Values & Features Grid */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
                 {/* Quality Card */}
@@ -1473,8 +1373,8 @@ export default function HomePage() {
                         </svg>
                       </div>
                       <div>
-                        <h4 className="text-white font-semibold mb-2">Expert Vehicle Selection</h4>
-                        <p className="text-gray-300">We carefully curate our inventory to offer only the best pre-owned vehicles from trusted sources.</p>
+                        <h4 className="text-white font-semibold mb-2">No Pressure, Just Honest Advice</h4>
+                        <p className="text-gray-300">Big dealerships see numbers; we see faces. We take time to understand your needs, budget, and lifestyle because your success is our success.</p>
                       </div>
                     </div>
                     
@@ -1485,8 +1385,8 @@ export default function HomePage() {
                         </svg>
                       </div>
                       <div>
-                        <h4 className="text-white font-semibold mb-2">Local Knowledge</h4>
-                        <p className="text-gray-300">Deep understanding of Oshawa and Durham Region driving conditions and vehicle needs.</p>
+                        <h4 className="text-white font-semibold mb-2">We Work With Real People</h4>
+                        <p className="text-gray-300">Perfect credit? Great. Rebuilding? We got you. Life happens, and we understand. We'll find a solution that works for your situation, not just push a sale.</p>
                       </div>
                     </div>
                     
@@ -1497,8 +1397,8 @@ export default function HomePage() {
                         </svg>
                       </div>
                       <div>
-                        <h4 className="text-white font-semibold mb-2">Ongoing Support</h4>
-                        <p className="text-gray-300">We're here for you even after the sale with maintenance tips and local service recommendations.</p>
+                        <h4 className="text-white font-semibold mb-2">We're Here to Stay</h4>
+                        <p className="text-gray-300">We're not moving anywhere. We're invested in the Durham Region because this is our home too. Your support strengthens our entire community.</p>
                       </div>
                     </div>
                   </div>
