@@ -865,15 +865,50 @@ button:focus, a:focus {
   background: #6b7280;
 }
 
-/* Swiper Overrides */
-.swiper-button-next,
-.swiper-button-prev {
-  color: #dc2626 !important;
+/* Swiper Overrides for Reviews Carousel */
+.reviewSwiper .swiper-button-next,
+.reviewSwiper .swiper-button-prev {
+  color: #0ea5e9 !important;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
-.swiper-button-next:after,
-.swiper-button-prev:after {
-  font-size: 24px !important;
+.reviewSwiper .swiper-button-next:hover,
+.reviewSwiper .swiper-button-prev:hover {
+  background: rgba(14, 165, 233, 0.2);
+  transform: scale(1.1);
+}
+
+.reviewSwiper .swiper-button-next:after,
+.reviewSwiper .swiper-button-prev:after {
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+
+.reviewSwiper .swiper-pagination-bullet {
+  background: #6b7280 !important;
+  opacity: 1 !important;
+  width: 10px !important;
+  height: 10px !important;
+  margin: 0 4px !important;
+}
+
+.reviewSwiper .swiper-pagination-bullet-active {
+  background: #0ea5e9 !important;
+  width: 24px !important;
+  border-radius: 5px !important;
+}
+
+/* Responsive adjustments for Swiper navigation */
+@media (max-width: 640px) {
+  .reviewSwiper .swiper-button-next,
+  .reviewSwiper .swiper-button-prev {
+    display: none;
+  }
 }
 
 /* Utility classes */

@@ -135,21 +135,7 @@ export default function VehiclePhotosPage() {
     try {
       const token = localStorage.getItem('authToken');
       
-      // Update all photos to not primary
-      await Promise.all(
-        photos.map(photo =>
-          fetch(`/api/admin/photos/${photo.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ isPrimary: false }),
-          })
-        )
-      );
-
-      // Set selected photo as primary
+      // Set selected photo as primary (backend will handle unsetting others)
       const response = await fetch(`/api/admin/photos/${photoId}`, {
         method: 'PUT',
         headers: {

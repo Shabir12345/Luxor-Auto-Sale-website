@@ -6,6 +6,11 @@
 import Link from 'next/link';
 import Script from 'next/script';
 import { useState, useEffect } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 export default function HomePage() {
   const [vehicles, setVehicles] = useState([]);
@@ -720,48 +725,76 @@ export default function HomePage() {
               </div>
             ) : googleReviews?.reviews && googleReviews.reviews.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {googleReviews.reviews.map((review: any, index: number) => (
-                    <div key={index} className="bg-gray-900/60 backdrop-blur-sm rounded-lg p-6 border border-white/10 hover:border-blue-500/50 transition-all hover:shadow-xl">
-                      {/* Author Info */}
-                      <div className="flex items-center mb-4">
-                        {review.authorPhoto && (
-                          <img 
-                            src={review.authorPhoto} 
-                            alt={review.author} 
-                            className="w-12 h-12 rounded-full mr-3"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-white">{review.author}</h4>
-                          <p className="text-sm text-gray-400">{review.time}</p>
+                {/* Swiper Carousel */}
+                <div className="mb-8 relative">
+                  <Swiper
+                    modules={[Navigation, Pagination, Autoplay]}
+                    spaceBetween={24}
+                    slidesPerView={1}
+                    breakpoints={{
+                      640: {
+                        slidesPerView: 1,
+                      },
+                      768: {
+                        slidesPerView: 2,
+                      },
+                      1024: {
+                        slidesPerView: 3,
+                      },
+                    }}
+                    navigation
+                    pagination={{ clickable: true }}
+                    autoplay={{
+                      delay: 5000,
+                      disableOnInteraction: false,
+                    }}
+                    loop={true}
+                    className="reviewSwiper"
+                  >
+                    {googleReviews.reviews.map((review: any, index: number) => (
+                      <SwiperSlide key={index}>
+                        <div className="bg-gray-900/60 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-blue-500/50 transition-all hover:shadow-xl h-full flex flex-col">
+                          {/* Author Info */}
+                          <div className="flex items-center mb-4">
+                            {review.authorPhoto && (
+                              <img 
+                                src={review.authorPhoto} 
+                                alt={review.author} 
+                                className="w-12 h-12 rounded-full mr-3 flex-shrink-0"
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-white truncate">{review.author}</h4>
+                              <p className="text-sm text-gray-400">{review.time}</p>
+                            </div>
+                          </div>
+                          
+                          {/* Rating Stars */}
+                          <div className="flex mb-3">
+                            {[...Array(5)].map((_, i) => (
+                              <svg
+                                key={i}
+                                className={`w-4 h-4 flex-shrink-0 ${i < review.rating ? 'text-yellow-400' : 'text-gray-600'}`}
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                              </svg>
+                            ))}
+                          </div>
+                          
+                          {/* Review Text */}
+                          <p className="text-gray-300 leading-relaxed text-sm flex-grow line-clamp-4">{review.text}</p>
                         </div>
-                      </div>
-                      
-                      {/* Rating Stars */}
-                      <div className="flex mb-3">
-                        {[...Array(5)].map((_, i) => (
-                          <svg
-                            key={i}
-                            className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-600'}`}
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                          </svg>
-                        ))}
-                      </div>
-                      
-                      {/* Review Text */}
-                      <p className="text-gray-300 leading-relaxed line-clamp-4">{review.text}</p>
-                    </div>
-                  ))}
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
                 </div>
 
                 {/* View All Reviews Link */}
                 <div className="text-center">
                   <a 
-                    href="https://www.google.com/maps/place/Luxor+Auto+Sale/@43.897235,-78.850816,15z/data=!4m6!3m5!1s0x89d51e3b598e3b0f:0x1e0bbd5c4e8c9c8c!8m2!3d43.897235!4d-78.850816!16s%2Fg%2F1trvkkkz?entry=ttu"
+                    href="https://share.google/kyAg9XV563q60XLoT"
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="inline-flex items-center btn-outline-modern px-6 py-3 rounded-full text-sm font-semibold hover:scale-105 transition-transform"
@@ -783,7 +816,7 @@ export default function HomePage() {
                   We're proud of our 4.9-star rating from real customers. Read genuine reviews from families in Oshawa and across the Durham Region who have trusted us with their car buying journey.
                 </p>
                 <a 
-                  href="https://www.google.com/maps/place/Luxor+Auto+Sale/@43.897235,-78.850816,15z/data=!4m6!3m5!1s0x89d51e3b598e3b0f:0x1e0bbd5c4e8c9c8c!8m2!3d43.897235!4d-78.850816!16s%2Fg%2F1trvkkkz?entry=ttu"
+                  href="https://share.google/kyAg9XV563q60XLoT"
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center btn-modern px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform"

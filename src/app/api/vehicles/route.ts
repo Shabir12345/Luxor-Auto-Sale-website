@@ -160,7 +160,10 @@ export async function GET(request: NextRequest) {
       take: filters.perPage,
       include: {
         photos: {
-          orderBy: { sortOrder: 'asc' },
+          orderBy: [
+            { isPrimary: 'desc' }, // Primary photos first
+            { sortOrder: 'asc' }, // Then by sort order
+          ],
           take: 1,
         },
       },
