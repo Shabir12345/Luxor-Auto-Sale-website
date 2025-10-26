@@ -78,12 +78,18 @@ export default function HomePage() {
         // Fetch all vehicles for inventory (including pending and sold)
         const vehiclesResponse = await fetch(`/api/vehicles?${params}`);
         const vehiclesData = await vehiclesResponse.json();
+        console.log('Vehicles API Response:', vehiclesResponse.status, vehiclesData);
+        
         if (vehiclesData.success) {
+          console.log('Vehicles data received:', vehiclesData.data?.data?.length || 0, 'vehicles');
           setVehicles(vehiclesData.data.data || []);
           
           // Extract unique makes for dropdown
           const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
           setAvailableMakes(makes);
+        } else {
+          console.error('Vehicles API error:', vehiclesData.error);
+          setVehicles([]); // Set empty array on error
         }
 
         // Fetch featured vehicles (only if no filters applied)
