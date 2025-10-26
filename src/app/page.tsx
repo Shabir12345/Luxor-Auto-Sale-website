@@ -34,42 +34,9 @@ export default function HomePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout | null>(null);
   
-  // Google Reviews state - Using manual reviews
-  const [googleReviews] = useState<any>({
-    rating: 4.9,
-    totalRatings: 127,
-    reviews: [
-      {
-        author: 'Sarah Mitchell',
-        rating: 5,
-        text: 'Amazing experience! The team at Luxor Auto Sales made car shopping so easy. They found me the perfect Honda Accord that fit my budget. No pressure, just honest advice and great service. Highly recommend!',
-        time: '2 weeks ago',
-        authorPhoto: 'https://i.pravatar.cc/150?img=1'
-      },
-      {
-        author: 'Michael Chen',
-        rating: 5,
-        text: 'Best dealership in Oshawa! Got my Toyota Camry from Luxor and couldn\'t be happier. The financing process was smooth and the staff was incredibly helpful throughout. Great value for money!',
-        time: '3 weeks ago',
-        authorPhoto: 'https://i.pravatar.cc/150?img=2'
-      },
-      {
-        author: 'Emily Rodriguez',
-        rating: 5,
-        text: 'Family-owned and it shows! They actually care about their customers. Trade-in value was fair, and they helped me get approved for financing despite my credit situation. Thank you Luxor Auto Sales!',
-        time: '1 month ago',
-        authorPhoto: 'https://i.pravatar.cc/150?img=3'
-      },
-      {
-        author: 'David Thompson',
-        rating: 5,
-        text: 'Went in looking for a reliable SUV for my family. The team took time to understand our needs and showed us great options. Ended up with a perfect Honda CR-V. Professional, friendly, and trustworthy!',
-        time: '2 months ago',
-        authorPhoto: 'https://i.pravatar.cc/150?img=4'
-      }
-    ]
-  });
-  const [reviewsLoading] = useState(false);
+  // Google Reviews state
+  const [googleReviews, setGoogleReviews] = useState<any>(null);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   // Initialize filters from URL parameters
   useEffect(() => {
@@ -204,6 +171,26 @@ export default function HomePage() {
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Fetch Google Reviews
+  useEffect(() => {
+    async function fetchGoogleReviews() {
+      try {
+        const response = await fetch('/api/google-reviews', {
+          cache: 'no-store',
+        });
+        const data = await response.json();
+        if (data.success && data.data) {
+          setGoogleReviews(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch Google reviews:', error);
+      } finally {
+        setReviewsLoading(false);
+      }
+    }
+    fetchGoogleReviews();
   }, []);
 
   // Update URL when filters change
