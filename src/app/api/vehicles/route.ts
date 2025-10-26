@@ -11,7 +11,20 @@ export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if Prisma is initialized
+    if (!prisma) {
+      console.error('Prisma client not initialized');
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: 'Database connection not initialized',
+        },
+        { status: 500 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
+    console.log('Fetching vehicles with params:', Object.fromEntries(searchParams.entries()));
 
     // Parse query parameters
     const sortByParam = searchParams.get('sortBy') || 'newest';

@@ -9,8 +9,22 @@ export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if Prisma is initialized
+    if (!prisma) {
+      console.error('Prisma client not initialized');
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: 'Database connection not initialized',
+        },
+        { status: 500 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 3;
+
+    console.log('Fetching featured vehicles with limit:', limit);
 
     // Get featured vehicles (fallback to first 6 available if no featured vehicles)
     const featuredVehicles = await prisma.vehicle.findMany({
