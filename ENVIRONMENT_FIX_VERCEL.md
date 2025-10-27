@@ -15,7 +15,7 @@ The build script runs `prisma db push`, which needs a connection to your Supabas
 **Add this to Vercel → Settings → Environment Variables:**
 
 ```
-DATABASE_URL=postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 ```
 
 **Make sure:**

@@ -7,7 +7,7 @@
 # Database Connection - CORRECT VERSION ✅
 # ⚠️ IMPORTANT: Use aws-1 (not aws-0) - from your Supabase dashboard
 # This is the Session Pooler connection that WORKS!
-DATABASE_URL="postgresql://postgres.turiynixgwejighknptw:l.UXOR2025AUTO@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
 
 # Supabase Project Info (NEW - Add these)
 NEXT_PUBLIC_SUPABASE_URL="https://turiynixgwejighknptw.supabase.co"

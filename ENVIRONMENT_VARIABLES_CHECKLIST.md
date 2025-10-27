@@ -4,7 +4,7 @@ Add ALL of these in Vercel: Settings → Environment Variables → Add Environme
 
 ## Database (CRITICAL)
 ```
-DATABASE_URL=postgresql://postgres.turiynixgwejighknptw:l.UXOR2025AUTO@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 ```
 
 **IMPORTANT**: The pooler uses port 6543 and requires the `pgbouncer=true&connection_limit=1` parameters for Vercel's serverless environment.

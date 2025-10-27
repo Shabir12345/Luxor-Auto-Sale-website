@@ -99,7 +99,7 @@ Your `.env` file is configured with:
 
 ```env
 # Database (Supabase) ✅ WORKING
-DATABASE_URL="postgresql://postgres.turiynixgwejighknptw:l.UXOR2025AUTO@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
 
 # Authentication ✅
 JWT_SECRET="6b3ebd31185d3c41db006b8e79e18056353466c4ffab2a9a69f9959c703f0a13"

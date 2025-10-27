@@ -28,12 +28,12 @@ Look at the latest deployment logs in Vercel:
 **Issue 1: DATABASE_URL missing Border Parameters**
 If your DATABASE_URL is:
 ```
-postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.supabase.com:6543/postgres
+postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres
 ```
 
 It needs to be:
 ```
-postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 ```
 
 **Issue 2: Environment Scope**

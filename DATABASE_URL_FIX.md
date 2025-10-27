@@ -6,7 +6,7 @@ Your current DATABASE_URL is missing important query parameters:
 
 **Your current URL:**
 ```
-postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.supabase.com:6543/postgres
+postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres
 ```
 
 **What's missing:** The `?pgbouncer=true&connection_limit=1` at the end
@@ -16,7 +16,7 @@ postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.
 Your DATABASE_URL should be:
 
 ```
-postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 ```
 
 ## 🔧 Where to Fix
@@ -27,7 +27,7 @@ postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.
 ## 📝 Complete DATABASE_URL
 
 ```
-postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 ```
 
 ## ⚠️ Why This Matters
