@@ -138,6 +138,12 @@ export async function GET(request: NextRequest) {
     }, { status: 200 });
   } catch (error) {
     console.error('Admin list vehicles error:', error);
+    console.error('Error details:', {
+      message: (error as any)?.message,
+      code: (error as any)?.code,
+      name: (error as any)?.name,
+      stack: (error as any)?.stack,
+    });
     return NextResponse.json<ApiResponse>({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

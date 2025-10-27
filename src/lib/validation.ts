@@ -49,6 +49,7 @@ export const createVehicleSchema = z.object({
   interiorColor: z.string().optional(),
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
+  carfaxUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
 });
 
 export const updateVehicleSchema = createVehicleSchema.partial().extend({
