@@ -67,7 +67,9 @@ model Vehicle {
   // Content
   title           String
   description     String?         @db.Text
+  carfaxUrl       String?
   seoSlug         String          @unique
+同
   
   // Metadata
   publishedAt     DateTime?

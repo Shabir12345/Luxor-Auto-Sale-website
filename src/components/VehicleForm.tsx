@@ -34,6 +34,7 @@ export default function VehicleForm({ vehicle, isEdit = false }: VehicleFormProp
     interiorColor: vehicle?.interiorColor || '',
     title: vehicle?.title || '',
     description: vehicle?.description || '',
+    carfaxUrl: vehicle?.carfaxUrl || '',
   });
 
   const handleChange = (
@@ -78,6 +79,7 @@ export default function VehicleForm({ vehicle, isEdit = false }: VehicleFormProp
       if (formData.exteriorColor) data.exteriorColor = formData.exteriorColor;
       if (formData.interiorColor) data.interiorColor = formData.interiorColor;
       if (formData.description) data.description = formData.description;
+      if (formData.carfaxUrl) data.carfaxUrl = formData.carfaxUrl;
 
       const url = isEdit ? `/api/admin/vehicles/${vehicle.id}` : '/api/admin/vehicles';
       const method = isEdit ? 'PATCH' : 'POST';
@@ -393,6 +395,17 @@ export default function VehicleForm({ vehicle, isEdit = false }: VehicleFormProp
               value={formData.description}
               onChange={handleChange}
               rows={6}
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Carfax Report URL</label>
+            <input
+              type="url"
+              name="carfaxUrl"
+              value={formData.carfaxUrl}
+              onChange={handleChange}
+              placeholder="https://www.carfax.com/..."
               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
             />
           </div>

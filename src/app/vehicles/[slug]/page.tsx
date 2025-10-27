@@ -223,6 +223,16 @@ export default async function VehicleDetailPage({ params }: Props) {
                     >
                       📞 Call Us Now
                     </a>
+                    {vehicle.carfaxUrl && (
+                      <a
+                        href={vehicle.carfaxUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-outline-modern text-base px-6 py-3 w-full bg-purple-600/10 border-purple-500/50 hover:bg-purple-600/20 text-purple-400"
+                      >
+                        📋 View Carfax Report
+                      </a>
+                    )}
                   </div>
                   
                   <div className="pt-4 border-t border-gray-700">
