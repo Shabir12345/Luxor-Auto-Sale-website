@@ -10,10 +10,13 @@ import { join } from 'path';
 console.log('Storage configuration check:', {
   hasR2Account: !!process.env.R2_ACCOUNT_ID,
   hasR2AccessKey: !!process.env.R2_ACCESS_KEY_ID,
+  r2AccessKeyLength: process.env.R2_ACCESS_KEY_ID?.length || 0,
   hasR2Secret: !!process.env.R2_SECRET_ACCESS_KEY,
+  r2SecretLength: process.env.R2_SECRET_ACCESS_KEY?.length || 0,
   hasR2Bucket: !!process.env.R2_BUCKET,
   hasR2PublicUrl: !!process.env.R2_PUBLIC_URL,
   hasAwsAccessKey: !!process.env.AWS_ACCESS_KEY_ID,
+  awsAccessKeyLength: process.env.AWS_ACCESS_KEY_ID?.length || 0,
   hasAwsSecret: !!process.env.AWS_SECRET_ACCESS_KEY,
   hasAwsBucket: !!process.env.AWS_S3_BUCKET,
   hasAwsRegion: !!process.env.AWS_REGION,
