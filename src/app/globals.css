@@ -82,7 +82,7 @@ html {
 
 /* Logo Styles */
 .logo {
-  max-height: 102px; /* 120px * 85% = 102px */
+  max-height: 146px; /* 120px * 85% * 120% * 120% = 146px */
   width: auto;
   object-fit: contain;
   background: transparent;
@@ -98,7 +98,7 @@ html {
 /* Navigation height adjustments for all screen sizes */
 @media (max-width: 640px) {
   .logo {
-    max-height: 68px; /* 80px * 85% = 68px */
+    max-height: 98px; /* 80px * 85% * 120% * 120% = 98px */
   }
   
   .nav-mobile {
@@ -111,7 +111,7 @@ html {
 /* Tablet adjustments */
 @media (min-width: 641px) and (max-width: 1024px) {
   .logo {
-    max-height: 85px; /* 100px * 85% = 85px */
+    max-height: 122px; /* 100px * 85% * 120% * 120% = 122px */
   }
   
   .nav-mobile {
@@ -123,7 +123,7 @@ html {
 /* Desktop - standard size */
 @media (min-width: 1025px) {
   .logo {
-    max-height: 102px; /* 120px * 85% = 102px */
+    max-height: 146px; /* 120px * 85% * 120% * 120% = 146px */
   }
   
   .nav-mobile {

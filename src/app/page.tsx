@@ -44,27 +44,6 @@ export default function HomePage() {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
-  // Initialize filters from URL parameters
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlFilters = {
-        search: urlParams.get('search') || '',
-        make: urlParams.get('make') || '',
-        status: urlParams.get('status') || 'ALL',
-        sortBy: urlParams.get('sortBy') || 'newest',
-        minPrice: urlParams.get('minPrice') || '',
-        maxPrice: urlParams.get('maxPrice') || '',
-        minYear: urlParams.get('minYear') || '',
-        maxYear: urlParams.get('maxYear') || '',
-        maxMileage: urlParams.get('maxMileage') || '',
-        transmission: urlParams.get('transmission') || '',
-        fuelType: urlParams.get('fuelType') || '',
-      };
-      setFilters(urlFilters);
-    }
-  }, []);
-
   // Fetch vehicles from API
   useEffect(() => {
     async function fetchVehicles() {
@@ -150,9 +129,27 @@ export default function HomePage() {
     fetchFeaturedVehicles();
   }, []); // Run once on mount only
 
-  // Set isClient to true on mount
+  // Set isClient to true and initialize filters from URL on mount
   useEffect(() => {
     setIsClient(true);
+    
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlFilters = {
+        search: urlParams.get('search') || '',
+        make: urlParams.get('make') || '',
+        status: urlParams.get('status') || 'ALL',
+        sortBy: urlParams.get('sortBy') || 'newest',
+        minPrice: urlParams.get('minPrice') || '',
+        maxPrice: urlParams.get('maxPrice') || '',
+        minYear: urlParams.get('minYear') || '',
+        maxYear: urlParams.get('maxYear') || '',
+        maxMileage: urlParams.get('maxMileage') || '',
+        transmission: urlParams.get('transmission') || '',
+        fuelType: urlParams.get('fuelType') || '',
+      };
+      setFilters(urlFilters);
+    }
   }, []);
 
   // Fetch Google Reviews
@@ -418,7 +415,7 @@ export default function HomePage() {
 
       {/* Header */}
       <header className={`sticky-header bg-gray-900 bg-opacity-80 shadow-lg transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`} role="banner">
-        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation" style={{height: '88px'}}>
+        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation">
           <a href="#home" className="flex items-center" aria-label="Luxor Auto Sale - Home">
             <Image 
               src="/Logo.png" 
@@ -529,17 +526,17 @@ export default function HomePage() {
 
       <main id="main-content" role="main">
         {/* Hero Section */}
-        <section id="home" className="hero-section min-h-screen flex items-center justify-center text-center px-4">
+        <section id="home" className="hero-section min-h-[70vh] sm:min-h-screen flex items-center justify-center text-center px-4 py-12 sm:py-0">
           <div className="reveal visible max-w-4xl mx-auto">
-            <h1 id="hero-title" className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl">
+            <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 drop-shadow-2xl leading-tight">
               Drive Confidently
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-gray-200 leading-relaxed px-2">
               Your trusted, stress-free car buying experience starts here.
             </p>
             <button 
               onClick={() => scrollToSection('contact')} 
-              className="btn-modern text-2xl animate-pulse"
+              className="btn-modern text-base sm:text-lg md:text-xl lg:text-2xl px-6 sm:px-8 py-3 sm:py-4 animate-pulse w-full sm:w-auto"
             >
               Book a Viewing
             </button>
@@ -597,7 +594,7 @@ export default function HomePage() {
                 <span className="ml-4 text-gray-400 text-lg">Loading featured vehicles...</span>
               </div>
             ) : featuredVehicles.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-7xl mx-auto">
                 {featuredVehicles.slice(0, 3).map((vehicle: any, index: number) => (
                   <div key={vehicle.id} className="group car-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 hover:shadow-blue-500/20 transition-all duration-500 h-full flex flex-col border border-gray-700 hover:border-blue-500/50">
                     <div className="relative overflow-hidden">
@@ -606,7 +603,7 @@ export default function HomePage() {
                         alt={vehicle.title || 'Vehicle image'} 
                         width={800}
                         height={400}
-                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                        className="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -625,27 +622,27 @@ export default function HomePage() {
                          vehicle.status}
                       </div>
                     </div>
-                        <div className="p-6 flex-grow flex flex-col justify-between">
+                        <div className="p-4 sm:p-6 flex-grow flex flex-col justify-between">
                           <div>
-                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
                           {vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                         </h3>
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-green-400 font-bold text-2xl">
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
+                          <span className="text-green-400 font-bold text-xl sm:text-2xl">
                             {formatPrice(vehicle.priceCents)}
                           </span>
-                          <span className="text-gray-400 text-sm">
+                          <span className="text-gray-400 text-xs sm:text-sm">
                             {formatMileage(vehicle.odometerKm)}
                           </span>
                           </div>
-                        <div className="flex items-center text-gray-400 text-sm">
-                          <span className="mr-4">📅 {vehicle.year}</span>
+                        <div className="flex items-center text-gray-400 text-xs sm:text-sm">
+                          <span className="mr-3 sm:mr-4">📅 {vehicle.year}</span>
                           <span>🔧 {vehicle.transmission || 'Auto'}</span>
                         </div>
                           </div>
                       <Link 
                         href={`/vehicles/${vehicle.seoSlug}`} 
-                        className="mt-6 inline-block btn-modern w-full text-center"
+                        className="mt-4 sm:mt-6 inline-block btn-modern w-full text-center text-sm sm:text-base px-4 py-2 sm:py-3"
                       >
                         View Details →
                           </Link>
@@ -835,10 +832,13 @@ export default function HomePage() {
               <div className="mb-6">
                 <div className="relative">
                   <input
-                    type="text"
+                    id="search-input"
+                    type="search"
                     name="search"
                     value={filters.search}
                     onChange={handleFilterChange}
+                    autoComplete="off"
+                    aria-label="Search for vehicles"
                     placeholder="Search by make, model, year, or any keyword..."
                     className="w-full px-4 py-3 pl-12 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
                   />
@@ -851,9 +851,12 @@ export default function HomePage() {
               {/* Quick Filters */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <select
+                  id="filter-make"
                   name="make"
                   value={filters.make}
                   onChange={handleFilterChange}
+                  autoComplete="off"
+                  aria-label="Filter by vehicle make"
                   className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
                 >
                   <option value="">All Makes</option>
@@ -863,9 +866,12 @@ export default function HomePage() {
                 </select>
 
                 <select
+                  id="filter-status"
                   name="status"
                   value={filters.status}
                   onChange={handleFilterChange}
+                  autoComplete="off"
+                  aria-label="Filter by vehicle status"
                   className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
                 >
                   <option value="ALL">All Status</option>
@@ -875,9 +881,12 @@ export default function HomePage() {
                 </select>
 
                 <select
+                  id="filter-sortBy"
                   name="sortBy"
                   value={filters.sortBy}
                   onChange={handleFilterChange}
+                  autoComplete="off"
+                  aria-label="Sort vehicles"
                   className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
                 >
                   <option value="newest">Newest First</option>
@@ -943,12 +952,14 @@ export default function HomePage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm text-gray-300 mb-2">Max Mileage</label>
+                      <label htmlFor="filter-maxMileage" className="block text-sm text-gray-300 mb-2">Max Mileage</label>
                       <input
+                        id="filter-maxMileage"
                         type="number"
                         name="maxMileage"
                         value={filters.maxMileage}
                         onChange={handleFilterChange}
+                        autoComplete="off"
                         placeholder="e.g., 100000"
                         min="0"
                         className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
@@ -1055,7 +1066,7 @@ export default function HomePage() {
                           alt={vehicle.title || 'Vehicle image'} 
                           width={800}
                           height={400}
-                          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                           loading="lazy"
                           unoptimized={false}
                         />
@@ -1161,36 +1172,46 @@ export default function HomePage() {
               <form onSubmit={handleFinancingSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
+                    id="financing-firstName"
                     type="text"
                     name="firstName"
+                    autoComplete="given-name"
                     placeholder="First Name"
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
+                    id="financing-lastName"
                     type="text"
                     name="lastName"
+                    autoComplete="family-name"
                     placeholder="Last Name"
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
+                    id="financing-email"
                     type="email"
                     name="email"
+                    autoComplete="email"
                     placeholder="Email Address"
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
+                    id="financing-phone"
                     type="tel"
                     name="phone"
+                    autoComplete="tel"
                     placeholder="Phone Number"
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
+                    id="financing-vehicleInterest"
                     type="text"
                     name="vehicleInterest"
+                    autoComplete="off"
                     placeholder="Vehicle of Interest"
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 md:col-span-2"
                   />
@@ -1248,29 +1269,37 @@ export default function HomePage() {
               <form onSubmit={handleTradeSubmit}>
                 <div className="space-y-4">
                   <input
+                    id="trade-vehicle"
                     type="text"
                     name="vehicle"
+                    autoComplete="off"
                     placeholder="Year, Make, Model"
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
+                    id="trade-mileage"
                     type="text"
                     name="mileage"
+                    autoComplete="off"
                     placeholder="Mileage (km)"
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <textarea
+                    id="trade-condition"
                     name="condition"
+                    autoComplete="off"
                     placeholder="Describe the condition..."
                     rows={3}
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
+                    id="trade-email"
                     type="email"
                     name="email"
+                    autoComplete="email"
                     placeholder="Your Email"
                     required
                     className="bg-gray-700 text-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1517,20 +1546,24 @@ export default function HomePage() {
                   <form onSubmit={handleContactSubmit} className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="group">
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Your Name *</label>
+                        <label htmlFor="contact-name" className="block text-sm font-medium text-gray-300 mb-2">Your Name *</label>
                   <input
+                    id="contact-name"
                     type="text"
                     name="name"
+                    autoComplete="name"
                           placeholder="Enter your full name"
                     required
                           className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
                   />
                       </div>
                       <div className="group">
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Your Email *</label>
+                        <label htmlFor="contact-email" className="block text-sm font-medium text-gray-300 mb-2">Your Email *</label>
                   <input
+                    id="contact-email"
                     type="email"
                     name="email"
+                    autoComplete="email"
                           placeholder="Enter your email address"
                     required
                           className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
@@ -1539,19 +1572,23 @@ export default function HomePage() {
                     </div>
                     
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                      <label htmlFor="contact-phone" className="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
                   <input
+                    id="contact-phone"
                     type="tel"
                     name="phone"
+                    autoComplete="tel"
                         placeholder="Enter your phone number"
-                        className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
+                        className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-五百 placeholder-gray-400"
                   />
                     </div>
                     
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Your Message *</label>
+                      <label htmlFor="contact-message" className="block text-sm font-medium text-gray-300 mb-2">Your Message *</label>
                   <textarea
+                    id="contact-message"
                     name="message"
+                    autoComplete="off"
                         placeholder="Tell us about your vehicle needs, questions, or how we can help you..."
                         rows={5}
                     required
@@ -1708,8 +1745,8 @@ export default function HomePage() {
                 <Image 
                   src="/Logo.png" 
                   alt="Luxor Auto Sale Logo" 
-                  width={150}
-                  height={60}
+                  width={1350}
+                  height={540}
                   className="logo transition-all duration-300 group-hover:scale-105"
                 />
               </a>
@@ -1821,7 +1858,7 @@ export default function HomePage() {
                 <ul className="space-y-2">
                   <li><a href="/privacy" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">Privacy Policy</a></li>
                   <li><a href="/terms" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">Terms of Service</a></li>
-                  <li><Link href="/admin" className="text-gray-500 hover:text-gray-300 transition-colors text-xs">Staff Login</Link></li>
+                  <li><Link href="/admin" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">Staff Login</Link></li>
               </ul>
               </div>
             </div>
