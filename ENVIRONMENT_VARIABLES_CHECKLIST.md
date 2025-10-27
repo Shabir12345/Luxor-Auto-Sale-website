@@ -11,7 +11,7 @@ DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supaba
 
 ## Authentication
 ```
-JWT_SECRET=6b3ebd31185d3c41db006b8e79e18056353466c4ffab2a9a69f9959c703f0a13
+JWT_SECRET=[REDACTED]
 JWT_EXPIRES_IN=7d
 ADMIN_EMAIL=owner@luxorautosale.com
 ADMIN_PASSWORD=L.uxor2@25
@@ -20,7 +20,7 @@ ADMIN_PASSWORD=L.uxor2@25
 ## Cloudflare R2 (Image Storage)
 ```
 R2_ACCOUNT_ID=b8b4f26e4b7e2e01428cfb560cb0410d
-R2_ACCESS_KEY_ID=94184cc8c979d40f349e7ad35654bfc1
+R2_ACCESS_KEY_ID=[REDACTED]
 R2_SECRET_ACCESS_KEY=526beedc9383ba073b98a2dee589445880c055c23035dd79e053eccb5c4f78c0
 R2_BUCKET=luxor-auto-sale-images
 R2_PUBLIC_URL=https://pub-3cba356b1f804de7a4236ec05edff5ee.r2.dev

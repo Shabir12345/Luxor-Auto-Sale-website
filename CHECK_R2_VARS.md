@@ -4,7 +4,7 @@
 
 ```
 R2_ACCOUNT_ID=your-account-id
-R2_ACCESS_KEY_ID=94184cc8c979d40f349e7ad35654bfc1
+R2_ACCESS_KEY_ID=[REDACTED]
 R2_SECRET_ACCESS_KEY=your-secret-key (should be ~40 chars)
 R2_BUCKET=luxor-auto-sale-images
 ```

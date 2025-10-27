@@ -102,7 +102,7 @@ Your `.env` file is configured with:
 DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
 
 # Authentication ✅
-JWT_SECRET="6b3ebd31185d3c41db006b8e79e18056353466c4ffab2a9a69f9959c703f0a13"
+JWT_SECRET="[REDACTED]"
 ADMIN_EMAIL="owner@luxorautosale.com"
 ADMIN_PASSWORD="L.uxor2@25"
 
