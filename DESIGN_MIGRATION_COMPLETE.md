@@ -107,7 +107,7 @@ ADMIN_EMAIL="owner@luxorautosale.com"
 ADMIN_PASSWORD="L.uxor2@25"
 
 # Supabase API Keys ✅
-NEXT_PUBLIC_SUPABASE_URL="https://turiynixgwejighknptw.supabase.co"
+NEXT_PUBLIC_SUPABASE_URL="https://[YOUR-PROJECT-ID].supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOi..."
 SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOi..."
 ```

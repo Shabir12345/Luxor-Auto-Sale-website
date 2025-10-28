@@ -21,7 +21,7 @@ DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supaba
 **Make sure:**
 1. The DATABASE_URL is set for **Production, Preview, AND Development** environments
 2. The complete URL includes `?pgbouncer=true&connection_limit=1`
-3. The password is correct: `L.uxor2@25qwe`
+3. The password is correct: `[YOUR-NEW-PASSWORD]`
 
 ### Steps:
 
@@ -31,7 +31,7 @@ DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supaba
 4. Find `DATABASE_URL` or add it if missing
 5. Make sure the value is:
    ```
-   postgresql://postgres.turiynixgwejighknptw:L.uxor2@25qwe@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+   postgresql://postgres:[YOUR-NEW-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
    ```
 6. Make sure all three environment scopes are checked:
    - ☑ Production

@@ -10,7 +10,7 @@
 DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
 
 # Supabase Project Info (NEW - Add these)
-NEXT_PUBLIC_SUPABASE_URL="https://turiynixgwejighknptw.supabase.co"
+NEXT_PUBLIC_SUPABASE_URL="https://[YOUR-PROJECT-ID].supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1cml5bml4Z3dlamlnaGtucHR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNTk3NDksImV4cCI6MjA3NjYzNTc0OX0.r94ULhF6eJtN6DchHkgUqgYWfv285-tPr3QgirJ2vEU"
 SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1cml5bml4Z3dlamlnaGtucHR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTA1OTc0OSwiZXhwIjoyMDc2NjM1NzQ5fQ.frrYZjBKnckAaGxmIkgQHucL3K2jxNC1X1g9vFPt7Vw"
 
