@@ -99,12 +99,34 @@ html {
 @media (max-width: 640px) {
   .logo {
     max-height: 147px; /* 98px * 150% = 147px (50% increase for phone view) */
+    margin-top: calc(-0.5cm); /* Reduce top space by 0.5cm */
+    margin-bottom: calc(-0.5cm); /* Reduce bottom space by 0.5cm */
   }
   
   .nav-mobile {
     height: auto !important;
-    min-height: 39.5px; /* 70px * 85% - 20px (1cm reduction) = 39.5px */
-    padding: 4px 16px; /* Reduced vertical padding */
+    min-height: calc(39.5px - 1cm); /* Reduced by 1cm total */
+    padding: 0px 16px; /* Minimal vertical padding */
+    justify-content: center; /* Center logo on mobile */
+    position: relative; /* For absolute positioning of menu button */
+    align-items: center; /* Vertically center items */
+  }
+  
+  /* Center logo on mobile - override parent justify-between */
+  .nav-mobile > a:first-child {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Position menu button absolutely on right */
+  .nav-mobile > div:last-child {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 
@@ -507,6 +529,23 @@ body * {
 @media (max-width: 1024px) {
   .hero-section {
     background-attachment: scroll;
+  }
+}
+
+/* Improve hero section proportions on mobile - zoom out to show full car */
+@media (max-width: 640px) {
+  .hero-section {
+    background-size: 120% auto; /* Zoom out to show more of the car */
+    background-position: center center; /* Center the car image */
+    min-height: 70vh; /* Ensure adequate height */
+  }
+}
+
+/* Tablet hero adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hero-section {
+    background-size: 110% auto; /* Slight zoom out on tablets */
+    background-position: center center;
   }
 }
 
