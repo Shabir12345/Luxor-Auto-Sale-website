@@ -98,14 +98,14 @@ html {
 /* Navigation height adjustments for all screen sizes */
 @media (max-width: 640px) {
   .logo {
-    max-height: 120px; /* Adjusted for better mobile display */
+    max-height: 180px; /* 50% bigger than 120px for better mobile visibility */
     filter: brightness(1.15) contrast(1.1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     transition: all 0.3s ease;
   }
   
   .nav-mobile {
     height: auto !important;
-    min-height: 60px; /* Increased for better logo display */
+    min-height: 90px; /* Increased to accommodate larger logo */
     padding: 8px 16px; /* Slightly more padding for better spacing */
   }
 
