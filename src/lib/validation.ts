@@ -49,7 +49,25 @@ export const createVehicleSchema = z.object({
   interiorColor: z.string().optional(),
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  carfaxUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+  carfaxUrl: z
+    .string()
+    .refine(
+      (val) => {
+        if (!val || val === '') return true; // Allow empty string
+        if (val.startsWith('http://') || val.startsWith('https://')) {
+          try {
+            new URL(val);
+            return true;
+          } catch {
+            return false;
+          }
+        }
+        return false;
+      },
+      { message: 'Invalid URL format. Must be a valid http:// or https:// URL' }
+    )
+    .optional()
+    .or(z.literal('')),
 });
 
 export const updateVehicleSchema = createVehicleSchema.partial().extend({
@@ -79,7 +97,25 @@ export const vehicleFiltersSchema = z.object({
 // Photo Schemas
 export const createPhotoSchema = z.object({
   vehicleId: z.string().cuid(),
-  url: z.string().url(),
+  url: z.string().refine(
+    (val) => {
+      // Allow absolute URLs (http/https)
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      // Allow relative URLs starting with /
+      if (val.startsWith('/')) {
+        return true;
+      }
+      return false;
+    },
+    { message: 'Invalid URL format. Must be a valid absolute URL or start with /' }
+  ),
   altText: z.string().optional(),
   sortOrder: z.number().int().min(0).default(0),
   isPrimary: z.boolean().default(false),

@@ -35,6 +35,12 @@ export default function VehiclePhotosPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState({
+    current: 0,
+    total: 0,
+    currentFileName: '',
+  });
+  const [deletingAll, setDeletingAll] = useState(false);
 
   useEffect(() => {
     fetchVehicle();
@@ -77,13 +83,29 @@ export default function VehiclePhotosPage() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    const fileArray = Array.from(files);
     setUploading(true);
     setError('');
+    setUploadProgress({
+      current: 0,
+      total: fileArray.length,
+      currentFileName: '',
+    });
 
     try {
       const token = localStorage.getItem('authToken');
+      let photoCount = photos.length;
       
-      for (const file of Array.from(files)) {
+      for (let i = 0; i < fileArray.length; i++) {
+        const file = fileArray[i];
+        
+        // Update progress - starting upload
+        setUploadProgress({
+          current: i,
+          total: fileArray.length,
+          currentFileName: file.name,
+        });
+        
         // Upload file
         const formData = new FormData();
         formData.append('file', file);
@@ -111,8 +133,8 @@ export default function VehiclePhotosPage() {
             vehicleId,
             url: uploadData.data.url,
             altText: file.name,
-            sortOrder: photos.length,
-            isPrimary: photos.length === 0, // First photo is primary
+            sortOrder: photoCount + i,
+            isPrimary: photoCount === 0 && i === 0, // First photo is primary
           }),
         });
 
@@ -120,12 +142,33 @@ export default function VehiclePhotosPage() {
         if (!photoData.success) {
           throw new Error(photoData.error || 'Failed to create photo record');
         }
+
+        // Update progress - file completed
+        setUploadProgress({
+          current: i + 1,
+          total: fileArray.length,
+          currentFileName: file.name,
+        });
       }
 
       // Refresh photos
       await fetchPhotos();
+      
+      // Reset progress after a brief moment
+      setTimeout(() => {
+        setUploadProgress({
+          current: 0,
+          total: 0,
+          currentFileName: '',
+        });
+      }, 500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
+      setUploadProgress({
+        current: 0,
+        total: 0,
+        currentFileName: '',
+      });
     } finally {
       setUploading(false);
     }
@@ -171,6 +214,35 @@ export default function VehiclePhotosPage() {
     }
   };
 
+  const handleDeleteAllPhotos = async () => {
+    if (photos.length === 0) return;
+
+    const message = `Are you sure you want to delete ALL ${photos.length} ${photos.length === 1 ? 'photo' : 'photos'} for this vehicle?\n\nThis action cannot be undone.`;
+    if (!confirm(message)) return;
+
+    setDeletingAll(true);
+    setError('');
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/admin/photos?vehicleId=${vehicleId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        await fetchPhotos();
+      } else {
+        setError(data.error || 'Failed to delete all photos');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete all photos');
+    } finally {
+      setDeletingAll(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -194,12 +266,38 @@ export default function VehiclePhotosPage() {
               </p>
             )}
           </div>
-          <Link
-            href="/admin/vehicles"
-            className="btn-outline-modern"
-          >
-            Back to Vehicles
-          </Link>
+          <div className="flex gap-3">
+            {photos.length > 0 && (
+              <button
+                onClick={handleDeleteAllPhotos}
+                disabled={deletingAll || uploading}
+                className="bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded transition-colors flex items-center gap-2"
+              >
+                {deletingAll ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete All Photos
+                  </>
+                )}
+              </button>
+            )}
+            <Link
+              href="/admin/vehicles"
+              className="btn-outline-modern"
+            >
+              Back to Vehicles
+            </Link>
+          </div>
         </div>
 
         {/* Upload Section */}
@@ -209,6 +307,37 @@ export default function VehiclePhotosPage() {
           {error && (
             <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded mb-4">
               {error}
+            </div>
+          )}
+
+          {/* Progress Indicator */}
+          {uploading && uploadProgress.total > 0 && (
+            <div className="bg-gray-900/50 rounded-lg border border-gray-700 p-6 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex-1">
+                  <p className="text-white font-medium">
+                    {uploadProgress.current === uploadProgress.total 
+                      ? `Completed ${uploadProgress.total} ${uploadProgress.total === 1 ? 'photo' : 'photos'}`
+                      : `Uploading photo ${uploadProgress.current + 1} of ${uploadProgress.total}`}
+                  </p>
+                  {uploadProgress.currentFileName && uploadProgress.current < uploadProgress.total && (
+                    <p className="text-gray-400 text-sm mt-1 truncate">
+                      {uploadProgress.currentFileName}
+                    </p>
+                  )}
+                </div>
+                <div className="text-white font-medium ml-4">
+                  {Math.round((uploadProgress.current / uploadProgress.total) * 100)}%
+                </div>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-300 ease-out"
+                  style={{
+                    width: `${Math.min((uploadProgress.current / uploadProgress.total) * 100, 100)}%`,
+                  }}
+                />
+              </div>
             </div>
           )}
 
@@ -235,7 +364,7 @@ export default function VehiclePhotosPage() {
                 {uploading ? 'Uploading...' : 'Click to upload photos'}
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                PNG, JPG, GIF up to 10MB each
+                PNG, JPG, WebP up to 20MB each
               </p>
             </label>
           </div>
