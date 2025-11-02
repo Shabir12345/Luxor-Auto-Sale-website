@@ -21,7 +21,6 @@ export default function InventoryPage() {
     transmission: '',
     fuelType: '',
     bodyType: '',
-    status: 'ALL',
     sortBy: 'newest',
   });
 
@@ -46,7 +45,6 @@ export default function InventoryPage() {
         ...(filters.transmission && { transmission: filters.transmission }),
         ...(filters.fuelType && { fuelType: filters.fuelType }),
         ...(filters.bodyType && { bodyType: filters.bodyType }),
-        ...(filters.status !== 'ALL' && { status: filters.status }),
         ...(filters.sortBy && { sortBy: filters.sortBy }),
       });
 
@@ -87,7 +85,6 @@ export default function InventoryPage() {
       transmission: '',
       fuelType: '',
       bodyType: '',
-      status: 'ALL',
       sortBy: 'newest',
     });
   };
@@ -103,7 +100,6 @@ export default function InventoryPage() {
     if (filters.transmission) count++;
     if (filters.fuelType) count++;
     if (filters.bodyType) count++;
-    if (filters.status !== 'ALL') count++;
     return count;
   };
 
@@ -155,7 +151,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Quick Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <select
               name="make"
               value={filters.make}
@@ -178,18 +174,6 @@ export default function InventoryPage() {
               {availableModels.map(model => (
                 <option key={model} value={model}>{model}</option>
               ))}
-            </select>
-
-            <select
-              name="status"
-              value={filters.status}
-              onChange={handleFilterChange}
-              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
-            >
-              <option value="ALL">All Status</option>
-              <option value="AVAILABLE">Available</option>
-              <option value="PENDING">Pending</option>
-              <option value="SOLD">Sold</option>
             </select>
 
             <select
@@ -359,32 +343,10 @@ export default function InventoryPage() {
                       fill
                       className="object-cover"
                     />
-                    <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
-                      vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
-                      vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                      vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
-                      'bg-gray-600 text-white'
-                    }`}>
-                      {vehicle.status === 'AVAILABLE' ? '✅ Available' :
-                       vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
-                       vehicle.status === 'SOLD' ? '✅ Sold' :
-                       vehicle.status}
-                    </div>
                   </div>
                 ) : (
                   <div className="relative h-48 bg-gray-700 flex items-center justify-center">
                     <span className="text-gray-500 text-4xl">🚗</span>
-                    <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
-                      vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
-                      vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                      vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
-                      'bg-gray-600 text-white'
-                    }`}>
-                      {vehicle.status === 'AVAILABLE' ? '✅ Available' :
-                       vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
-                       vehicle.status === 'SOLD' ? '✅ Sold' :
-                       vehicle.status}
-                    </div>
                   </div>
                 )}
                 <div className="p-6">

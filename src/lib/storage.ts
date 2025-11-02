@@ -24,27 +24,73 @@ console.log('Storage configuration check:', {
 
 // S3 Client Configuration (works with both AWS S3 and Cloudflare R2)
 // Only initialize if credentials are provided
-const hasR2 = !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY);
-const hasAws = !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
+// Prioritize R2 if R2_ACCOUNT_ID is set (indicates R2 usage)
+const isR2Config = !!process.env.R2_ACCOUNT_ID;
+const hasR2 = isR2Config && !!(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY);
+const hasAws = !isR2Config && !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
 
-const s3Client = (hasR2 || hasAws) ? new S3Client({
-  region: process.env.AWS_REGION || process.env.R2_REGION || 'auto',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY || '',
-  },
-  forcePathStyle: true, // required for Cloudflare R2
-  ...(process.env.R2_ACCOUNT_ID && {
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  }),
-}) : null;
+// Validate R2 credentials have correct length (R2 keys are 32 chars, AWS keys are 20 chars)
+let s3Client: S3Client | null = null;
+if (hasR2) {
+  // Get the actual values (remove any quotes that might have been included)
+  const r2AccessKeyId = (process.env.R2_ACCESS_KEY_ID || '').replace(/^["']|["']$/g, '');
+  const r2SecretAccessKey = (process.env.R2_SECRET_ACCESS_KEY || '').replace(/^["']|["']$/g, '');
+  const accessKeyLength = r2AccessKeyId.length;
+  
+  console.log('R2 Configuration:', {
+    accountId: process.env.R2_ACCOUNT_ID ? 'set' : 'missing',
+    accessKeyLength,
+    bucket: process.env.R2_BUCKET,
+    hasPublicUrl: !!process.env.R2_PUBLIC_URL,
+  });
+  
+  if (accessKeyLength !== 32) {
+    console.error(`⚠️ R2_ACCESS_KEY_ID has length ${accessKeyLength}, should be 32 characters. Cloudflare R2 access keys must be exactly 32 characters. Falling back to local filesystem storage.`);
+    console.error('Current R2_ACCESS_KEY_ID value (first 10 chars):', r2AccessKeyId.substring(0, 10) + '...');
+    console.error('Please verify your R2_ACCESS_KEY_ID in your environment variables. You can create new R2 API tokens in Cloudflare Dashboard > R2 > Manage R2 API Tokens.');
+  } else {
+    // Only create S3Client if credentials are valid
+    try {
+      s3Client = new S3Client({
+        region: process.env.R2_REGION || 'auto',
+        credentials: {
+          accessKeyId: r2AccessKeyId,
+          secretAccessKey: r2SecretAccessKey,
+        },
+        forcePathStyle: true, // required for Cloudflare R2
+        endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      });
+      console.log('✅ R2 S3Client initialized successfully');
+    } catch (error: any) {
+      console.error('Failed to initialize R2 client:', error?.message || error);
+      s3Client = null;
+    }
+  }
+} else if (hasAws) {
+  try {
+    s3Client = new S3Client({
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+      },
+      forcePathStyle: false, // AWS S3 doesn't need path-style
+    });
+  } catch (error) {
+    console.error('Failed to initialize AWS S3 client:', error);
+    s3Client = null;
+  }
+}
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || process.env.R2_BUCKET || 'luxor-auto-sale-images';
-const PUBLIC_URL =
-  process.env.R2_PUBLIC_URL ||
-  (process.env.R2_ACCOUNT_ID
-    ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${BUCKET_NAME}`
-    : `https://${BUCKET_NAME}.s3.amazonaws.com`);
+// Prioritize R2 bucket when R2 is configured, otherwise use AWS or fallback
+const BUCKET_NAME = isR2Config 
+  ? (process.env.R2_BUCKET || 'luxor-auto-sale-images')
+  : (process.env.AWS_S3_BUCKET || process.env.R2_BUCKET || 'luxor-auto-sale-images');
+
+// Use R2 public URL when R2 is configured
+const PUBLIC_URL = isR2Config
+  ? (process.env.R2_PUBLIC_URL || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${BUCKET_NAME}`)
+  : (process.env.R2_PUBLIC_URL || `https://${BUCKET_NAME}.s3.amazonaws.com`);
 
 export type ImageSize = {
   width: number;

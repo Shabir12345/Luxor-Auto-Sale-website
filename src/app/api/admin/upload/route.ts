@@ -48,11 +48,14 @@ export async function POST(request: NextRequest) {
 
     // Use Cloudflare R2 / S3-compatible storage
     const vehicleId = (formData.get('vehicleId') as string) || 'temp';
+    
     // Debug config (safe to log lengths/domains only)
-    console.log('R2 config check:', {
+    console.log('Upload request - R2 config check:', {
       account: process.env.R2_ACCOUNT_ID ? 'set' : 'missing',
+      accessKeyLength: process.env.R2_ACCESS_KEY_ID?.length || 0,
       bucket: process.env.R2_BUCKET,
-      publicUrl: process.env.R2_PUBLIC_URL,
+      hasPublicUrl: !!process.env.R2_PUBLIC_URL,
+      hasAwsCredentials: !!(process.env.AWS_ACCESS_KEY_ID || process.env.AWS_SECRET_ACCESS_KEY),
     });
 
     const { urls, primaryUrl } = await uploadVehicleImage(buffer, vehicleId, file.name);
@@ -70,10 +73,19 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error('Upload error:', error);
+    
+    // Provide helpful error messages for common credential issues
+    let errorMessage = error?.message || 'Unknown error';
+    if (errorMessage.includes('Credential access key has length')) {
+      errorMessage = 'R2 access key has incorrect length. Cloudflare R2 access keys must be exactly 32 characters. Please check your R2_ACCESS_KEY_ID in your environment variables.';
+    } else if (errorMessage.includes('InvalidArgument')) {
+      errorMessage = 'Invalid storage credentials. Please verify your R2 or AWS credentials are correctly configured in your environment variables.';
+    }
+    
     return NextResponse.json<ApiResponse>(
       {
         success: false,
-        error: `Upload failed: ${error?.name || 'Error'} - ${error?.message || 'Unknown error'}`,
+        error: `Upload failed: ${error?.name || 'Error'} - ${errorMessage}`,
       },
       { status: 500 }
     );

@@ -98,7 +98,7 @@ html {
 /* Navigation height adjustments for all screen sizes */
 @media (max-width: 640px) {
   .logo {
-    max-height: 98px; /* 80px * 85% * 120% * 120% = 98px */
+    max-height: 147px; /* 98px * 150% = 147px (50% increase for phone view) */
   }
   
   .nav-mobile {

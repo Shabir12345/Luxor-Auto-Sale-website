@@ -31,11 +31,13 @@ export default function HomePage() {
     maxPrice: '',
     minYear: '',
     maxYear: '',
+    year: '',
     maxMileage: '',
     transmission: '',
     fuelType: '',
   });
   const [availableMakes, setAvailableMakes] = useState<string[]>([]);
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout | null>(null);
   
@@ -44,11 +46,38 @@ export default function HomePage() {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
+  // Fetch all available years from inventory (once on mount)
+  useEffect(() => {
+    async function fetchAvailableYears() {
+      try {
+        // Fetch vehicles to get all available years (max perPage is 100)
+        const response = await fetch('/api/vehicles?perPage=100');
+        const data = await response.json();
+        
+        if (data.success && data.data?.data) {
+          // Extract unique years from vehicles in inventory
+          const allYears = data.data.data
+            .map((v: any) => v.year)
+            .filter((year: any) => year != null && year !== 0 && year > 1900 && year <= new Date().getFullYear() + 2) // Filter out null, 0, and invalid years
+            .map((year: any) => String(year)); // Convert to string
+          const uniqueYears = [...new Set(allYears)].sort((a, b) => Number(b) - Number(a)) as string[];
+          setAvailableYears(uniqueYears);
+          console.log('Available years loaded:', uniqueYears);
+        }
+      } catch (error) {
+        console.error('Failed to fetch available years:', error);
+      }
+    }
+    fetchAvailableYears();
+  }, []); // Only run once on mount
+
   // Fetch vehicles from API
   useEffect(() => {
     async function fetchVehicles() {
       try {
         // Build query parameters for filtering
+        // If year filter is set, use it for both minYear and maxYear
+        const yearFilter = filters.year ? { minYear: filters.year, maxYear: filters.year } : {};
         const params = new URLSearchParams({
           perPage: '50',
           ...(filters.search && { search: filters.search }),
@@ -57,8 +86,10 @@ export default function HomePage() {
           ...(filters.sortBy && { sortBy: filters.sortBy }),
           ...(filters.minPrice && { minPrice: filters.minPrice }),
           ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
-          ...(filters.minYear && { minYear: filters.minYear }),
-          ...(filters.maxYear && { maxYear: filters.maxYear }),
+          ...(filters.minYear && !filters.year && { minYear: filters.minYear }),
+          ...(filters.maxYear && !filters.year && { maxYear: filters.maxYear }),
+          ...(yearFilter.minYear && { minYear: yearFilter.minYear }),
+          ...(yearFilter.maxYear && { maxYear: yearFilter.maxYear }),
           ...(filters.maxMileage && { maxMileage: filters.maxMileage }),
           ...(filters.transmission && { transmission: filters.transmission }),
           ...(filters.fuelType && { fuelType: filters.fuelType }),
@@ -73,7 +104,7 @@ export default function HomePage() {
           console.log('Vehicles data received:', vehiclesData.data?.data?.length || 0, 'vehicles');
           setVehicles(vehiclesData.data.data || []);
           
-          // Extract unique makes for dropdown
+          // Extract unique makes for dropdown (from filtered results)
           const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
           setAvailableMakes(makes);
         } else {
@@ -144,6 +175,7 @@ export default function HomePage() {
         maxPrice: urlParams.get('maxPrice') || '',
         minYear: urlParams.get('minYear') || '',
         maxYear: urlParams.get('maxYear') || '',
+        year: urlParams.get('year') || '',
         maxMileage: urlParams.get('maxMileage') || '',
         transmission: urlParams.get('transmission') || '',
         fuelType: urlParams.get('fuelType') || '',
@@ -180,6 +212,10 @@ export default function HomePage() {
       
       Object.entries(filters).forEach(([key, value]) => {
         if (value && value !== 'ALL' && value !== 'newest') {
+          // Skip status if it's 'ALL', and skip minYear/maxYear if year is set
+          if (key === 'status' && value === 'ALL') return;
+          if (key === 'minYear' && filters.year) return;
+          if (key === 'maxYear' && filters.year) return;
           params.set(key, value);
         }
       });
@@ -204,6 +240,16 @@ export default function HomePage() {
       }, 300);
       
       setSearchDebounce(timeout);
+    } else if (name === 'year') {
+      // When year filter changes, update year and clear minYear/maxYear if year is set
+      // If "All Years" is selected (empty), clear the year filter
+      setFilters((prev) => ({ 
+        ...prev, 
+        year: value,
+        // Clear minYear/maxYear when a specific year is selected
+        minYear: value ? '' : prev.minYear,
+        maxYear: value ? '' : prev.maxYear,
+      }));
     } else {
       // Immediate update for other filters
       setFilters((prev) => ({ ...prev, [name]: value }));
@@ -224,6 +270,7 @@ export default function HomePage() {
       maxPrice: '',
       minYear: '',
       maxYear: '',
+      year: '',
       maxMileage: '',
       transmission: '',
       fuelType: '',
@@ -234,6 +281,7 @@ export default function HomePage() {
     let count = 0;
     if (filters.search) count++;
     if (filters.make) count++;
+    if (filters.year) count++;
     if (filters.status !== 'ALL') count++;
     if (filters.minPrice || filters.maxPrice) count++;
     if (filters.minYear || filters.maxYear) count++;
@@ -610,17 +658,6 @@ export default function HomePage() {
                       <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         Featured #{index + 1}
                       </div>
-                      <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
-                        vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
-                        vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                        vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
-                        'bg-gray-600 text-white'
-                      }`}>
-                        {vehicle.status === 'AVAILABLE' ? '✅ Available' :
-                         vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
-                         vehicle.status === 'SOLD' ? '✅ Sold' :
-                         vehicle.status}
-                      </div>
                     </div>
                         <div className="p-4 sm:p-6 flex-grow flex flex-col justify-between">
                           <div>
@@ -866,18 +903,18 @@ export default function HomePage() {
                 </select>
 
                 <select
-                  id="filter-status"
-                  name="status"
-                  value={filters.status}
+                  id="filter-year"
+                  name="year"
+                  value={filters.year}
                   onChange={handleFilterChange}
                   autoComplete="off"
-                  aria-label="Filter by vehicle status"
+                  aria-label="Filter by vehicle year"
                   className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
                 >
-                  <option value="ALL">All Status</option>
-                  <option value="AVAILABLE">Available</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="SOLD">Sold</option>
+                  <option value="">All Years</option>
+                  {availableYears.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
                 </select>
 
                 <select
@@ -1071,17 +1108,6 @@ export default function HomePage() {
                           unoptimized={false}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold ${
-                          vehicle.status === 'AVAILABLE' ? 'bg-green-600 text-white' :
-                          vehicle.status === 'PENDING' ? 'bg-yellow-600 text-white' :
-                          vehicle.status === 'SOLD' ? 'bg-blue-600 text-white' :
-                          'bg-gray-600 text-white'
-                        }`}>
-                          {vehicle.status === 'AVAILABLE' ? '✅ Available' :
-                           vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
-                           vehicle.status === 'SOLD' ? '✅ Sold' :
-                           vehicle.status}
-                        </div>
                       </div>
                       <div className="p-6">
                         <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
@@ -1349,9 +1375,7 @@ export default function HomePage() {
                     </svg>
                   </div>
                   <h4 className="text-xl font-bold text-white mb-4">Quality Assurance</h4>
-                  <p className="text-gray-300 mb-4">Every vehicle undergoes a comprehensive 150-point inspection to ensure safety and reliability.</p>
-                  <div className="text-2xl font-bold text-blue-400">150+</div>
-                  <div className="text-sm text-gray-400">Point Inspection</div>
+                  <p className="text-gray-300 mb-4">Every vehicle undergoes a comprehensive inspection to ensure safety and reliability. Some vehicles may be sold as-is, and we'll always provide full disclosure of any known issues upfront.</p>
                 </div>
 
                 {/* Trust Card */}

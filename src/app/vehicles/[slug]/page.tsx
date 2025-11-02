@@ -155,17 +155,6 @@ export default async function VehicleDetailPage({ params }: Props) {
                   <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
                     {formatPrice(vehicle.priceCents)}
                   </div>
-                  <div className={`px-4 py-2 rounded-full text-sm font-bold ${
-                    vehicle.status === 'AVAILABLE' ? 'bg-green-500/20 text-green-400 border border-green-500/50' :
-                    vehicle.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50' :
-                    vehicle.status === 'SOLD' ? 'bg-blue-600/20 text-blue-400 border border-blue-600/50' :
-                    'bg-gray-600/20 text-gray-400 border border-gray-600/50'
-                  }`}>
-                    {vehicle.status === 'AVAILABLE' ? '✅ Available' :
-                     vehicle.status === 'PENDING' ? '⏳ Pending Sale' :
-                     vehicle.status === 'SOLD' ? '✅ Sold' :
-                     vehicle.status}
-                  </div>
                 </div>
                 <p className="text-gray-400 text-lg">
                   {formatMileage(vehicle.odometerKm)} • {vehicle.year} • {vehicle.transmission || 'Automatic'}
