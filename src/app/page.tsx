@@ -463,8 +463,8 @@ export default function HomePage() {
 
       {/* Header */}
       <header className={`sticky-header bg-gray-900 bg-opacity-80 shadow-lg transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`} role="banner">
-        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile" role="navigation" aria-label="Main navigation">
-          <a href="#home" className="flex items-center" aria-label="Luxor Auto Sale - Home">
+        <nav className="container mx-auto px-6 flex justify-between items-center nav-mobile relative" role="navigation" aria-label="Main navigation">
+          <a href="#home" className="flex items-center md:static absolute left-1/2 transform md:transform-none md:left-auto -translate-x-1/2 z-10" aria-label="Luxor Auto Sale - Home">
             <Image 
               src="/Logo.png" 
               alt="Luxor Auto Sale Logo" 
@@ -549,7 +549,7 @@ export default function HomePage() {
           >
             Book a Viewing
           </button>
-          <div className="md:hidden">
+          <div className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-20">
             <button id="mobile-menu-button" className="text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -574,22 +574,20 @@ export default function HomePage() {
 
       <main id="main-content" role="main">
         {/* Hero Section */}
-        <section id="home" className="hero-section min-h-[85vh] sm:min-h-screen flex items-center justify-center text-center px-4 py-16 sm:py-0">
-          <div className="reveal visible max-w-4xl mx-auto space-y-6 sm:space-y-8">
-            <h1 id="hero-title" className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-2 sm:mb-4 drop-shadow-2xl leading-tight">
+        <section id="home" className="hero-section min-h-[70vh] sm:min-h-screen flex items-center justify-center text-center px-4 py-12 sm:py-0">
+          <div className="reveal visible max-w-4xl mx-auto">
+            <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 drop-shadow-2xl leading-tight">
               Drive Confidently
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-8 sm:mb-10 text-gray-200 leading-relaxed px-4 sm:px-2 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-gray-200 leading-relaxed px-2">
               Your trusted, stress-free car buying experience starts here.
             </p>
-            <div className="pt-4">
-              <button 
-                onClick={() => scrollToSection('contact')} 
-                className="btn-modern text-lg sm:text-xl md:text-2xl px-10 sm:px-12 py-4 sm:py-5 animate-pulse shadow-2xl"
-              >
-                Book a Viewing
-              </button>
-            </div>
+            <button 
+              onClick={() => scrollToSection('contact')} 
+              className="btn-modern text-base sm:text-lg md:text-xl lg:text-2xl px-6 sm:px-8 py-3 sm:py-4 animate-pulse w-full sm:w-auto"
+            >
+              Book a Viewing
+            </button>
           </div>
         </section>
 
