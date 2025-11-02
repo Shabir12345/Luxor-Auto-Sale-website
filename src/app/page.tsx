@@ -574,20 +574,22 @@ export default function HomePage() {
 
       <main id="main-content" role="main">
         {/* Hero Section */}
-        <section id="home" className="hero-section min-h-[70vh] sm:min-h-screen flex items-center justify-center text-center px-4 py-12 sm:py-0">
-          <div className="reveal visible max-w-4xl mx-auto">
-            <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 drop-shadow-2xl leading-tight">
+        <section id="home" className="hero-section min-h-[85vh] sm:min-h-screen flex items-center justify-center text-center px-4 py-16 sm:py-0">
+          <div className="reveal visible max-w-4xl mx-auto space-y-6 sm:space-y-8">
+            <h1 id="hero-title" className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-2 sm:mb-4 drop-shadow-2xl leading-tight">
               Drive Confidently
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-gray-200 leading-relaxed px-2">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-8 sm:mb-10 text-gray-200 leading-relaxed px-4 sm:px-2 max-w-2xl mx-auto">
               Your trusted, stress-free car buying experience starts here.
             </p>
-            <button 
-              onClick={() => scrollToSection('contact')} 
-              className="btn-modern text-base sm:text-lg md:text-xl lg:text-2xl px-6 sm:px-8 py-3 sm:py-4 animate-pulse w-full sm:w-auto"
-            >
-              Book a Viewing
-            </button>
+            <div className="pt-4">
+              <button 
+                onClick={() => scrollToSection('contact')} 
+                className="btn-modern text-lg sm:text-xl md:text-2xl px-10 sm:px-12 py-4 sm:py-5 animate-pulse shadow-2xl"
+              >
+                Book a Viewing
+              </button>
+            </div>
           </div>
         </section>
 

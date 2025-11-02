@@ -99,29 +99,34 @@ html {
 @media (max-width: 640px) {
   .logo {
     max-height: 147px; /* 98px * 150% = 147px (50% increase for phone view) */
-    margin-top: calc(-0.5cm); /* Reduce top space by 0.5cm */
-    margin-bottom: calc(-0.5cm); /* Reduce bottom space by 0.5cm */
+    margin: 0; /* Remove any default margins */
+    display: block; /* Ensure proper display */
+    vertical-align: top; /* Align to top to reduce bottom space */
+    line-height: 0; /* Remove line-height spacing */
   }
   
   .nav-mobile {
     height: auto !important;
-    min-height: calc(39.5px - 1cm); /* Reduced by 1cm total */
-    padding: 0px 16px; /* Minimal vertical padding */
-    justify-content: center; /* Center logo on mobile */
-    position: relative; /* For absolute positioning of menu button */
+    min-height: 39.5px; /* 70px * 85% - 20px (1cm reduction) = 39.5px */
+    padding: 1px 16px; /* Further reduced vertical padding from 4px to 1px */
+    position: relative; /* Allow absolute positioning of mobile menu button */
+    justify-content: center !important; /* Center the logo */
     align-items: center; /* Vertically center items */
   }
   
-  /* Center logo on mobile - override parent justify-between */
+  /* Center the logo container on mobile */
   .nav-mobile > a:first-child {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
     display: flex;
     align-items: center;
+    height: 100%;
   }
   
-  /* Position menu button absolutely on right */
+  /* Position mobile menu button container absolutely to the right */
   .nav-mobile > div:last-child {
     position: absolute;
     right: 16px;
@@ -532,23 +537,6 @@ body * {
   }
 }
 
-/* Improve hero section proportions on mobile - zoom out to show full car */
-@media (max-width: 640px) {
-  .hero-section {
-    background-size: 120% auto; /* Zoom out to show more of the car */
-    background-position: center center; /* Center the car image */
-    min-height: 70vh; /* Ensure adequate height */
-  }
-}
-
-/* Tablet hero adjustments */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .hero-section {
-    background-size: 110% auto; /* Slight zoom out on tablets */
-    background-position: center center;
-  }
-}
-
 /* Button Styles */
 .btn-red {
   background-color: #dc2626;
@@ -748,8 +736,32 @@ button:focus, a:focus {
   
   /* Hero section mobile sizing */
   #hero-title {
-    font-size: clamp(2rem, 7vw, 3.5rem) !important;
-    line-height: 1.1;
+    font-size: clamp(2.5rem, 8vw, 4rem) !important;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  
+  /* Hero section mobile improvements */
+  .hero-section {
+    min-height: 85vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .hero-section .reveal {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+  
+  /* Better mobile buttons */
+  .btn-modern {
+    font-size: 18px !important;
+    padding: 16px 32px !important;
+    border-radius: 12px !important;
+    min-height: 56px;
+    width: auto;
+    display: inline-block;
   }
   
   p, li, span, div {
