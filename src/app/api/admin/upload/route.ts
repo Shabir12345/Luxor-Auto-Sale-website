@@ -49,16 +49,61 @@ export async function POST(request: NextRequest) {
     // Use Cloudflare R2 / S3-compatible storage
     const vehicleId = (formData.get('vehicleId') as string) || 'temp';
     
+    // Validate vehicleId format (basic check)
+    if (vehicleId !== 'temp' && vehicleId.length < 10) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: 'Invalid vehicle ID format',
+        },
+        { status: 400 }
+      );
+    }
+    
     // Debug config (safe to log lengths/domains only)
-    console.log('Upload request - R2 config check:', {
-      account: process.env.R2_ACCOUNT_ID ? 'set' : 'missing',
-      accessKeyLength: process.env.R2_ACCESS_KEY_ID?.length || 0,
-      bucket: process.env.R2_BUCKET,
-      hasPublicUrl: !!process.env.R2_PUBLIC_URL,
-      hasAwsCredentials: !!(process.env.AWS_ACCESS_KEY_ID || process.env.AWS_SECRET_ACCESS_KEY),
+    console.log('Upload request:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      vehicleId: vehicleId.substring(0, 10) + '...', // Only log partial ID
+      hasR2: !!process.env.R2_ACCOUNT_ID,
+      hasAws: !!(process.env.AWS_ACCESS_KEY_ID || process.env.AWS_SECRET_ACCESS_KEY),
     });
 
-    const { urls, primaryUrl } = await uploadVehicleImage(buffer, vehicleId, file.name);
+    let uploadedUrls: { urls: Record<string, string>; primaryUrl: string } | null = null;
+    
+    try {
+      uploadedUrls = await uploadVehicleImage(buffer, vehicleId, file.name);
+    } catch (uploadError: any) {
+      // If upload fails, provide helpful error message
+      console.error('Image upload failed:', uploadError);
+      
+      // Check for specific error types
+      if (uploadError.message?.includes('HEIC') || uploadError.message?.includes('HEIF')) {
+        return NextResponse.json<ApiResponse>(
+          {
+            success: false,
+            error: uploadError.message,
+          },
+          { status: 400 }
+        );
+      }
+      
+      if (uploadError.message?.includes('unsupported image format')) {
+        return NextResponse.json<ApiResponse>(
+          {
+            success: false,
+            error: uploadError.message,
+          },
+          { status: 400 }
+        );
+      }
+      
+      // Generic upload error
+      throw uploadError;
+    }
+
+    const { urls, primaryUrl } = uploadedUrls;
 
     return NextResponse.json<ApiResponse>(
       {

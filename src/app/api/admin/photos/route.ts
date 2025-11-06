@@ -64,10 +64,34 @@ export async function POST(request: NextRequest) {
     const validation = createPhotoSchema.safeParse(body);
 
     if (!validation.success) {
+      // Log detailed validation errors for debugging
+      console.error('Photo validation failed:', {
+        errors: validation.error.errors,
+        receivedData: {
+          vehicleId: body.vehicleId,
+          url: body.url?.substring(0, 100), // Log first 100 chars of URL
+          urlLength: body.url?.length,
+          altText: body.altText,
+          sortOrder: body.sortOrder,
+          isPrimary: body.isPrimary,
+        },
+      });
+      
+      // Provide more helpful error messages
+      const firstError = validation.error.errors[0];
+      let errorMessage = firstError.message;
+      
+      // Customize error messages for common issues
+      if (firstError.path.includes('vehicleId')) {
+        errorMessage = `Invalid vehicle ID format: ${body.vehicleId}. Please ensure you're uploading to a valid vehicle.`;
+      } else if (firstError.path.includes('url')) {
+        errorMessage = `Invalid image URL format. The uploaded image URL doesn't match the expected pattern. URL: ${body.url?.substring(0, 50)}...`;
+      }
+      
       return NextResponse.json<ApiResponse>(
         {
           success: false,
-          error: validation.error.errors[0].message,
+          error: errorMessage,
         },
         { status: 400 }
       );

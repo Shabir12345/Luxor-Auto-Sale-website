@@ -84,6 +84,46 @@ export default function VehiclePhotosPage() {
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files);
+    
+    // Client-side validation before upload
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const maxSize = 20 * 1024 * 1024; // 20MB
+    const minSize = 100; // 100 bytes minimum
+    
+    for (const file of fileArray) {
+      const fileName = file.name.toLowerCase();
+      const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+      
+      // Check for HEIC/HEIF and provide helpful message
+      if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
+        setError(
+          `HEIC/HEIF format is not supported: ${file.name}. ` +
+          `Please convert to JPEG or PNG. On iPhone: Settings > Camera > Formats > Most Compatible`
+        );
+        return;
+      }
+      
+      if (!hasValidExtension) {
+        setError(
+          `Invalid file type: ${file.name}. ` +
+          `Please upload JPEG, PNG, or WebP images only. ` +
+          `If this is from an iPhone, make sure Camera format is set to "Most Compatible".`
+        );
+        return;
+      }
+      
+      if (file.size > maxSize) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        setError(`File too large: ${file.name} (${sizeMB}MB). Maximum size is 20MB.`);
+        return;
+      }
+      
+      if (file.size < minSize) {
+        setError(`File appears to be empty or corrupted: ${file.name}. Please select a valid image file.`);
+        return;
+      }
+    }
+    
     setUploading(true);
     setError('');
     setUploadProgress({
@@ -117,9 +157,17 @@ export default function VehiclePhotosPage() {
           body: formData,
         });
         
+        // Check if upload response is OK
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json().catch(() => ({ error: 'Upload failed' }));
+          throw new Error(errorData.error || `Upload failed with status ${uploadResponse.status} (File: ${file.name})`);
+        }
+
         const uploadData = await uploadResponse.json();
         if (!uploadData.success) {
-          throw new Error(uploadData.error || 'Upload failed');
+          // Provide more detailed error message
+          const errorMsg = uploadData.error || 'Upload failed';
+          throw new Error(`${errorMsg} (File: ${file.name})`);
         }
 
         // Create photo record
@@ -137,6 +185,14 @@ export default function VehiclePhotosPage() {
             isPrimary: photoCount === 0 && i === 0, // First photo is primary
           }),
         });
+
+        if (!photoResponse.ok) {
+          const errorData = await photoResponse.json().catch(() => ({ error: 'Failed to create photo record' }));
+          // Note: The uploaded file is now orphaned, but we'll continue
+          // In production, you might want to delete it, but for now we'll just log
+          console.warn(`Photo record creation failed for uploaded file: ${uploadData.data.url}`);
+          throw new Error(errorData.error || `Failed to create photo record (status: ${photoResponse.status})`);
+        }
 
         const photoData = await photoResponse.json();
         if (!photoData.success) {
@@ -163,7 +219,20 @@ export default function VehiclePhotosPage() {
         });
       }, 500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      // Provide user-friendly error messages
+      let errorMessage = 'Upload failed';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        // Handle network errors
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        }
+        // Handle validation errors
+        if (err.message.includes('pattern') || err.message.includes('match')) {
+          errorMessage = 'File validation failed. Please ensure you are uploading a valid image file (JPEG, PNG, or WebP).';
+        }
+      }
+      setError(errorMessage);
       setUploadProgress({
         current: 0,
         total: 0,
@@ -171,6 +240,11 @@ export default function VehiclePhotosPage() {
       });
     } finally {
       setUploading(false);
+      // Reset file input
+      const fileInput = document.getElementById('photo-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
     }
   };
 
@@ -345,8 +419,12 @@ export default function VehiclePhotosPage() {
             <input
               type="file"
               multiple
-              accept="image/*"
-              onChange={handleFileUpload}
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={(e) => {
+                handleFileUpload(e);
+                // Reset input to allow re-uploading the same file
+                e.target.value = '';
+              }}
               disabled={uploading}
               className="hidden"
               id="photo-upload"
@@ -364,7 +442,10 @@ export default function VehiclePhotosPage() {
                 {uploading ? 'Uploading...' : 'Click to upload photos'}
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                PNG, JPG, WebP up to 20MB each
+                JPEG, PNG, WebP up to 20MB each
+              </p>
+              <p className="text-gray-500 text-xs mt-1">
+                iPhone users: Use "Most Compatible" format in Camera settings
               </p>
             </label>
           </div>

@@ -96,8 +96,8 @@ export const vehicleFiltersSchema = z.object({
 
 // Photo Schemas
 export const createPhotoSchema = z.object({
-  vehicleId: z.string().cuid(),
-  url: z.string().refine(
+  vehicleId: z.string().cuid({ message: 'Vehicle ID must be a valid format. Please ensure you are uploading to a valid vehicle.' }),
+  url: z.string().min(1, 'URL is required').refine(
     (val) => {
       // Allow absolute URLs (http/https)
       if (val.startsWith('http://') || val.startsWith('https://')) {
@@ -114,7 +114,7 @@ export const createPhotoSchema = z.object({
       }
       return false;
     },
-    { message: 'Invalid URL format. Must be a valid absolute URL or start with /' }
+    { message: 'Invalid URL format. Must be a valid absolute URL (http:// or https://) or start with /' }
   ),
   altText: z.string().optional(),
   sortOrder: z.number().int().min(0).default(0),

@@ -112,6 +112,93 @@ function assertStorageConfigured(): void {
 }
 
 /**
+ * Process image with Sharp, handling EXIF orientation and format conversion
+ */
+async function processImageBuffer(
+  buffer: Buffer,
+  originalFilename: string,
+  sizeConfig: ImageSize,
+  sizeName: string
+): Promise<{ buffer: Buffer; contentType: string; fileExtension: string }> {
+  const ext = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
+  const isHeic = ext === 'heic' || ext === 'heif';
+  
+  try {
+    // Create Sharp instance and auto-rotate based on EXIF
+    let processedImage = sharp(buffer, {
+      failOnError: false, // Don't fail on unsupported formats, we'll catch it
+    }).rotate(); // Auto-rotate based on EXIF orientation
+    
+    // For HEIC/HEIF, convert to JPEG first (Sharp may or may not support it)
+    if (isHeic) {
+      try {
+        // Try to convert HEIC to JPEG
+        processedImage = processedImage.jpeg({ quality: 95 });
+      } catch (heicError: any) {
+        throw new Error(
+          'HEIC/HEIF format is not supported. Please convert your image to JPEG or PNG before uploading. ' +
+          'Most phones allow you to change the format in camera settings.'
+        );
+      }
+    }
+    
+    // Resize if needed
+    if ('width' in sizeConfig && sizeConfig.width) {
+      processedImage = processedImage.resize(sizeConfig.width, 'height' in sizeConfig ? sizeConfig.height : undefined, {
+        fit: 'inside',
+        withoutEnlargement: true,
+        kernel: sharp.kernel.lanczos3,
+      });
+    }
+    
+    let processedBuffer: Buffer;
+    let contentType: string;
+    let fileExtension: string;
+    
+    if (sizeName === 'thumbnail') {
+      // Use WebP for thumbnails
+      processedBuffer = await processedImage
+        .webp({ quality: sizeConfig.quality || 90, effort: 6 })
+        .toBuffer();
+      contentType = 'image/webp';
+      fileExtension = 'webp';
+    } else if (sizeName === 'original' && !isHeic && (ext === 'png')) {
+      // Keep PNG format for original if it was PNG
+      processedBuffer = await processedImage.png({ 
+        quality: sizeConfig.quality || 98,
+        compressionLevel: 6
+      }).toBuffer();
+      contentType = 'image/png';
+      fileExtension = 'png';
+    } else {
+      // Convert to JPEG for everything else (including HEIC conversions)
+      processedBuffer = await processedImage.jpeg({ 
+        quality: sizeConfig.quality || 98,
+        progressive: true,
+        mozjpeg: true
+      }).toBuffer();
+      contentType = 'image/jpeg';
+      fileExtension = 'jpg';
+    }
+    
+    return { buffer: processedBuffer, contentType, fileExtension };
+  } catch (error: any) {
+    // Provide helpful error messages
+    if (error.message?.includes('HEIC') || error.message?.includes('HEIF')) {
+      throw error; // Re-throw our custom HEIC error
+    }
+    if (error.message?.includes('unsupported image format') || error.message?.includes('Input buffer')) {
+      throw new Error(
+        `Unsupported image format. Please use JPEG, PNG, or WebP. ` +
+        `Received: ${originalFilename}. If this is a HEIC file from an iPhone, ` +
+        `please convert it to JPEG first (Settings > Camera > Formats > Most Compatible).`
+      );
+    }
+    throw new Error(`Failed to process image: ${error.message || 'Unknown error'}`);
+  }
+}
+
+/**
  * Upload image locally (fallback when S3/R2 not configured)
  */
 async function uploadToLocalFilesystem(
@@ -120,7 +207,6 @@ async function uploadToLocalFilesystem(
   originalFilename: string
 ): Promise<{ urls: Record<string, string>; primaryUrl: string }> {
   const fileId = nanoid(10);
-  const ext = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
   const basePath = `vehicles/${vehicleId}/${fileId}`;
   const uploadDir = join(process.cwd(), 'public', 'uploads', 'vehicles', vehicleId);
   
@@ -135,41 +221,12 @@ async function uploadToLocalFilesystem(
   for (const sizeName of sizesToProcess) {
     const sizeConfig = IMAGE_SIZES[sizeName as keyof typeof IMAGE_SIZES];
     try {
-      let processedImage = sharp(buffer);
-      if ('width' in sizeConfig && sizeConfig.width) {
-        processedImage = processedImage.resize(sizeConfig.width, 'height' in sizeConfig ? sizeConfig.height : undefined, {
-          fit: 'inside',
-          withoutEnlargement: true,
-          kernel: sharp.kernel.lanczos3,
-        });
-      }
-      
-      let processedBuffer: Buffer;
-      let fileExtension: string;
-      
-      if (sizeName === 'thumbnail') {
-        // Use WebP for thumbnails
-        processedBuffer = await processedImage
-          .webp({ quality: sizeConfig.quality || 90, effort: 6 })
-          .toBuffer();
-        fileExtension = 'webp';
-      } else {
-        // Keep original format for large size
-        if (ext === 'png') {
-          processedBuffer = await processedImage.png({ 
-            quality: sizeConfig.quality || 98,
-            compressionLevel: 6
-          }).toBuffer();
-          fileExtension = 'png';
-        } else {
-          processedBuffer = await processedImage.jpeg({ 
-            quality: sizeConfig.quality || 98,
-            progressive: true,
-            mozjpeg: true
-          }).toBuffer();
-          fileExtension = 'jpg';
-        }
-      }
+      const { buffer: processedBuffer, fileExtension } = await processImageBuffer(
+        buffer,
+        originalFilename,
+        sizeConfig,
+        sizeName
+      );
       
       const fileName = `${fileId}-${sizeName}.${fileExtension}`;
       const filePath = join(uploadDir, fileName);
@@ -214,51 +271,12 @@ export async function uploadVehicleImage(
   // Process and upload each size
   for (const [sizeName, sizeConfig] of Object.entries(IMAGE_SIZES)) {
     try {
-      let processedImage = sharp(buffer);
-      if ('width' in sizeConfig && sizeConfig.width) {
-        processedImage = processedImage.resize(sizeConfig.width, 'height' in sizeConfig ? sizeConfig.height : undefined, {
-          fit: 'inside',
-          withoutEnlargement: true,
-          kernel: sharp.kernel.lanczos3, // Better resampling algorithm
-        });
-      }
-      
-      // For original size, preserve the original format if it's JPEG/PNG
-      let processedBuffer: Buffer;
-      let contentType: string;
-      let fileExtension: string;
-      
-      if (sizeName === 'original' && (ext === 'jpg' || ext === 'jpeg' || ext === 'png')) {
-        // Keep original format for highest quality
-        if (ext === 'png') {
-          processedBuffer = await processedImage.png({ 
-            quality: sizeConfig.quality || 98,
-            compressionLevel: 6
-          }).toBuffer();
-          contentType = 'image/png';
-          fileExtension = 'png';
-        } else {
-          processedBuffer = await processedImage.jpeg({ 
-            quality: sizeConfig.quality || 98,
-            progressive: true,
-            mozjpeg: true
-          }).toBuffer();
-          contentType = 'image/jpeg';
-          fileExtension = 'jpg';
-        }
-      } else {
-        // Use WebP for all other sizes
-        processedBuffer = await processedImage
-          .webp({ 
-            quality: sizeConfig.quality || 90,
-            effort: 6, // Higher effort for better compression
-            lossless: false,
-            nearLossless: false
-          })
-          .toBuffer();
-        contentType = 'image/webp';
-        fileExtension = 'webp';
-      }
+      const { buffer: processedBuffer, contentType, fileExtension } = await processImageBuffer(
+        buffer,
+        originalFilename,
+        sizeConfig,
+        sizeName
+      );
       
       const key = `${basePath}-${sizeName}.${fileExtension}`;
       await s3Client.send(
@@ -333,23 +351,61 @@ export async function deleteVehicleImage(imageUrl: string): Promise<void> {
 }
 
 /**
+ * Sanitize filename to prevent path traversal and other security issues
+ */
+function sanitizeFilename(filename: string): string {
+  // Remove path components and keep only the filename
+  const basename = filename.split(/[/\\]/).pop() || filename;
+  // Remove any characters that could be problematic
+  return basename.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 255);
+}
+
+/**
  * Validate image file
  */
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  const maxSize = 20 * 1024 * 1024; // 20MB (increased for higher quality)
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
+  const maxSize = 20 * 1024 * 1024; // 20MB
+  const minSize = 100; // 100 bytes minimum
 
-  if (!allowedTypes.includes(file.type)) {
+  // Sanitize filename
+  const sanitizedName = sanitizeFilename(file.name);
+  if (sanitizedName !== file.name) {
+    console.warn(`Filename sanitized: "${file.name}" -> "${sanitizedName}"`);
+  }
+
+  // Get file extension from name (more reliable on mobile)
+  const fileName = file.name.toLowerCase();
+  const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+  
+  // Check MIME type (may be empty or different on some mobile devices)
+  const mimeType = file.type?.toLowerCase() || '';
+  const hasValidMimeType = !file.type || allowedTypes.includes(mimeType);
+  
+  // Accept file if either extension or MIME type is valid
+  // This handles cases where mobile devices don't set MIME type correctly
+  if (!hasValidExtension && !hasValidMimeType) {
     return {
       valid: false,
-      error: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.',
+      error: `Invalid file type. Only JPEG, PNG, and WebP are allowed. ` +
+             `Detected: ${file.type || 'unknown'} (${file.name}). ` +
+             `If this is a HEIC file from an iPhone, please convert it to JPEG first.`,
     };
   }
 
   if (file.size > maxSize) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
     return {
       valid: false,
-      error: 'File too large. Maximum size is 20MB.',
+      error: `File too large: ${sizeMB}MB. Maximum size is 20MB.`,
+    };
+  }
+
+  if (file.size < minSize) {
+    return {
+      valid: false,
+      error: 'File appears to be empty or corrupted.',
     };
   }
 
