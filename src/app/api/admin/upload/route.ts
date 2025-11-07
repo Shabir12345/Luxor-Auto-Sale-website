@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     let uploadedUrls: { urls: Record<string, string>; primaryUrl: string } | null = null;
     
     try {
-      uploadedUrls = await uploadVehicleImage(buffer, vehicleId, file.name);
+      uploadedUrls = await uploadVehicleImage(buffer, vehicleId, file.name, file.type);
     } catch (uploadError: any) {
       // If upload fails, provide helpful error message
       console.error('Image upload failed:', uploadError);

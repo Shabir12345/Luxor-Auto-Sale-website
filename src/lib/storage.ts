@@ -106,6 +106,100 @@ export const IMAGE_SIZES = {
   original: { quality: 98 },
 } satisfies Record<string, ImageSize>;
 
+const HEIC_EXTENSIONS = new Set(['heic', 'heif', 'heic-sequence', 'heif-sequence']);
+const HEIC_MIME_TYPES = new Set(['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']);
+
+const MIME_EXTENSION_MAP: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/pjpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/heic': 'heic',
+  'image/heif': 'heif',
+  'image/heic-sequence': 'heic',
+  'image/heif-sequence': 'heif',
+};
+
+type HeicConvertFn = (options: { buffer: Buffer; format: 'JPEG' | 'PNG'; quality?: number }) => Promise<Buffer | ArrayBuffer>;
+
+let heicConvertFnPromise: Promise<HeicConvertFn> | null = null;
+
+async function loadHeicConvert(): Promise<HeicConvertFn> {
+  if (!heicConvertFnPromise) {
+    heicConvertFnPromise = (async () => {
+      const mod: any = await import('heic-convert');
+      const fn = typeof mod === 'function' ? mod : mod?.default;
+      if (!fn) {
+        throw new Error('Failed to load heic-convert module');
+      }
+      return fn as HeicConvertFn;
+    })();
+  }
+  return heicConvertFnPromise;
+}
+
+async function convertHeicToJpegBuffer(buffer: Buffer): Promise<Buffer> {
+  try {
+    // Try using sharp directly when libvips has HEIC support
+    return await sharp(buffer, { failOnError: false })
+      .rotate()
+      .jpeg({ quality: 100 })
+      .toBuffer();
+  } catch (error) {
+    console.warn('Sharp could not decode HEIC, falling back to heic-convert.', error instanceof Error ? error.message : error);
+    const convert = await loadHeicConvert();
+    const converted = await convert({ buffer, format: 'JPEG', quality: 1 });
+    const convertedBuffer = Buffer.isBuffer(converted) ? converted : Buffer.from(converted);
+    // Re-run through sharp to normalize metadata/orientation
+    return await sharp(convertedBuffer, { failOnError: false })
+      .rotate()
+      .jpeg({ quality: 100 })
+      .toBuffer();
+  }
+}
+
+function replaceFileExtension(filename: string, newExt: string): string {
+  const lastDot = filename.lastIndexOf('.');
+  const base = lastDot >= 0 ? filename.slice(0, lastDot) : filename;
+  return `${base}.${newExt}`;
+}
+
+type NormalizedImageInput = {
+  buffer: Buffer;
+  filename: string;
+  sourceExtension: string;
+  convertedFromHeic: boolean;
+};
+
+async function normalizeImageInput(
+  buffer: Buffer,
+  originalFilename: string,
+  mimeType?: string | null
+): Promise<NormalizedImageInput> {
+  const sanitizedName = sanitizeFilename(originalFilename || 'upload');
+  const extFromName = sanitizedName.split('.').pop()?.toLowerCase() || '';
+  const extFromMime = mimeType ? MIME_EXTENSION_MAP[mimeType.toLowerCase()] : undefined;
+  const effectiveExt = (extFromName || extFromMime || '').toLowerCase();
+
+  if (HEIC_EXTENSIONS.has(effectiveExt) || (mimeType && HEIC_MIME_TYPES.has(mimeType.toLowerCase()))) {
+    const jpegBuffer = await convertHeicToJpegBuffer(buffer);
+    return {
+      buffer: jpegBuffer,
+      filename: replaceFileExtension(sanitizedName, 'jpg'),
+      sourceExtension: effectiveExt || 'heic',
+      convertedFromHeic: true,
+    };
+  }
+
+  return {
+    buffer,
+    filename: extFromName ? sanitizedName : `${sanitizedName}.${extFromMime || 'jpg'}`,
+    sourceExtension: effectiveExt,
+    convertedFromHeic: false,
+  };
+}
+
 function assertStorageConfigured(): void {
   // Storage is now optional - will use local filesystem as fallback
   return;
@@ -137,8 +231,7 @@ async function processImageBuffer(
         processedImage = processedImage.jpeg({ quality: 95 });
       } catch (heicError: any) {
         throw new Error(
-          'HEIC/HEIF format is not supported. Please convert your image to JPEG or PNG before uploading. ' +
-          'Most phones allow you to change the format in camera settings.'
+          'Unable to process this HEIC/HEIF image automatically. Please export it as JPEG or PNG and try again.'
         );
       }
     }
@@ -190,9 +283,8 @@ async function processImageBuffer(
     }
     if (error.message?.includes('unsupported image format') || error.message?.includes('Input buffer')) {
       throw new Error(
-        `Unsupported image format. Please use JPEG, PNG, or WebP. ` +
-        `Received: ${safeFilename}. If this is a HEIC file from an iPhone, ` +
-        `please convert it to JPEG first (Settings > Camera > Formats > Most Compatible).`
+        `Unsupported image format. Please upload JPEG, PNG, WebP, or HEIC images. ` +
+        `Received: ${safeFilename}.`
       );
     }
     throw new Error(`Failed to process image: ${error.message || 'Unknown error'}`);
@@ -205,8 +297,13 @@ async function processImageBuffer(
 async function uploadToLocalFilesystem(
   buffer: Buffer,
   vehicleId: string,
-  originalFilename: string
+  originalFilename: string,
+  mimeType?: string | null
 ): Promise<{ urls: Record<string, string>; primaryUrl: string }> {
+  const normalized = await normalizeImageInput(buffer, originalFilename, mimeType);
+  const workingBuffer = normalized.buffer;
+  const workingFilename = normalized.filename;
+
   const fileId = nanoid(10);
   const basePath = `vehicles/${vehicleId}/${fileId}`;
   const uploadDir = join(process.cwd(), 'public', 'uploads', 'vehicles', vehicleId);
@@ -223,8 +320,8 @@ async function uploadToLocalFilesystem(
     const sizeConfig = IMAGE_SIZES[sizeName as keyof typeof IMAGE_SIZES];
     try {
       const { buffer: processedBuffer, fileExtension } = await processImageBuffer(
-        buffer,
-        originalFilename,
+        workingBuffer,
+        workingFilename,
         sizeConfig,
         sizeName
       );
@@ -253,18 +350,29 @@ async function uploadToLocalFilesystem(
 export async function uploadVehicleImage(
   buffer: Buffer,
   vehicleId: string,
-  originalFilename: string
+  originalFilename: string,
+  mimeType?: string | null
 ): Promise<{ urls: Record<string, string>; primaryUrl: string }> {
   assertStorageConfigured();
   
   // Use local filesystem if S3/R2 is not configured
   if (!s3Client) {
     console.log('S3/R2 not configured, using local filesystem');
-    return uploadToLocalFilesystem(buffer, vehicleId, originalFilename);
+    return uploadToLocalFilesystem(buffer, vehicleId, originalFilename, mimeType);
   }
   
+  const normalized = await normalizeImageInput(buffer, originalFilename, mimeType);
+  const workingBuffer = normalized.buffer;
+  const workingFilename = normalized.filename;
+
+  if (normalized.convertedFromHeic) {
+    console.log('Converted HEIC/HEIF upload to JPEG for compatibility', {
+      originalExtension: normalized.sourceExtension,
+      normalizedFilename: workingFilename,
+    });
+  }
+
   const fileId = nanoid(10);
-  const ext = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
   const basePath = `vehicles/${vehicleId}/${fileId}`;
 
   const urls: Record<string, string> = {};
@@ -273,8 +381,8 @@ export async function uploadVehicleImage(
   for (const [sizeName, sizeConfig] of Object.entries(IMAGE_SIZES)) {
     try {
       const { buffer: processedBuffer, contentType, fileExtension } = await processImageBuffer(
-        buffer,
-        originalFilename,
+        workingBuffer,
+        workingFilename,
         sizeConfig,
         sizeName
       );
@@ -378,7 +486,7 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
     'image/heic-sequence',
     'image/heif-sequence',
   ];
-  const allowedExtensions = ['.jpg', '.jpeg', '.jfif', '.png', '.webp', '.heic', '.heif'];
+  const allowedExtensions = ['.jpg', '.jpeg', '.jfif', '.png', '.webp', '.heic', '.heif', '.heic-sequence', '.heif-sequence'];
   const maxSize = 20 * 1024 * 1024; // 20MB
   const minSize = 100; // 100 bytes minimum
 
@@ -401,9 +509,9 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
   if (!hasValidExtension && !hasValidMimeType) {
     return {
       valid: false,
-      error: `Invalid file type. Only JPEG, PNG, and WebP are allowed. ` +
-             `Detected: ${file.type || 'unknown'} (${file.name}). ` +
-             `If this is a HEIC file from an iPhone, please convert it to JPEG first.`,
+      error: `Invalid file type. Only JPEG, PNG, WebP, or HEIC/HEIF images are allowed. ` +
+             `Detected: ${file.type || 'unknown'} (${file.name}).` +
+             ` If this is a Live Photo video clip (*.MOV), please choose the accompanying photo instead.`,
     };
   }
 

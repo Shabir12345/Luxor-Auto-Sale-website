@@ -86,7 +86,7 @@ export default function VehiclePhotosPage() {
     const fileArray = Array.from(files);
     
     // Client-side validation before upload
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
     const maxSize = 20 * 1024 * 1024; // 20MB
     const minSize = 100; // 100 bytes minimum
     
@@ -94,20 +94,11 @@ export default function VehiclePhotosPage() {
       const fileName = file.name.toLowerCase();
       const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
       
-      // Check for HEIC/HEIF and provide helpful message
-      if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
-        setError(
-          `HEIC/HEIF format is not supported: ${file.name}. ` +
-          `Please convert to JPEG or PNG. On iPhone: Settings > Camera > Formats > Most Compatible`
-        );
-        return;
-      }
-      
       if (!hasValidExtension) {
         setError(
           `Invalid file type: ${file.name}. ` +
-          `Please upload JPEG, PNG, or WebP images only. ` +
-          `If this is from an iPhone, make sure Camera format is set to "Most Compatible".`
+          `Please upload JPEG, PNG, WebP, or HEIC images only. ` +
+          `If you selected a Live Photo, choose the still photo instead of the video clip.`
         );
         return;
       }
@@ -419,7 +410,7 @@ export default function VehiclePhotosPage() {
             <input
               type="file"
               multiple
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif"
               onChange={(e) => {
                 handleFileUpload(e);
                 // Reset input to allow re-uploading the same file
@@ -442,10 +433,10 @@ export default function VehiclePhotosPage() {
                 {uploading ? 'Uploading...' : 'Click to upload photos'}
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                JPEG, PNG, WebP up to 20MB each
+                JPEG, PNG, WebP, HEIC up to 20MB each
               </p>
               <p className="text-gray-500 text-xs mt-1">
-                iPhone users: Use "Most Compatible" format in Camera settings
+                Live Photos are supported automatically (select the still photo when prompted)
               </p>
             </label>
           </div>
