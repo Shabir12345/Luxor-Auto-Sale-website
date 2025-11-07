@@ -93,7 +93,7 @@ const PUBLIC_URL = isR2Config
   : (process.env.R2_PUBLIC_URL || `https://${BUCKET_NAME}.s3.amazonaws.com`);
 
 export type ImageSize = {
-  width: number;
+  width?: number;
   height?: number;
   quality?: number;
 };
@@ -104,7 +104,7 @@ export const IMAGE_SIZES = {
   medium: { width: 1200, quality: 94 },
   large: { width: 1920, quality: 96 },
   original: { quality: 98 },
-};
+} satisfies Record<string, ImageSize>;
 
 function assertStorageConfigured(): void {
   // Storage is now optional - will use local filesystem as fallback
@@ -120,7 +120,8 @@ async function processImageBuffer(
   sizeConfig: ImageSize,
   sizeName: string
 ): Promise<{ buffer: Buffer; contentType: string; fileExtension: string }> {
-  const ext = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
+  const safeFilename = sanitizeFilename(originalFilename);
+  const ext = safeFilename.split('.').pop()?.toLowerCase() || 'jpg';
   const isHeic = ext === 'heic' || ext === 'heif';
   
   try {
@@ -143,8 +144,8 @@ async function processImageBuffer(
     }
     
     // Resize if needed
-    if ('width' in sizeConfig && sizeConfig.width) {
-      processedImage = processedImage.resize(sizeConfig.width, 'height' in sizeConfig ? sizeConfig.height : undefined, {
+    if (sizeConfig.width) {
+      processedImage = processedImage.resize(sizeConfig.width, sizeConfig.height, {
         fit: 'inside',
         withoutEnlargement: true,
         kernel: sharp.kernel.lanczos3,
@@ -190,7 +191,7 @@ async function processImageBuffer(
     if (error.message?.includes('unsupported image format') || error.message?.includes('Input buffer')) {
       throw new Error(
         `Unsupported image format. Please use JPEG, PNG, or WebP. ` +
-        `Received: ${originalFilename}. If this is a HEIC file from an iPhone, ` +
+        `Received: ${safeFilename}. If this is a HEIC file from an iPhone, ` +
         `please convert it to JPEG first (Settings > Camera > Formats > Most Compatible).`
       );
     }
@@ -364,8 +365,20 @@ function sanitizeFilename(filename: string): string {
  * Validate image file
  */
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
-  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
+  const allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/pjpeg',
+    'image/jfif',
+    'image/png',
+    'image/x-png',
+    'image/webp',
+    'image/heic',
+    'image/heif',
+    'image/heic-sequence',
+    'image/heif-sequence',
+  ];
+  const allowedExtensions = ['.jpg', '.jpeg', '.jfif', '.png', '.webp', '.heic', '.heif'];
   const maxSize = 20 * 1024 * 1024; // 20MB
   const minSize = 100; // 100 bytes minimum
 
