@@ -15,6 +15,7 @@ import 'swiper/css/pagination';
 
 export default function HomePage() {
   const [vehicles, setVehicles] = useState([]);
+  const [totalVehiclesCount, setTotalVehiclesCount] = useState(0);
   const [featuredVehicles, setFeaturedVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formStatus, setFormStatus] = useState({ type: '', message: '' });
@@ -103,6 +104,11 @@ export default function HomePage() {
         if (vehiclesData.success) {
           console.log('Vehicles data received:', vehiclesData.data?.data?.length || 0, 'vehicles');
           setVehicles(vehiclesData.data.data || []);
+          setTotalVehiclesCount(
+            vehiclesData.data?.pagination?.total ??
+            vehiclesData.data?.data?.length ??
+            0
+          );
           
           // Extract unique makes for dropdown (from filtered results)
           const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
@@ -110,6 +116,7 @@ export default function HomePage() {
         } else {
           console.error('Vehicles API error:', vehiclesData.error);
           setVehicles([]); // Set empty array on error
+          setTotalVehiclesCount(0);
         }
 
         // Fetch featured vehicles (only if no filters applied)
@@ -1077,7 +1084,7 @@ export default function HomePage() {
                       Loading...
                     </div>
                   ) : (
-                    `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''} found`
+                    `${(totalVehiclesCount || vehicles.length)} vehicle${(totalVehiclesCount || vehicles.length) !== 1 ? 's' : ''} found`
                   )}
                 </div>
               </div>
@@ -1149,7 +1156,7 @@ export default function HomePage() {
                     href="/inventory" 
                     className="inline-flex items-center btn-modern text-lg"
                   >
-                    View All {vehicles.length} Vehicles
+                    View All {(totalVehiclesCount || vehicles.length)} Vehicles
                     <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

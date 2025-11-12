@@ -9,6 +9,7 @@ import { formatPrice, formatMileage } from '@/utils/formatters';
 
 export default function InventoryPage() {
   const [vehicles, setVehicles] = useState<any[]>([]);
+  const [totalVehicles, setTotalVehicles] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
@@ -47,12 +48,14 @@ export default function InventoryPage() {
         ...(filters.bodyType && { bodyType: filters.bodyType }),
         ...(filters.sortBy && { sortBy: filters.sortBy }),
       });
+      params.set('perPage', '100');
 
       const response = await fetch(`/api/vehicles?${params}`);
       const data = await response.json();
 
       if (data.success) {
         setVehicles(data.data.data);
+        setTotalVehicles(data.data.pagination?.total ?? data.data.data.length ?? 0);
         
         // Extract unique makes and models for dropdowns
         const makes = [...new Set(data.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
@@ -310,7 +313,7 @@ export default function InventoryPage() {
           {/* Results Summary */}
           <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
             <span>
-              {loading ? 'Loading...' : `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''} found`}
+              {loading ? 'Loading...' : `${totalVehicles} vehicle${totalVehicles !== 1 ? 's' : ''} found`}
             </span>
             {getFilterCount() > 0 && (
               <span className="text-blue-400">

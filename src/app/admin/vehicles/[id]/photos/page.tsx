@@ -35,6 +35,7 @@ export default function VehiclePhotosPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [uploadProgress, setUploadProgress] = useState({
     current: 0,
     total: 0,
@@ -117,11 +118,15 @@ export default function VehiclePhotosPage() {
     
     setUploading(true);
     setError('');
+    setSuccessMessage('');
     setUploadProgress({
       current: 0,
       total: fileArray.length,
       currentFileName: '',
     });
+
+    const successfulUploads: string[] = [];
+    let uploadError: Error | null = null;
 
     try {
       const token = localStorage.getItem('authToken');
@@ -136,72 +141,126 @@ export default function VehiclePhotosPage() {
           total: fileArray.length,
           currentFileName: file.name,
         });
-        
-        // Upload file
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('vehicleId', vehicleId);
-        
-        const uploadResponse = await fetch('/api/admin/upload', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-        
-        // Check if upload response is OK
-        if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json().catch(() => ({ error: 'Upload failed' }));
-          throw new Error(errorData.error || `Upload failed with status ${uploadResponse.status} (File: ${file.name})`);
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('vehicleId', vehicleId);
+
+          const uploadResponse = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            let errorMessage = `Upload failed with status ${uploadResponse.status} (File: ${file.name})`;
+            try {
+              const errorData = await uploadResponse.json();
+              if (errorData?.error) {
+                errorMessage = `${errorData.error} (File: ${file.name})`;
+              }
+            } catch {
+              // ignore JSON parse errors and fall back to default message
+            }
+            throw new Error(errorMessage);
+          }
+
+          const uploadData = await uploadResponse.json();
+          if (!uploadData.success) {
+            const errorMsg = uploadData.error || 'Upload failed';
+            throw new Error(`${errorMsg} (File: ${file.name})`);
+          }
+
+          const photoResponse = await fetch('/api/admin/photos', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              vehicleId,
+              url: uploadData.data.url,
+              altText: file.name,
+              sortOrder: photoCount + successfulUploads.length,
+              isPrimary: photoCount === 0 && successfulUploads.length === 0,
+            }),
+          });
+
+          if (!photoResponse.ok) {
+            let errorMessage = `Failed to create photo record (status: ${photoResponse.status})`;
+            try {
+              const errorData = await photoResponse.json();
+              if (errorData?.error) {
+                errorMessage = errorData.error;
+              }
+            } catch {
+              // ignore JSON parse errors
+            }
+            console.warn('Photo record creation failed for uploaded file:', uploadData.data.url);
+            throw new Error(`${errorMessage} (File: ${file.name})`);
+          }
+
+          const photoData = await photoResponse.json();
+          if (!photoData.success) {
+            throw new Error(`${photoData.error || 'Failed to create photo record'} (File: ${file.name})`);
+          }
+
+          successfulUploads.push(file.name);
+
+          setUploadProgress({
+            current: i + 1,
+            total: fileArray.length,
+            currentFileName: file.name,
+          });
+        } catch (loopError) {
+          uploadError = loopError instanceof Error ? loopError : new Error('Upload failed');
+          break;
         }
-
-        const uploadData = await uploadResponse.json();
-        if (!uploadData.success) {
-          // Provide more detailed error message
-          const errorMsg = uploadData.error || 'Upload failed';
-          throw new Error(`${errorMsg} (File: ${file.name})`);
-        }
-
-        // Create photo record
-        const photoResponse = await fetch('/api/admin/photos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            vehicleId,
-            url: uploadData.data.url,
-            altText: file.name,
-            sortOrder: photoCount + i,
-            isPrimary: photoCount === 0 && i === 0, // First photo is primary
-          }),
-        });
-
-        if (!photoResponse.ok) {
-          const errorData = await photoResponse.json().catch(() => ({ error: 'Failed to create photo record' }));
-          // Note: The uploaded file is now orphaned, but we'll continue
-          // In production, you might want to delete it, but for now we'll just log
-          console.warn(`Photo record creation failed for uploaded file: ${uploadData.data.url}`);
-          throw new Error(errorData.error || `Failed to create photo record (status: ${photoResponse.status})`);
-        }
-
-        const photoData = await photoResponse.json();
-        if (!photoData.success) {
-          throw new Error(photoData.error || 'Failed to create photo record');
-        }
-
-        // Update progress - file completed
-        setUploadProgress({
-          current: i + 1,
-          total: fileArray.length,
-          currentFileName: file.name,
-        });
       }
 
-      // Refresh photos
-      await fetchPhotos();
-      
-      // Reset progress after a brief moment
+      if (successfulUploads.length > 0) {
+        await fetchPhotos();
+        const pluralized = successfulUploads.length === 1 ? 'photo' : 'photos';
+        setSuccessMessage(
+          uploadError
+            ? `Uploaded ${successfulUploads.length} ${pluralized}, but encountered an error on a later file.`
+            : `Successfully uploaded ${successfulUploads.length} ${pluralized}.`
+        );
+      }
+
+      if (uploadError) {
+        let errorMessage = uploadError.message || 'Upload failed';
+        if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        }
+        if (successfulUploads.length > 0) {
+          const pluralized = successfulUploads.length === 1 ? 'photo' : 'photos';
+          errorMessage += ` ${successfulUploads.length} ${pluralized} uploaded successfully before the error.`;
+        }
+        if (errorMessage.includes('pattern') || errorMessage.includes('match')) {
+          errorMessage = 'File validation failed. Please ensure you are uploading JPEG, PNG, WebP, or HEIC images.';
+        }
+        setError(errorMessage);
+      }
+
+      if (!uploadError && successfulUploads.length === 0) {
+        setSuccessMessage('No photos were uploaded.');
+      }
+    } catch (err) {
+      let errorMessage = 'Upload failed';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        }
+        if (err.message.includes('pattern') || err.message.includes('match')) {
+          errorMessage = 'File validation failed. Please ensure you are uploading JPEG, PNG, WebP, or HEIC images.';
+        }
+      }
+      setError(errorMessage);
+    } finally {
+      setUploading(false);
       setTimeout(() => {
         setUploadProgress({
           current: 0,
@@ -209,29 +268,7 @@ export default function VehiclePhotosPage() {
           currentFileName: '',
         });
       }, 500);
-    } catch (err) {
-      // Provide user-friendly error messages
-      let errorMessage = 'Upload failed';
-      if (err instanceof Error) {
-        errorMessage = err.message;
-        // Handle network errors
-        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-          errorMessage = 'Network error. Please check your internet connection and try again.';
-        }
-        // Handle validation errors
-        if (err.message.includes('pattern') || err.message.includes('match')) {
-          errorMessage = 'File validation failed. Please ensure you are uploading a valid image file (JPEG, PNG, or WebP).';
-        }
-      }
-      setError(errorMessage);
-      setUploadProgress({
-        current: 0,
-        total: 0,
-        currentFileName: '',
-      });
-    } finally {
-      setUploading(false);
-      // Reset file input
+
       const fileInput = document.getElementById('photo-upload') as HTMLInputElement;
       if (fileInput) {
         fileInput.value = '';
@@ -372,6 +409,12 @@ export default function VehiclePhotosPage() {
           {error && (
             <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded mb-4">
               {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="bg-green-500/10 border border-green-500 text-green-400 px-4 py-3 rounded mb-4">
+              {successMessage}
             </div>
           )}
 
