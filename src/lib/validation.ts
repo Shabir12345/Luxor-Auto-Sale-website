@@ -70,8 +70,59 @@ export const createVehicleSchema = z.object({
     .or(z.literal('')),
 });
 
-export const updateVehicleSchema = createVehicleSchema.partial().extend({
+export const updateVehicleSchema = z.object({
   id: z.string().cuid(),
+  vin: z.string().min(17).max(17, 'VIN must be exactly 17 characters').optional(),
+  stockNumber: z.string().optional(),
+  year: z.number().int().min(1900).max(new Date().getFullYear() + 2).optional(),
+  make: z.string().min(1, 'Make is required').optional(),
+  model: z.string().min(1, 'Model is required').optional(),
+  trim: z.string().optional(),
+  bodyType: z
+    .enum([
+      'SEDAN',
+      'COUPE',
+      'HATCHBACK',
+      'WAGON',
+      'SUV',
+      'TRUCK',
+      'VAN',
+      'CONVERTIBLE',
+      'OTHER',
+    ])
+    .optional(),
+  drivetrain: z.enum(['FWD', 'RWD', 'AWD', 'FOUR_WD']).optional(),
+  fuelType: z.enum(['GASOLINE', 'DIESEL', 'HYBRID', 'ELECTRIC', 'PLUG_IN_HYBRID']).optional(),
+  transmission: z.enum(['AUTOMATIC', 'MANUAL', 'CVT', 'DCT']).optional(),
+  engine: z.string().optional(),
+  cylinders: z.number().int().min(2).max(16).optional(),
+  odometerKm: z.number().int().min(0).optional(),
+  priceCents: z.number().int().min(0).optional(),
+  status: z.enum(['AVAILABLE', 'PENDING', 'SOLD', 'DRAFT']).optional(),
+  isFeatured: z.boolean().optional(),
+  exteriorColor: z.string().optional(),
+  interiorColor: z.string().optional(),
+  title: z.string().min(1, 'Title is required').optional(),
+  description: z.string().optional(),
+  carfaxUrl: z
+    .string()
+    .refine(
+      (val) => {
+        if (!val || val === '') return true; // Allow empty string
+        if (val.startsWith('http://') || val.startsWith('https://')) {
+          try {
+            new URL(val);
+            return true;
+          } catch {
+            return false;
+          }
+        }
+        return false;
+      },
+      { message: 'Invalid URL format. Must be a valid http:// or https:// URL' }
+    )
+    .optional()
+    .or(z.literal('')),
 });
 
 export const vehicleFiltersSchema = z.object({

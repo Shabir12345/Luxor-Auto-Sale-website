@@ -114,33 +114,34 @@ export async function PATCH(
 
     const { id: _, ...data } = validation.data;
 
+    // Filter out undefined values to ensure Prisma only updates provided fields
+    const updateData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== undefined)
+    ) as any;
+
     // Update slug if make/model/year changed
     let seoSlug = existingVehicle.seoSlug;
-    if (data.year || data.make || data.model) {
+    if (updateData.year || updateData.make || updateData.model) {
       seoSlug = generateVehicleSlug(
-        data.year || existingVehicle.year,
-        data.make || existingVehicle.make,
-        data.model || existingVehicle.model,
+        updateData.year || existingVehicle.year,
+        updateData.make || existingVehicle.make,
+        updateData.model || existingVehicle.model,
         existingVehicle.vin
       );
+      updateData.seoSlug = seoSlug;
     }
 
     // Update publishedAt if status changed to AVAILABLE
-    const publishedAt =
-      data.status === 'AVAILABLE' && !existingVehicle.publishedAt
-        ? new Date()
-        : existingVehicle.publishedAt;
+    if (updateData.status === 'AVAILABLE' && !existingVehicle.publishedAt) {
+      updateData.publishedAt = new Date();
+    }
 
     // Update vehicle
-    console.log('Updating vehicle with data:', { ...data, seoSlug, publishedAt });
+    console.log('Updating vehicle with data:', updateData);
     try {
       const vehicle = await prisma.vehicle.update({
         where: { id },
-        data: {
-          ...data,
-          seoSlug,
-          publishedAt,
-        },
+        data: updateData,
       });
 
       // Log activity
@@ -150,7 +151,7 @@ export async function PATCH(
           action: 'UPDATED_VEHICLE',
           entityType: 'VEHICLE',
           entityId: vehicle.id,
-          details: { changes: data },
+          details: { changes: updateData },
         },
       });
 

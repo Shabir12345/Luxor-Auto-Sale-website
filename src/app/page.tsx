@@ -461,6 +461,32 @@ export default function HomePage() {
     return new Intl.NumberFormat('en-CA').format(km) + ' km';
   };
 
+  const getStatusBadgeStyle = (status: string) => {
+    const styles: Record<string, { bgColor: string; textColor: string; label: string }> = {
+      AVAILABLE: {
+        bgColor: 'bg-green-600',
+        textColor: 'text-white',
+        label: 'Available',
+      },
+      PENDING: {
+        bgColor: 'bg-yellow-500',
+        textColor: 'text-white',
+        label: 'Pending',
+      },
+      SOLD: {
+        bgColor: 'bg-gray-600',
+        textColor: 'text-white',
+        label: 'Sold',
+      },
+      DRAFT: {
+        bgColor: 'bg-gray-500',
+        textColor: 'text-white',
+        label: 'Draft',
+      },
+    };
+    return styles[status] || { bgColor: 'bg-gray-500', textColor: 'text-white', label: status };
+  };
+
   return (
     <>
       {/* Skip to main content for accessibility */}
@@ -665,6 +691,11 @@ export default function HomePage() {
                       <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         Featured #{index + 1}
                       </div>
+                      {vehicle.status && (
+                        <div className={`absolute top-4 left-4 ${getStatusBadgeStyle(vehicle.status).bgColor} ${getStatusBadgeStyle(vehicle.status).textColor} px-3 py-1 rounded-full text-xs font-semibold shadow-lg`}>
+                          {getStatusBadgeStyle(vehicle.status).label}
+                        </div>
+                      )}
                     </div>
                         <div className="p-4 sm:p-6 flex-grow flex flex-col justify-between">
                           <div>
@@ -1115,6 +1146,11 @@ export default function HomePage() {
                           unoptimized={false}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        {vehicle.status && (
+                          <div className={`absolute top-4 left-4 ${getStatusBadgeStyle(vehicle.status).bgColor} ${getStatusBadgeStyle(vehicle.status).textColor} px-3 py-1 rounded-full text-xs font-semibold shadow-lg`}>
+                            {getStatusBadgeStyle(vehicle.status).label}
+                          </div>
+                        )}
                       </div>
                       <div className="p-6">
                         <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">

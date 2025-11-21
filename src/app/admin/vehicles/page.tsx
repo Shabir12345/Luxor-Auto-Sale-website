@@ -35,6 +35,27 @@ export default function VehiclesListPage() {
     }
   };
 
+  const getNextStatus = (currentStatus: string): string => {
+    // Cycle through: AVAILABLE -> PENDING -> SOLD -> AVAILABLE
+    switch (currentStatus) {
+      case 'AVAILABLE':
+        return 'PENDING';
+      case 'PENDING':
+        return 'SOLD';
+      case 'SOLD':
+        return 'AVAILABLE';
+      case 'DRAFT':
+        return 'AVAILABLE';
+      default:
+        return 'AVAILABLE';
+    }
+  };
+
+  const handleStatusClick = async (vehicleId: string, currentStatus: string) => {
+    const newStatus = getNextStatus(currentStatus);
+    await handleStatusChange(vehicleId, newStatus);
+  };
+
   const handleStatusChange = async (vehicleId: string, newStatus: string) => {
     try {
       const token = localStorage.getItem('authToken');
@@ -50,6 +71,9 @@ export default function VehiclesListPage() {
       if (response.ok) {
         // Refresh list
         fetchVehicles();
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update status:', errorData.error || 'Unknown error');
       }
     } catch (error) {
       console.error('Failed to update status:', error);
@@ -171,13 +195,15 @@ export default function VehiclesListPage() {
                     <td className="px-6 py-4 text-white">{formatMileage(vehicle.odometerKm)}</td>
                     <td className="px-6 py-4 text-white">{formatPrice(vehicle.priceCents)}</td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(
+                      <button
+                        onClick={() => handleStatusClick(vehicle.id, vehicle.status)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium text-white transition-all hover:opacity-80 hover:scale-105 cursor-pointer ${getStatusColor(
                           vehicle.status
                         )}`}
+                        title="Click to change status"
                       >
                         {vehicle.status}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-6 py-4">
                       <button

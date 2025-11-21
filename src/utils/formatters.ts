@@ -77,3 +77,29 @@ export function formatTransmission(transmission: string): string {
   return formatted[transmission] || transmission;
 }
 
+export function getStatusBadgeStyle(status: string): { bgColor: string; textColor: string; label: string } {
+  const styles: Record<string, { bgColor: string; textColor: string; label: string }> = {
+    AVAILABLE: {
+      bgColor: 'bg-green-600',
+      textColor: 'text-white',
+      label: 'Available',
+    },
+    PENDING: {
+      bgColor: 'bg-yellow-500',
+      textColor: 'text-white',
+      label: 'Pending',
+    },
+    SOLD: {
+      bgColor: 'bg-gray-600',
+      textColor: 'text-white',
+      label: 'Sold',
+    },
+    DRAFT: {
+      bgColor: 'bg-gray-500',
+      textColor: 'text-white',
+      label: 'Draft',
+    },
+  };
+  return styles[status] || { bgColor: 'bg-gray-500', textColor: 'text-white', label: status };
+}
+

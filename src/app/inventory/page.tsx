@@ -2,10 +2,28 @@
 
 // Public Inventory Page
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { formatPrice, formatMileage } from '@/utils/formatters';
+import Select from '@/components/Select';
+import { formatPrice, formatMileage, getStatusBadgeStyle } from '@/utils/formatters';
+
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export default function InventoryPage() {
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -29,14 +47,35 @@ export default function InventoryPage() {
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
+  // Debounce search input to reduce API calls
+  const debouncedSearch = useDebounce(filters.search, 500);
+
+  // Fetch unique makes from API on mount
+  useEffect(() => {
+    const fetchMakes = async () => {
+      try {
+        const response = await fetch('/api/vehicles/makes');
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          setAvailableMakes(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch makes:', error);
+      }
+    };
+    fetchMakes();
+  }, []);
+
+  // Fetch vehicles when filters change
   useEffect(() => {
     fetchVehicles();
-  }, [filters]);
+  }, [debouncedSearch, filters.make, filters.model, filters.year, filters.minPrice, filters.maxPrice, filters.maxMileage, filters.transmission, filters.fuelType, filters.bodyType, filters.sortBy]);
 
-  const fetchVehicles = async () => {
+  const fetchVehicles = useCallback(async () => {
+    setLoading(true);
     try {
       const params = new URLSearchParams({
-        ...(filters.search && { search: filters.search }),
+        ...(debouncedSearch && { search: debouncedSearch }),
         ...(filters.make && { make: filters.make }),
         ...(filters.model && { model: filters.model }),
         ...(filters.year && { year: filters.year }),
@@ -57,11 +96,18 @@ export default function InventoryPage() {
         setVehicles(data.data.data);
         setTotalVehicles(data.data.pagination?.total ?? data.data.data.length ?? 0);
         
-        // Extract unique makes and models for dropdowns
-        const makes = [...new Set(data.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
-        const models = [...new Set(data.data.data.map((v: any) => v.model).filter(Boolean))].sort() as string[];
-
-        setAvailableMakes(makes);
+        // Extract unique models for dropdown (case-insensitive)
+        const rawModels = data.data.data.map((v: any) => v.model).filter(Boolean);
+        const uniqueModelMap = new Map<string, string>();
+        rawModels.forEach((model: string) => {
+          const normalized = model.trim().toLowerCase();
+          if (!uniqueModelMap.has(normalized)) {
+            uniqueModelMap.set(normalized, model.trim());
+          }
+        });
+        const models = Array.from(uniqueModelMap.values()).sort((a, b) => 
+          a.localeCompare(b, undefined, { sensitivity: 'base' })
+        );
         setAvailableModels(models);
       }
     } catch (error) {
@@ -69,14 +115,18 @@ export default function InventoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch, filters.make, filters.model, filters.year, filters.minPrice, filters.maxPrice, filters.maxMileage, filters.transmission, filters.fuelType, filters.bodyType, filters.sortBy]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const clearFilters = () => {
+  const handleSelectChange = useCallback((name: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const clearFilters = useCallback(() => {
     setFilters({
       search: '',
       make: '',
@@ -90,9 +140,9 @@ export default function InventoryPage() {
       bodyType: '',
       sortBy: 'newest',
     });
-  };
+  }, []);
 
-  const getFilterCount = () => {
+  const getFilterCount = useMemo(() => {
     let count = 0;
     if (filters.search) count++;
     if (filters.make) count++;
@@ -104,7 +154,40 @@ export default function InventoryPage() {
     if (filters.fuelType) count++;
     if (filters.bodyType) count++;
     return count;
-  };
+  }, [filters]);
+
+  // Memoize options to prevent re-renders
+  const makeOptions = useMemo(() => 
+    availableMakes.map(make => ({ value: make, label: make })),
+    [availableMakes]
+  );
+
+  const modelOptions = useMemo(() => 
+    availableModels.map(model => ({ value: model, label: model })),
+    [availableModels]
+  );
+
+  const sortOptions = useMemo(() => [
+    { value: 'newest', label: 'Newest First' },
+    { value: 'oldest', label: 'Oldest First' },
+    { value: 'price-low', label: 'Price: Low to High' },
+    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'mileage-low', label: 'Mileage: Low to High' },
+    { value: 'mileage-high', label: 'Mileage: High to Low' },
+  ], []);
+
+  const transmissionOptions = useMemo(() => [
+    { value: 'Automatic', label: 'Automatic' },
+    { value: 'Manual', label: 'Manual' },
+    { value: 'CVT', label: 'CVT' },
+  ], []);
+
+  const fuelTypeOptions = useMemo(() => [
+    { value: 'Gasoline', label: 'Gasoline' },
+    { value: 'Diesel', label: 'Diesel' },
+    { value: 'Hybrid', label: 'Hybrid' },
+    { value: 'Electric', label: 'Electric' },
+  ], []);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -145,9 +228,9 @@ export default function InventoryPage() {
                 value={filters.search}
                 onChange={handleFilterChange}
                 placeholder="Search by make, model, year, or any keyword..."
-                className="w-full px-4 py-3 pl-12 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                className="w-full px-4 py-3 pl-12 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200"
               />
-              <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -155,66 +238,49 @@ export default function InventoryPage() {
 
           {/* Quick Filters */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            <select
-              name="make"
+            <Select
               value={filters.make}
-              onChange={handleFilterChange}
-              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
-            >
-              <option value="">All Makes</option>
-              {availableMakes.map(make => (
-                <option key={make} value={make}>{make}</option>
-              ))}
-            </select>
+              onChange={(value) => handleSelectChange('make', value)}
+              options={makeOptions}
+              placeholder="All Makes"
+            />
 
-            <select
-              name="model"
+            <Select
               value={filters.model}
-              onChange={handleFilterChange}
-              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
-            >
-              <option value="">All Models</option>
-              {availableModels.map(model => (
-                <option key={model} value={model}>{model}</option>
-              ))}
-            </select>
+              onChange={(value) => handleSelectChange('model', value)}
+              options={modelOptions}
+              placeholder="All Models"
+            />
 
-            <select
-              name="sortBy"
+            <Select
               value={filters.sortBy}
-              onChange={handleFilterChange}
-              className="px-4 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="mileage-low">Mileage: Low to High</option>
-              <option value="mileage-high">Mileage: High to Low</option>
-            </select>
+              onChange={(value) => handleSelectChange('sortBy', value)}
+              options={sortOptions}
+              placeholder="Sort By"
+            />
           </div>
 
           {/* Advanced Filters Toggle */}
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="flex items-center text-blue-400 hover:text-blue-300 transition-colors"
+              className="flex items-center text-blue-400 hover:text-blue-300 transition-colors duration-200"
             >
-              <svg className={`w-5 h-5 mr-2 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 mr-2 transition-transform duration-200 ${showAdvancedFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
               Advanced Filters
-              {getFilterCount() > 0 && (
+              {getFilterCount > 0 && (
                 <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                  {getFilterCount()}
+                  {getFilterCount}
                 </span>
               )}
             </button>
 
-            {getFilterCount() > 0 && (
+            {getFilterCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="text-gray-400 hover:text-white transition-colors text-sm"
+                className="text-gray-400 hover:text-white transition-colors duration-200 text-sm"
               >
                 Clear All Filters
               </button>
@@ -223,7 +289,7 @@ export default function InventoryPage() {
 
           {/* Advanced Filters Panel */}
           {showAdvancedFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-gray-700/30 rounded-lg border border-gray-600/30">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 animate-in fade-in slide-in-from-top-2 duration-200">
               <div>
                 <label className="block text-sm text-gray-300 mb-2">Year</label>
                 <input
@@ -234,7 +300,7 @@ export default function InventoryPage() {
                   placeholder="e.g., 2020"
                   min="1990"
                   max="2024"
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200"
                 />
               </div>
 
@@ -247,7 +313,7 @@ export default function InventoryPage() {
                   onChange={handleFilterChange}
                   placeholder="e.g., 10000"
                   min="0"
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200"
                 />
               </div>
 
@@ -260,7 +326,7 @@ export default function InventoryPage() {
                   onChange={handleFilterChange}
                   placeholder="e.g., 50000"
                   min="0"
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200"
                 />
               </div>
 
@@ -273,39 +339,28 @@ export default function InventoryPage() {
                   onChange={handleFilterChange}
                   placeholder="e.g., 100000"
                   min="0"
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
+                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200"
                 />
               </div>
 
               <div>
                 <label className="block text-sm text-gray-300 mb-2">Transmission</label>
-                <select
-                  name="transmission"
+                <Select
                   value={filters.transmission}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
-                >
-                  <option value="">Any Transmission</option>
-                  <option value="Automatic">Automatic</option>
-                  <option value="Manual">Manual</option>
-                  <option value="CVT">CVT</option>
-                </select>
+                  onChange={(value) => handleSelectChange('transmission', value)}
+                  options={transmissionOptions}
+                  placeholder="Any Transmission"
+                />
               </div>
 
               <div>
                 <label className="block text-sm text-gray-300 mb-2">Fuel Type</label>
-                <select
-                  name="fuelType"
+                <Select
                   value={filters.fuelType}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-colors"
-                >
-                  <option value="">Any Fuel Type</option>
-                  <option value="Gasoline">Gasoline</option>
-                  <option value="Diesel">Diesel</option>
-                  <option value="Hybrid">Hybrid</option>
-                  <option value="Electric">Electric</option>
-                </select>
+                  onChange={(value) => handleSelectChange('fuelType', value)}
+                  options={fuelTypeOptions}
+                  placeholder="Any Fuel Type"
+                />
               </div>
             </div>
           )}
@@ -315,9 +370,9 @@ export default function InventoryPage() {
             <span>
               {loading ? 'Loading...' : `${totalVehicles} vehicle${totalVehicles !== 1 ? 's' : ''} found`}
             </span>
-            {getFilterCount() > 0 && (
+            {getFilterCount > 0 && (
               <span className="text-blue-400">
-                {getFilterCount()} filter{getFilterCount() !== 1 ? 's' : ''} applied
+                {getFilterCount} filter{getFilterCount !== 1 ? 's' : ''} applied
               </span>
             )}
           </div>
@@ -336,7 +391,7 @@ export default function InventoryPage() {
               <Link
                 key={vehicle.id}
                 href={`/vehicles/${vehicle.seoSlug}`}
-                className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 transition-all transform hover:scale-105"
+                className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 transition-all duration-200 transform hover:scale-105"
               >
                 {vehicle.photos && vehicle.photos.length > 0 ? (
                   <div className="relative h-48 bg-gray-700">
@@ -346,10 +401,20 @@ export default function InventoryPage() {
                       fill
                       className="object-cover"
                     />
+                    {vehicle.status && (
+                      <div className={`absolute top-4 left-4 ${getStatusBadgeStyle(vehicle.status).bgColor} ${getStatusBadgeStyle(vehicle.status).textColor} px-3 py-1 rounded-full text-xs font-semibold shadow-lg`}>
+                        {getStatusBadgeStyle(vehicle.status).label}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="relative h-48 bg-gray-700 flex items-center justify-center">
                     <span className="text-gray-500 text-4xl">🚗</span>
+                    {vehicle.status && (
+                      <div className={`absolute top-4 left-4 ${getStatusBadgeStyle(vehicle.status).bgColor} ${getStatusBadgeStyle(vehicle.status).textColor} px-3 py-1 rounded-full text-xs font-semibold shadow-lg`}>
+                        {getStatusBadgeStyle(vehicle.status).label}
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="p-6">
@@ -372,4 +437,3 @@ export default function InventoryPage() {
     </div>
   );
 }
-

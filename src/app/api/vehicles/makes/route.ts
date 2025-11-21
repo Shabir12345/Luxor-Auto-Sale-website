@@ -19,11 +19,8 @@ export async function GET() {
       );
     }
 
-    // Get distinct makes efficiently
+    // Get all makes (not just available) to show in filters
     const makes = await prisma.vehicle.findMany({
-      where: {
-        status: 'AVAILABLE',
-      },
       select: {
         make: true,
       },
@@ -33,7 +30,21 @@ export async function GET() {
       },
     });
 
-    const makeList = makes.map((v) => v.make).filter(Boolean);
+    // Remove duplicates case-insensitively and normalize
+    const makeMap = new Map<string, string>();
+    makes.forEach((v) => {
+      if (v.make) {
+        const normalized = v.make.trim().toLowerCase();
+        if (!makeMap.has(normalized)) {
+          // Keep the first occurrence (which should be properly capitalized from DB)
+          makeMap.set(normalized, v.make.trim());
+        }
+      }
+    });
+
+    const makeList = Array.from(makeMap.values()).sort((a, b) => 
+      a.localeCompare(b, undefined, { sensitivity: 'base' })
+    );
 
     return NextResponse.json<ApiResponse>(
       {
