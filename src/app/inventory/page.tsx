@@ -5,7 +5,7 @@
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice, formatMileage, getStatusBadgeStyle } from '@/utils/formatters';
@@ -13,7 +13,7 @@ import { useVehicleFilters } from '@/hooks/useVehicleFilters';
 import FilterSidebar from '@/components/inventory/FilterSidebar';
 import Select from '@/components/Select';
 
-export default function InventoryPage() {
+function InventoryContent() {
   const { filters, setFilter, clearFilters, isInitialized } = useVehicleFilters();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [totalVehicles, setTotalVehicles] = useState(0);
@@ -331,5 +331,20 @@ export default function InventoryPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function InventoryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-400 text-lg">Loading inventory...</p>
+        </div>
+      </div>
+    }>
+      <InventoryContent />
+    </Suspense>
   );
 }
