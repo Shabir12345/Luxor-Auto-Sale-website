@@ -110,9 +110,25 @@ export default function HomePage() {
             0
           );
           
-          // Extract unique makes for dropdown (from filtered results)
-          const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
-          setAvailableMakes(makes);
+          // Fetch unique makes from API
+          try {
+            const makesResponse = await fetch(`/api/vehicles/makes?t=${Date.now()}`, {
+              cache: 'no-store',
+            });
+            const makesData = await makesResponse.json();
+            if (makesData.success && Array.isArray(makesData.data)) {
+              // Client-side deduplication safety net
+              const uniqueMakes = Array.from(new Set(
+                makesData.data.map((m: string) => m.trim())
+              )).sort();
+              setAvailableMakes(uniqueMakes);
+            }
+          } catch (error) {
+            console.error('Failed to fetch makes:', error);
+            // Fallback to extracting from vehicles if API fails
+            const makes = [...new Set(vehiclesData.data.data.map((v: any) => v.make).filter(Boolean))].sort() as string[];
+            setAvailableMakes(makes);
+          }
         } else {
           console.error('Vehicles API error:', vehiclesData.error);
           setVehicles([]); // Set empty array on error
