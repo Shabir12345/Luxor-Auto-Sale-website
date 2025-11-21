@@ -30,7 +30,7 @@ export default function InventoryPage() {
         if (data.success && Array.isArray(data.data)) {
           // Client-side deduplication safety net
           const uniqueMakes: string[] = Array.from(new Set(
-            data.data.map((m: string) => m.trim())
+            (data.data as string[]).map((m: string) => m.trim())
           )).sort();
           setAvailableMakes(uniqueMakes);
         }

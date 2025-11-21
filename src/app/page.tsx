@@ -119,7 +119,7 @@ export default function HomePage() {
             if (makesData.success && Array.isArray(makesData.data)) {
               // Client-side deduplication safety net
               const uniqueMakes: string[] = Array.from(new Set(
-                makesData.data.map((m: string) => m.trim())
+                (makesData.data as string[]).map((m: string) => m.trim())
               )).sort();
               setAvailableMakes(uniqueMakes);
             }
