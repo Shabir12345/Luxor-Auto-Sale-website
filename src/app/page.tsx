@@ -363,8 +363,8 @@ export default function HomePage() {
       });
     }, observerOptions);
 
-    // Observe all reveal elements
-    const revealElements = document.querySelectorAll('.reveal');
+    // Observe all reveal elements and section-fade-in elements
+    const revealElements = document.querySelectorAll('.reveal, .section-fade-in');
     revealElements.forEach(el => observer.observe(el));
 
     return () => observer.disconnect();
@@ -640,8 +640,13 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Section Divider */}
+        <div className="section-divider"></div>
+
         {/* Featured Inventory Section */}
-        <section id="featured-inventory" className="py-20 bg-gradient-to-br from-gray-800 via-gray-900 to-black relative overflow-hidden section-blend">
+        <section id="featured-inventory" className="py-20 relative overflow-hidden section-gradient-flow section-accent-blue section-fade-in" style={{
+          background: 'linear-gradient(to bottom, #1f2937 0%, #111827 50%, #0f172a 100%)'
+        }}>
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -649,12 +654,14 @@ export default function HomePage() {
             }}></div>
           </div>
           
-          <div className="container mx-auto px-6 text-center reveal relative z-10">
+          <div className="container mx-auto px-6 text-center reveal section-content">
             <div className="mb-8">
-              <span className="inline-block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                ⭐ Featured Selection
-              </span>
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              <div className="mb-4">
+                <span className="block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold w-fit mx-auto">
+                  ⭐ Featured Selection
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent section-header-glow">
                 Featured Vehicles
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -694,13 +701,13 @@ export default function HomePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-7xl mx-auto">
                 {featuredVehicles.slice(0, 3).map((vehicle: any, index: number) => (
                   <div key={vehicle.id} className="group car-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 hover:shadow-blue-500/20 transition-all duration-500 h-full flex flex-col border border-gray-700 hover:border-blue-500/50">
-                    <div className="relative overflow-hidden">
+                    <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-gray-700 to-gray-800">
                       <Image 
                         src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
                         alt={vehicle.title || 'Vehicle image'} 
-                        width={800}
-                        height={400}
-                        className="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -752,7 +759,9 @@ export default function HomePage() {
         </section>
 
         {/* About Section Teaser */}
-        <section className="py-20 bg-gray-900 section-blend relative overflow-hidden">
+        <section className="py-20 section-gradient-flow relative overflow-hidden section-accent-purple section-fade-in" style={{
+          background: 'linear-gradient(to bottom, #0f172a 0%, #111827 50%, #1f2937 100%)'
+        }}>
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -760,15 +769,20 @@ export default function HomePage() {
             }}></div>
           </div>
 
-          <div className="container mx-auto px-6 relative z-10">
+          <div className="container mx-auto px-6 section-content">
 
           </div>
         </section>
 
+        {/* Section Divider */}
+        <div className="section-divider"></div>
+
         {/* Testimonials Section */}
-        <section className="py-20 bg-gray-800 section-blend">
-          <div className="container mx-auto px-6 text-center reveal">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Here's What Our Neighbours are Saying</h2>
+        <section className="py-20 section-gradient-flow relative overflow-hidden section-accent-amber section-fade-in section-light-effect" style={{
+          background: 'linear-gradient(to bottom, #1f2937 0%, #111827 50%, #0f172a 100%)'
+        }}>
+          <div className="container mx-auto px-6 text-center reveal section-content">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 section-header-glow">Here's What Our Neighbours are Saying</h2>
             
             {/* Google Reviews Header */}
             <div className="mb-8">
@@ -896,20 +910,27 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Section Divider */}
+        <div className="section-divider"></div>
+
         {/* Full Inventory Section */}
-        <section id="inventory" className="py-20 bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
+        <section id="inventory" className="py-20 section-gradient-flow relative overflow-hidden section-accent-blue section-fade-in" style={{
+          background: 'linear-gradient(to bottom, #0f172a 0%, #000000 50%, #111827 100%)'
+        }}>
           {/* Background Elements */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-10 w-72 h-72 bg-red-500 rounded-full blur-3xl"></div>
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
           </div>
           
-          <div className="container mx-auto px-6 reveal relative z-10">
+          <div className="container mx-auto px-6 reveal section-content">
             <div className="text-center mb-16">
-              <span className="inline-block btn-modern px-6 py-3 rounded-full text-sm font-semibold mb-6">
-                🚗 Complete Inventory
-              </span>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              <div className="mb-6">
+                <span className="block btn-modern px-6 py-3 rounded-full text-sm font-semibold w-fit mx-auto">
+                  🚗 Complete Inventory
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent section-header-glow">
                 Our Vehicle Collection
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -1151,13 +1172,13 @@ export default function HomePage() {
                       className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl overflow-hidden shadow-2xl transform hover:-translate-y-4 hover:shadow-blue-500/20 transition-all duration-500 border border-gray-700 hover:border-blue-500/50 animate-fadeInUp"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="relative overflow-hidden">
+                      <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-gray-700 to-gray-800">
                         <Image 
                           src={vehicle.photos?.[0]?.url || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800'} 
                           alt={vehicle.title || 'Vehicle image'} 
-                          width={800}
-                          height={400}
-                          className="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           loading="lazy"
                           unoptimized={false}
                         />
@@ -1231,8 +1252,13 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Section Divider */}
+        <div className="section-divider"></div>
+
         {/* Financing Section */}
-        <section id="financing" className="py-20 bg-gray-800 relative overflow-hidden">
+        <section id="financing" className="py-20 section-gradient-flow relative overflow-hidden section-accent-green section-fade-in" style={{
+          background: 'linear-gradient(to bottom, #111827 0%, #1f2937 50%, #111827 100%)'
+        }}>
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -1240,11 +1266,13 @@ export default function HomePage() {
             }}></div>
           </div>
 
-          <div className="container mx-auto px-6 text-center reveal relative z-10">
-            <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              💰 Flexible Financing Options
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+          <div className="container mx-auto px-6 text-center reveal section-content">
+            <div className="mb-4">
+              <span className="block bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold w-fit mx-auto">
+                💰 Flexible Financing Options
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent section-header-glow">
               Financing Shouldn't Be a Roadblock
             </h2>
             <p className="text-xl text-gray-300 mb-4 max-w-3xl mx-auto leading-relaxed">
@@ -1326,11 +1354,16 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Section Divider */}
+        <div className="section-divider"></div>
+
         {/* Sell/Trade Section */}
-        <section id="sell-trade" className="py-20 bg-gray-900">
-          <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center reveal">
+        <section id="sell-trade" className="py-20 section-gradient-flow relative overflow-hidden section-accent-blue section-fade-in" style={{
+          background: 'linear-gradient(to bottom, #111827 0%, #0f172a 50%, #1f2937 100%)'
+        }}>
+          <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center reveal section-content">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Get a Real Offer for Your Car. Not Just an Estimate.</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 section-header-glow">Get a Real Offer for Your Car. Not Just an Estimate.</h2>
               <p className="text-gray-300 mb-6 font-serif-georgia leading-relaxed">
                 Tired of lowball offers and time-wasters? We provide fair, transparent valuations for your vehicle. We buy all makes and models, even if you don't buy from us. Find out what your car is really worth today.
               </p>
@@ -1398,8 +1431,13 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Section Divider */}
+        <div className="section-divider"></div>
+
         {/* About Section */}
-        <section id="about" className="py-24 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 relative overflow-hidden">
+        <section id="about" className="py-24 section-gradient-flow relative overflow-hidden section-accent-green section-fade-in section-light-effect" style={{
+          background: 'linear-gradient(to bottom, #1f2937 0%, #111827 50%, #1f2937 100%)'
+        }}>
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -1407,13 +1445,15 @@ export default function HomePage() {
             }} />
             </div>
           
-          <div className="container mx-auto px-6 relative z-10">
+          <div className="container mx-auto px-6 section-content">
             {/* Header */}
             <div className="text-center mb-16 reveal">
-              <span className="inline-block bg-gradient-to-r from-blue-600 to-green-600 text-white px-6 py-3 rounded-full text-sm font-semibold mb-6">
-                🏠 Family-Owned & Operated Since Day One
-              </span>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
+              <div className="mb-6">
+                <span className="block bg-gradient-to-r from-blue-600 to-green-600 text-white px-6 py-3 rounded-full text-sm font-semibold w-fit mx-auto">
+                  🏠 Family-Owned & Operated Since Day One
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent section-header-glow">
                 About Luxor Auto Sale
               </h2>
               <p className="max-w-3xl mx-auto text-xl text-gray-300 leading-relaxed">
@@ -1590,8 +1630,13 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Section Divider */}
+        <div className="section-divider"></div>
+
         {/* Contact Section */}
-        <section id="contact" className="py-24 bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
+        <section id="contact" className="py-24 section-gradient-flow relative overflow-hidden section-accent-purple section-fade-in" style={{
+          background: 'linear-gradient(to bottom, #1f2937 0%, #111827 50%, #000000 100%)'
+        }}>
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -1599,7 +1644,7 @@ export default function HomePage() {
             }} />
           </div>
           
-          <div className="container mx-auto px-6 relative z-10">
+          <div className="container mx-auto px-6 section-content">
             {/* Header */}
             <div className="text-center mb-16 reveal">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 rounded-full mb-6">
@@ -1607,7 +1652,7 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent section-header-glow">
                 Get In Touch
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">

@@ -9,6 +9,7 @@ interface FilterSidebarProps {
   availableMakes: string[];
   availableModels: string[];
   className?: string;
+  hideHeader?: boolean;
 }
 
 export default function FilterSidebar({
@@ -18,6 +19,7 @@ export default function FilterSidebar({
   availableMakes,
   availableModels,
   className = '',
+  hideHeader = false,
 }: FilterSidebarProps) {
   
   const transmissionOptions = [
@@ -47,9 +49,10 @@ export default function FilterSidebar({
   const activeFilterCount = Object.values(filters).filter(v => v && v !== 'newest').length;
 
   return (
-    <div className={`bg-gradient-to-br from-gray-800/95 to-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-700/60 p-6 shadow-2xl ${className} transition-all duration-300 hover:shadow-blue-500/10`}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 pb-5 border-b border-gray-700/60">
+    <div className={`${hideHeader ? 'bg-transparent' : 'bg-gradient-to-br from-gray-800/95 to-gray-800/80 backdrop-blur-xl'} rounded-xl lg:rounded-2xl ${hideHeader ? '' : 'border border-gray-700/60'} ${hideHeader ? 'p-0' : 'p-4 lg:p-6'} ${hideHeader ? '' : 'shadow-2xl'} ${className} transition-all duration-300 ${hideHeader ? '' : 'hover:shadow-blue-500/10'}`}>
+      {/* Header - Hidden on mobile drawer */}
+      {!hideHeader && (
+        <div className="hidden lg:flex items-center justify-between mb-6 lg:mb-8 pb-4 lg:pb-5 border-b border-gray-700/60">
         <h2 className="text-2xl font-bold text-white flex items-center gap-3">
           <div className="p-2 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg border border-blue-500/30">
             <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,9 +77,10 @@ export default function FilterSidebar({
             Reset
           </button>
         )}
-      </div>
+        </div>
+      )}
 
-      <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar pr-2">
+      <div className="space-y-5 lg:space-y-6 max-h-none lg:max-h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar pr-1 lg:pr-2">
         {/* Search */}
         <div className="group">
           <label className="block text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider text-xs flex items-center gap-2">
