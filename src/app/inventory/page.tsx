@@ -29,7 +29,7 @@ export default function InventoryPage() {
         const data = await response.json();
         if (data.success && Array.isArray(data.data)) {
           // Client-side deduplication safety net
-          const uniqueMakes = Array.from(new Set(
+          const uniqueMakes: string[] = Array.from(new Set(
             data.data.map((m: string) => m.trim())
           )).sort();
           setAvailableMakes(uniqueMakes);

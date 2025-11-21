@@ -118,7 +118,7 @@ export default function HomePage() {
             const makesData = await makesResponse.json();
             if (makesData.success && Array.isArray(makesData.data)) {
               // Client-side deduplication safety net
-              const uniqueMakes = Array.from(new Set(
+              const uniqueMakes: string[] = Array.from(new Set(
                 makesData.data.map((m: string) => m.trim())
               )).sort();
               setAvailableMakes(uniqueMakes);
