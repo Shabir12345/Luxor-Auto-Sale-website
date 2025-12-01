@@ -120,18 +120,43 @@ function InventoryContent() {
   }, [fetchVehicles]);
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
+      {/* Critical CSS for logo sizing - ensures immediate application */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .inventory-logo-fix {
+          max-height: 146px !important;
+          width: auto !important;
+          object-fit: contain !important;
+          background: transparent !important;
+        }
+        @media (max-width: 640px) {
+          .inventory-logo-fix {
+            max-height: 180px !important;
+          }
+        }
+        @media (min-width: 641px) and (max-width: 1024px) {
+          .inventory-logo-fix {
+            max-height: 122px !important;
+          }
+        }
+        @media (min-width: 1025px) {
+          .inventory-logo-fix {
+            max-height: 146px !important;
+          }
+        }
+      `}} />
+      <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <header className="bg-gray-800/95 backdrop-blur-md border-b border-gray-700/50 sticky top-0 z-40 shadow-xl transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20 lg:h-[104px]">
+          <div className="flex justify-between items-center nav-mobile">
             <Link href="/" className="flex items-center group">
               <Image 
                 src="/Logo.png" 
                 alt="Luxor Auto Sale Logo" 
                 width={150}
                 height={60}
-                className="h-12 lg:h-14 w-auto transition-all duration-300 group-hover:scale-105"
+                className="logo inventory-logo-fix transition-all duration-300 group-hover:scale-105"
                 priority
               />
             </Link>
@@ -348,13 +373,13 @@ function InventoryContent() {
                     className="group bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl lg:rounded-2xl overflow-hidden border border-gray-700/50 hover:border-blue-500/70 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 flex flex-col transform hover:-translate-y-1 lg:hover:-translate-y-2"
                   >
                     {/* Image Container */}
-                    <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-700 to-gray-800 overflow-hidden">
+                    <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-700 to-gray-800 overflow-hidden">
                       {vehicle.photos && vehicle.photos.length > 0 ? (
                         <Image
                           src={vehicle.photos[0].url}
                           alt={vehicle.photos[0].altText || vehicle.title}
                           fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                          className="object-contain object-center transition-transform duration-700 ease-out"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       ) : (
@@ -448,7 +473,8 @@ function InventoryContent() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 }
 

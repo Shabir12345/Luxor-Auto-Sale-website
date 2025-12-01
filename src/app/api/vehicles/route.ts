@@ -170,6 +170,10 @@ export async function GET(request: NextRequest) {
         odometerKm: true,
         exteriorColor: true,
         interiorColor: true,
+        bodyType: true,
+        drivetrain: true,
+        fuelType: true,
+        transmission: true,
         status: true,
         createdAt: true,
         photos: {

@@ -2031,31 +2031,6 @@ export default function HomePage() {
           });
         `}
       </Script>
-
-      {/* Swiper Carousel */}
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-      <Script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" strategy="afterInteractive" />
-      <Script id="swiper-init" strategy="afterInteractive">
-        {`
-          window.addEventListener('load', function() {
-            if (typeof Swiper !== 'undefined') {
-              new Swiper('.testimonial-carousel', {
-                slidesPerView: 1,
-                spaceBetween: 30,
-                loop: true,
-                autoplay: {
-                  delay: 5000,
-                  disableOnInteraction: false,
-                },
-                breakpoints: {
-                  768: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3 },
-                },
-              });
-            }
-          });
-        `}
-      </Script>
     </>
   );
 }
