@@ -1795,8 +1795,8 @@ export default function HomePage() {
                         </div>
                         <div>
                           <h4 className="font-semibold text-white mb-1">Call Us Directly</h4>
-                          <a href="tel:416-523-5375" className="text-green-400 hover:text-green-300 transition-colors duration-300 text-lg font-medium">
-                            416-523-5375
+                          <a href="tel:+14165235375" className="text-green-400 hover:text-green-300 transition-colors duration-300 text-lg font-medium">
+                            (416) 523-5375
                           </a>
                         </div>
                       </div>
@@ -1899,7 +1899,7 @@ export default function HomePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </div>
-                  <a href="tel:416-523-5375" className="hover:text-green-400 transition-colors">416-523-5375</a>
+                  <a href="tel:+14165235375" className="hover:text-green-400 transition-colors">(416) 523-5375</a>
                 </div>
                 <div className="flex items-center text-gray-300">
                   <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center mr-3">
