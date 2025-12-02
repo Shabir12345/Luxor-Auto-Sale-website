@@ -567,7 +567,7 @@ export default function HomePage() {
                 </li>
                 <li className="flex items-center">
                   <span className="text-red-500 w-6 text-center mr-4">📞</span>
-                  <a href="tel:416-523-5375" className="hover:text-red-500">416-523-5375</a>
+                  <a href="tel:+14165235375" className="hover:text-red-500">(416) 523-5375</a>
                 </li>
                 <li className="flex items-center">
                   <span className="text-red-500 w-6 text-center mr-4">✉️</span>
