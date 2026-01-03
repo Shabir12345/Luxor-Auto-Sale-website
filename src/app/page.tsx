@@ -46,6 +46,7 @@ export default function HomePage() {
   const [googleReviews, setGoogleReviews] = useState<any>(null);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
+  const [availableVehicles, setAvailableVehicles] = useState<Array<{id: string; title: string; seoSlug: string; year: number; make: string; model: string}>>([]);
 
   // Fetch all available years from inventory (once on mount)
   useEffect(() => {
@@ -70,6 +71,87 @@ export default function HomePage() {
       }
     }
     fetchAvailableYears();
+  }, []); // Only run once on mount
+
+  // Fetch available vehicles for contact form dropdown (once on mount)
+  useEffect(() => {
+    async function fetchAvailableVehicles() {
+      try {
+        // Fetch all available vehicles - use a high perPage limit and fetch multiple pages if needed
+        let allVehicles: any[] = [];
+        let page = 1;
+        let hasMore = true;
+        const perPage = 100;
+        
+        while (hasMore) {
+          const response = await fetch(`/api/vehicles?status=AVAILABLE&perPage=${perPage}&page=${page}&sortBy=newest`);
+          const data = await response.json();
+          
+          if (data.success && data.data?.data && data.data.data.length > 0) {
+            allVehicles = [...allVehicles, ...data.data.data];
+            
+            // Check if there are more pages
+            const totalPages = data.data.pagination?.totalPages || 1;
+            if (page >= totalPages || data.data.data.length < perPage) {
+              hasMore = false;
+            } else {
+              page++;
+            }
+          } else {
+            hasMore = false;
+          }
+        }
+        
+        if (allVehicles.length > 0) {
+          // Map vehicles with full details and sort them properly
+          const vehicleList = allVehicles
+            .filter((v: any) => v.status === 'AVAILABLE')
+            .map((v: any) => ({
+              id: v.id,
+              year: v.year || 0,
+              make: v.make || '',
+              model: v.model || '',
+              title: v.title || `${v.year} ${v.make} ${v.model}`,
+              seoSlug: v.seoSlug,
+            }))
+            // Sort by year (newest first), then make, then model
+            .sort((a, b) => {
+              if (b.year !== a.year) return b.year - a.year; // Newest year first
+              if (a.make !== b.make) return a.make.localeCompare(b.make); // Alphabetical by make
+              return a.model.localeCompare(b.model); // Alphabetical by model
+            });
+          
+          setAvailableVehicles(vehicleList);
+          console.log('Available vehicles loaded for contact form:', vehicleList.length);
+        } else {
+          console.warn('No available vehicles found');
+          // Try fetching without status filter as fallback
+          const fallbackResponse = await fetch('/api/vehicles?perPage=100&sortBy=newest');
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackData.success && fallbackData.data?.data) {
+            const vehicleList = fallbackData.data.data
+              .map((v: any) => ({
+                id: v.id,
+                year: v.year || 0,
+                make: v.make || '',
+                model: v.model || '',
+                title: v.title || `${v.year} ${v.make} ${v.model}`,
+                seoSlug: v.seoSlug,
+              }))
+              .sort((a, b) => {
+                if (b.year !== a.year) return b.year - a.year;
+                if (a.make !== b.make) return a.make.localeCompare(b.make);
+                return a.model.localeCompare(b.model);
+              });
+            setAvailableVehicles(vehicleList);
+            console.log('Loaded all vehicles as fallback:', vehicleList.length);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch available vehicles:', error);
+      }
+    }
+    fetchAvailableVehicles();
   }, []); // Only run once on mount
 
   // Fetch vehicles from API
@@ -380,6 +462,8 @@ export default function HomePage() {
       // Get phone value and convert to undefined if empty
       const phoneValue = formData.get('phone')?.toString().trim();
       
+      const vehicleInterestValue = formData.get('vehicleInterest')?.toString().trim();
+      
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -388,6 +472,7 @@ export default function HomePage() {
           email: formData.get('email'),
           phone: phoneValue || undefined,
           message: formData.get('message'),
+          vehicleInterest: vehicleInterestValue || undefined,
         }),
       });
 
@@ -1707,8 +1792,53 @@ export default function HomePage() {
                     name="phone"
                     autoComplete="tel"
                         placeholder="Enter your phone number"
-                        className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-五百 placeholder-gray-400"
+                        className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
                   />
+                    </div>
+                    
+                    <div className="group">
+                      <label htmlFor="contact-vehicle" className="block text-sm font-medium text-gray-300 mb-2">Vehicle of Interest (Optional)</label>
+                      <select
+                        id="contact-vehicle"
+                        name="vehicleInterest"
+                        className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      >
+                        <option value="">Select a vehicle (optional)</option>
+                        {(() => {
+                          // Group vehicles by make
+                          const groupedByMake = availableVehicles.reduce((acc, vehicle) => {
+                            const make = vehicle.make || 'Other';
+                            if (!acc[make]) {
+                              acc[make] = [];
+                            }
+                            acc[make].push(vehicle);
+                            return acc;
+                          }, {} as Record<string, typeof availableVehicles>);
+                          
+                          // Sort makes alphabetically
+                          const sortedMakes = Object.keys(groupedByMake).sort();
+                          
+                          return sortedMakes.map((make) => (
+                            <optgroup key={make} label={make}>
+                              {groupedByMake[make]
+                                .sort((a, b) => {
+                                  // Sort by year (newest first) within each make
+                                  if (b.year !== a.year) return b.year - a.year;
+                                  return a.model.localeCompare(b.model);
+                                })
+                                .map((vehicle) => {
+                                  // Format: "2024 Toyota Camry" or use title if available
+                                  const displayText = vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+                                  return (
+                                    <option key={vehicle.id} value={displayText}>
+                                      {displayText}
+                                    </option>
+                                  );
+                                })}
+                            </optgroup>
+                          ));
+                        })()}
+                      </select>
                     </div>
                     
                     <div className="group">

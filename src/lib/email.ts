@@ -21,7 +21,7 @@ const createTransporter = () => {
 
 // Email templates
 export const emailTemplates = {
-  contactForm: (data: { name: string; email: string; phone?: string; message: string }) => ({
+  contactForm: (data: { name: string; email: string; phone?: string; message: string; vehicleInterest?: string }) => ({
     subject: `New Contact Form Submission from ${data.name}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -31,6 +31,7 @@ export const emailTemplates = {
           <p><strong>Name:</strong> ${data.name}</p>
           <p><strong>Email:</strong> ${data.email}</p>
           <p><strong>Phone:</strong> ${data.phone || 'Not provided'}</p>
+          ${data.vehicleInterest ? `<p><strong>Vehicle of Interest:</strong> ${data.vehicleInterest}</p>` : ''}
           <p><strong>Message:</strong></p>
           <div style="background: white; padding: 15px; border-left: 4px solid #2563eb; margin: 10px 0;">
             ${data.message.replace(/\n/g, '<br>')}
@@ -134,7 +135,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
 }
 
 // Send notification emails for form submissions
-export async function sendContactFormNotification(data: { name: string; email: string; phone?: string; message: string }): Promise<boolean> {
+export async function sendContactFormNotification(data: { name: string; email: string; phone?: string; message: string; vehicleInterest?: string }): Promise<boolean> {
   const template = emailTemplates.contactForm(data);
   // Send to your personal email for now
   return await sendEmail(process.env.EMAIL_USER || '', template.subject, template.html);

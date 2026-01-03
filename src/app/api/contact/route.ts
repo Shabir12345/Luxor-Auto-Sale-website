@@ -13,6 +13,7 @@ const contactSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
   message: z.string().min(10, 'Message must be at least 10 characters'),
+  vehicleInterest: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -34,8 +35,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, phone, message } = validation.data;
-    console.log('Validated data:', { name, email, phone, message });
+    const { name, email, phone, message, vehicleInterest } = validation.data;
+    console.log('Validated data:', { name, email, phone, message, vehicleInterest });
 
     // Store in database
     console.log('Attempting to save to database...');
@@ -43,8 +44,9 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         email,
-        phone,
+        phone: phone || null,
         message,
+        vehicleInterest: vehicleInterest && vehicleInterest.trim() ? vehicleInterest.trim() : null,
       },
     });
 
@@ -54,12 +56,13 @@ export async function POST(request: NextRequest) {
       email,
       phone,
       message,
+      vehicleInterest: submission.vehicleInterest,
       timestamp: new Date().toISOString(),
     });
 
     // Send email notification to owner
     try {
-      await sendContactFormNotification({ name, email, phone, message });
+      await sendContactFormNotification({ name, email, phone, message, vehicleInterest });
       console.log('Contact form email notification sent');
     } catch (error) {
       console.error('Failed to send contact form email:', error);
@@ -78,11 +81,23 @@ export async function POST(request: NextRequest) {
     console.error('Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined,
     });
+    
+    // Provide more specific error message
+    let errorMessage = 'Failed to process your request. Please try again.';
+    if (error instanceof Error) {
+      if (error.message.includes('Unknown arg') || error.message.includes('vehicleInterest')) {
+        errorMessage = 'Database schema mismatch. Please regenerate Prisma client: npm run db:generate';
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to process your request. Please try again.',
+        error: errorMessage,
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

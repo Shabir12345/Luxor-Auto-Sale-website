@@ -9,6 +9,7 @@ interface ContactSubmission {
   email: string;
   phone?: string;
   message: string;
+  vehicleInterest?: string;
   status: string;
   createdAt: string;
 }
@@ -191,6 +192,11 @@ export default function SubmissionsPage() {
                           <p className="text-gray-300 text-sm mb-2">{submission.email}</p>
                           {submission.phone && (
                             <p className="text-gray-300 text-sm mb-2">{submission.phone}</p>
+                          )}
+                          {submission.vehicleInterest && (
+                            <p className="text-gray-300 text-sm mb-2">
+                              <strong>Vehicle of Interest:</strong> {submission.vehicleInterest}
+                            </p>
                           )}
                           <p className="text-gray-300 text-sm mb-3">{submission.message}</p>
                           <p className="text-gray-400 text-xs">
