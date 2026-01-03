@@ -115,7 +115,7 @@ export default function HomePage() {
               seoSlug: v.seoSlug,
             }))
             // Sort by year (newest first), then make, then model
-            .sort((a, b) => {
+            .sort((a: { year: number; make: string; model: string }, b: { year: number; make: string; model: string }) => {
               if (b.year !== a.year) return b.year - a.year; // Newest year first
               if (a.make !== b.make) return a.make.localeCompare(b.make); // Alphabetical by make
               return a.model.localeCompare(b.model); // Alphabetical by model
@@ -138,7 +138,7 @@ export default function HomePage() {
                 title: v.title || `${v.year} ${v.make} ${v.model}`,
                 seoSlug: v.seoSlug,
               }))
-              .sort((a, b) => {
+              .sort((a: { year: number; make: string; model: string }, b: { year: number; make: string; model: string }) => {
                 if (b.year !== a.year) return b.year - a.year;
                 if (a.make !== b.make) return a.make.localeCompare(b.make);
                 return a.model.localeCompare(b.model);
@@ -1821,7 +1821,7 @@ export default function HomePage() {
                           return sortedMakes.map((make) => (
                             <optgroup key={make} label={make}>
                               {groupedByMake[make]
-                                .sort((a, b) => {
+                                .sort((a: { year: number; model: string }, b: { year: number; model: string }) => {
                                   // Sort by year (newest first) within each make
                                   if (b.year !== a.year) return b.year - a.year;
                                   return a.model.localeCompare(b.model);
