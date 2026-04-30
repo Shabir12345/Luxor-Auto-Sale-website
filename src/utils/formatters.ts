@@ -90,7 +90,7 @@ export function getStatusBadgeStyle(status: string): { bgColor: string; textColo
       label: 'Pending',
     },
     SOLD: {
-      bgColor: 'bg-gray-600',
+      bgColor: 'bg-red-600',
       textColor: 'text-white',
       label: 'Sold',
     },

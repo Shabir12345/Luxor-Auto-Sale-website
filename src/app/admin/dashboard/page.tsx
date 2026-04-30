@@ -177,13 +177,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
+          <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium">Sold</p>
+                <p className="text-red-100 text-sm font-medium">Sold</p>
                 <p className="text-3xl font-bold">{stats.soldVehicles}</p>
               </div>
-              <div className="bg-purple-500/20 p-3 rounded-lg">
+              <div className="bg-red-500/20 p-3 rounded-lg">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -259,7 +259,7 @@ export default function DashboardPage() {
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         vehicle.status === 'AVAILABLE' ? 'bg-green-500/20 text-green-400' :
                         vehicle.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400' :
-                        vehicle.status === 'SOLD' ? 'bg-purple-500/20 text-purple-400' :
+                        vehicle.status === 'SOLD' ? 'bg-red-500/20 text-red-400' :
                         'bg-gray-500/20 text-gray-400'
                       }`}>
                         {vehicle.status}

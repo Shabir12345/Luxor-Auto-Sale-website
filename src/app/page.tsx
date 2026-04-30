@@ -575,7 +575,7 @@ export default function HomePage() {
         label: 'Pending',
       },
       SOLD: {
-        bgColor: 'bg-gray-600',
+        bgColor: 'bg-red-600',
         textColor: 'text-white',
         label: 'Sold',
       },

@@ -129,7 +129,7 @@ export default function VehiclesListPage() {
       case 'PENDING':
         return 'bg-yellow-500';
       case 'SOLD':
-        return 'bg-blue-500';
+        return 'bg-red-500';
       case 'DRAFT':
         return 'bg-gray-500';
       default:
